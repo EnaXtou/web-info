@@ -1,0 +1,2 @@
+serviceClass: cz.plsi.webInfo.client.GreetingService
+path: 6769B11D086FB3C266024E8AB911E181.gwt.rpc
