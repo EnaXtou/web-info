@@ -49,7 +49,7 @@ public class StageTest {
 		EMF.add(stage);
 		assertEquals(3, stage.count());
 		
-		List<? extends EntityCommon> allEntities = stage.getAll();
+		List<? extends EntityCommon> allEntities = stage.getList();
 		for (EntityCommon entityForPrint : allEntities) {
 			System.out.println(entityForPrint);
 		}

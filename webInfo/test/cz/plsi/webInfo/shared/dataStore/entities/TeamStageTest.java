@@ -49,7 +49,7 @@ public class TeamStageTest {
 		EMF.add(teamStage);
 		assertEquals(3, teamStage.count());
 		
-		List<? extends EntityCommon> allTeamsAndStages = teamStage.getAll();
+		List<? extends EntityCommon> allTeamsAndStages = teamStage.getList();
 		for (EntityCommon teamStageForPrint : allTeamsAndStages) {
 			System.out.println(teamStageForPrint);
 			

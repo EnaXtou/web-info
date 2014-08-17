@@ -61,11 +61,55 @@ public class TeamStageHelpTest {
 		EMF.add(teamStageHelp);
 		assertEquals(3, teamStageHelp.count());
 		
-		List<? extends EntityCommon> allEntities = teamStageHelp.getAll();
+		List<? extends EntityCommon> allEntities = teamStageHelp.getList();
 		for (EntityCommon entityForPrint : allEntities) {
 			System.out.println(entityForPrint);
 			
 		}
+	}
+	
+	@Test
+	public void getListTest() {
+//		assertEquals(0,(new TeamStageHelp().count()));
+		TeamStage teamStage = new TeamStage("team1", "stage1");
+		EMF.add(teamStage);
+		
+		teamStage = new TeamStage("team2", "stage2");
+		EMF.add(teamStage);
+		
+		teamStage = TeamStage.getTeamStage("team2", "stage2");
+		
+		TeamStageHelp teamStageHelp = new TeamStageHelp(teamStage, "help");
+		EMF.add(teamStageHelp);
+		
+		assertEquals(1, teamStageHelp.count());
+		
+		teamStageHelp = new TeamStageHelp(teamStage, "help2");
+		EMF.add(teamStageHelp);
+		
+		assertEquals(2, teamStageHelp.count());
+		
+		teamStage = TeamStage.getTeamStage("team1", "stage1");
+		teamStageHelp = new TeamStageHelp(teamStage, "help");
+		EMF.add(teamStageHelp);
+		
+		teamStageHelp = new TeamStageHelp();
+		assertEquals(3, teamStageHelp.getList().size());
+
+		teamStageHelp.setTeamName("team1");
+		assertEquals(1, teamStageHelp.getList().size());
+		
+		teamStageHelp.setTeamName("team2");
+		assertEquals(2, teamStageHelp.getList().size());
+		
+		teamStageHelp.setTeamName("team2");
+		teamStageHelp.setHelp("help2");
+		assertEquals(1, teamStageHelp.getList().size());
+		
+		teamStageHelp.setHelp("help10");
+		teamStageHelp.setTeamName("team2");
+		assertEquals(0, teamStageHelp.getList().size());
+		
 	}
 	
 

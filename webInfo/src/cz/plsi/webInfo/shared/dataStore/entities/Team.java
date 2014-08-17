@@ -7,6 +7,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import cz.plsi.webInfo.shared.dataStore.EMF;
 
@@ -20,6 +25,10 @@ public class Team implements EntityCommon {
 	
 	public Team(String name) {
 		this.setName(name);
+	}
+
+	public Team() {
+		super();
 	}
 
 	public String getName() {
@@ -36,7 +45,7 @@ public class Team implements EntityCommon {
 	}
 
 	public String getCode() {
-		throw new RuntimeException("Not implemented yet.");
+		return this.code;
 	}
 
 	@Override
@@ -59,17 +68,39 @@ public class Team implements EntityCommon {
 	}
 
 	@Override
-	public List<Team> getAll() {
+	public List<Team> getList() {
 		EntityManager em = EMF.getInstance().createEntityManager();
-		TypedQuery<Team> query = em.createQuery(
-			      "SELECT t FROM "+ this.getClass().getName() +" t", Team.class);
-		return query.getResultList();
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<Team> cq =  criteriaBuilder.createQuery(Team.class);
+		Root<Team> team = cq.from(Team.class);
+		if (this.getCode() != null) {
+			cq.where(criteriaBuilder.equal(team.get("code"), this.getCode()));
+		}
+		if (this.getName() != null) {
+			cq.where(criteriaBuilder.equal(team.get("name"), this.getName()));
+		}
+		cq.select(team);
+		
+		return em.createQuery(cq).getResultList();
 	}
 	
 	@Override
 	public String toString() {
 		return "Team [name=" + name + ", code=" + code + "]";
 	}
+	
+
+	@Override
+	public boolean equals(Object anObject) {
+		return EqualsBuilder.reflectionEquals(this, anObject);
+	}
+
+	public void setCode(String teamCode) {
+		this.code = teamCode;
+	}
+
+	
+	
 
 
 }

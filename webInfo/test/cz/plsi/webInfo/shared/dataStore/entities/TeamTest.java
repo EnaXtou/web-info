@@ -35,8 +35,33 @@ public class TeamTest {
 	public void AddAndCountTest() {
 		EntityCommon team = new Team("team1");
 		EMF.add(team);
+		assertEquals(1, team.count());
 		
 		team = new Team("team2");
+		EMF.add(team);
+		assertEquals(2, team.count());
+		
+		team = new Team("team2");
+		EMF.add(team);
+		assertEquals(2, team.count());
+		
+		team = new Team("team3");
+		EMF.add(team);
+		assertEquals(3, team.count());
+		
+		team = new Team("team1");
+		EMF.add(team);
+		assertEquals(3, team.count());
+		
+		List<? extends EntityCommon> allTeamsAndStages = (new Team()).getList();
+		for (EntityCommon teamStageForPrint : allTeamsAndStages) {
+			System.out.println(teamStageForPrint);
+		}
+	}
+	
+	@Test
+	public void TestGetList() {
+		EntityCommon team = new Team("team1");
 		EMF.add(team);
 		
 		team = new Team("team2");
@@ -45,14 +70,22 @@ public class TeamTest {
 		team = new Team("team3");
 		EMF.add(team);
 		
-		team = new Team("team1");
+		team = new Team("team4");
 		EMF.add(team);
-		assertEquals(3, team.count());
 		
-		List<? extends EntityCommon> allTeamsAndStages = team.getAll();
-		for (EntityCommon teamStageForPrint : allTeamsAndStages) {
-			System.out.println(teamStageForPrint);
-		}
+		team = new Team("tym1");
+		EMF.add(team);
+		
+		//pouze poslední tým
+		assertEquals(1, (new Team("tym1")).getList().size());
+		assertTrue((new Team("tym1")).getList().get(0).equals(new Team("tym1")));
+		
+		//pouze team4
+		assertEquals(1, (new Team("team4")).getList().size());
+		assertTrue((new Team("team4")).getList().get(0).equals(new Team("team4")));
+		
+		//neexistující team
+		assertEquals(0, (new Team("tejmNejni")).getList().size());
 	}
 	
 

@@ -12,6 +12,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.google.appengine.api.datastore.Key;
@@ -27,6 +28,15 @@ public class TeamStage implements EntityCommon {
 	
 	private String teamName;
 	
+	public void setTeamName(String teamName) {
+		this.teamName = teamName;
+	}
+
+
+	public void setStageName(String stageName) {
+		this.stageName = stageName;
+	}
+
 	private String stageName;
 	
 	private Date stageDate;
@@ -36,6 +46,11 @@ public class TeamStage implements EntityCommon {
 		this.teamName = teamName;
 		this.stageName = stageName;
 		this.stageDate = new Date();
+	}
+
+
+	public TeamStage() {
+		super();
 	}
 
 
@@ -117,13 +132,28 @@ public class TeamStage implements EntityCommon {
 	}
 	
 	@Override
-	public List<TeamStage> getAll() {
+	public List<TeamStage> getList() {
 		EntityManager em = EMF.getInstance().createEntityManager();
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 		CriteriaQuery<TeamStage> cq =  criteriaBuilder.createQuery(TeamStage.class);
-		Root<TeamStage> teamSage = cq.from(TeamStage.class);
-		cq.select(teamSage);
-		cq.orderBy(criteriaBuilder.asc(teamSage.get("stageDate")));
+		Root<TeamStage> teamStage = cq.from(TeamStage.class);
+		
+		Predicate criteria = null;
+		if (this.teamName != null) {
+			criteria = criteriaBuilder.equal(teamStage.get("teamName"), this.teamName);
+			cq.where(criteria);
+		}
+		
+		if (this.stageName != null) {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStage.get("stageName"), this.stageName));
+		}
+		
+		if (criteria != null) {
+			cq.where(criteria);
+		}
+		
+		cq.select(teamStage);
+		cq.orderBy(criteriaBuilder.desc(teamStage.get("stageDate")));
 		
 		return em.createQuery(cq).getResultList();
 	}

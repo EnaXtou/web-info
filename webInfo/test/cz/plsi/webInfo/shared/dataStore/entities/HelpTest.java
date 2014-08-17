@@ -49,7 +49,7 @@ public class HelpTest {
 		EMF.add(help);
 		assertEquals(3, help.count());
 		
-		List<? extends EntityCommon> allEntities = help.getAll();
+		List<? extends EntityCommon> allEntities = help.getList();
 		for (EntityCommon entity : allEntities) {
 			System.out.println(entity);
 		}

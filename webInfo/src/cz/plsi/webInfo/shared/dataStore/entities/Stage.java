@@ -123,13 +123,18 @@ public class Stage implements EntityCommon {
 	}
 
 	@Override
-	public List<Stage> getAll() {
+	public List<Stage> getList() {
 		EntityManager em = EMF.getInstance().createEntityManager();
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 		CriteriaQuery<Stage> cq =  criteriaBuilder.createQuery(Stage.class);
 		Root<Stage> stage = cq.from(Stage.class);
+		
+		if (this.name != null) {
+			cq.where(criteriaBuilder.equal(stage.get("name"), this.name));
+		}
+		
 		cq.select(stage);
-		cq.orderBy(criteriaBuilder.asc(stage.get("name")));
+		cq.orderBy(criteriaBuilder.desc(stage.get("number")));
 		
 		return em.createQuery(cq).getResultList();
 	}

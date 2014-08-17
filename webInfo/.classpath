@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="C:/Software/eclipse_4_3/plugins/com.google.appengine.eclipse.sdkbundle_1.9.6/appengine-java-sdk-1.9.6/lib/impl/appengine-api.jar"/>
 	<classpathentry kind="lib" path="C:/Software/eclipse_4_3/plugins/com.google.appengine.eclipse.sdkbundle_1.9.6/appengine-java-sdk-1.9.6/lib/impl/appengine-api-labs.jar"/>
 	<classpathentry kind="lib" path="C:/Software/eclipse_4_3/plugins/com.google.appengine.eclipse.sdkbundle_1.9.6/appengine-java-sdk-1.9.6/lib/impl/appengine-api-stubs.jar"/>
+	<classpathentry kind="lib" path="test_libs/tempus-fugit-1.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

@@ -8,6 +8,6 @@ public interface EntityCommon {
 
 	public abstract boolean exists();
 
-	public abstract List<? extends EntityCommon> getAll();
+	public abstract List<? extends EntityCommon> getList();
 
 }

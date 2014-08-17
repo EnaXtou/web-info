@@ -7,6 +7,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import cz.plsi.webInfo.shared.dataStore.EMF;
 
@@ -18,6 +21,10 @@ public class Help implements EntityCommon {
 	
 	public Help(String name) {
 		this.setName(name);
+	}
+
+	public Help() {
+		super();
 	}
 
 	public String getName() {
@@ -48,11 +55,18 @@ public class Help implements EntityCommon {
 	}
 
 	@Override
-	public List<Help> getAll() {
+	public List<Help> getList() {
 		EntityManager em = EMF.getInstance().createEntityManager();
-		TypedQuery<Help> query = em.createQuery(
-			      "SELECT h FROM "+ this.getClass().getName() +" h", Help.class);
-		return query.getResultList();
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<Help> cq =  criteriaBuilder.createQuery(Help.class);
+		Root<Help> help = cq.from(Help.class);
+		
+		if (this.getName() != null) {
+			cq.where(criteriaBuilder.equal(help.get("name"), this.getName()));
+		}
+		cq.select(help);
+		
+		return em.createQuery(cq).getResultList();
 	}
 
 	@Override

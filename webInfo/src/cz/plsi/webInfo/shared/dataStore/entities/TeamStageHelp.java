@@ -12,6 +12,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.google.appengine.api.datastore.Key;
@@ -31,6 +32,25 @@ public class TeamStageHelp implements EntityCommon {
 	
 	private String stageName;
 	
+	public String getStageName() {
+		return stageName;
+	}
+
+
+	public void setStageName(String stageName) {
+		this.stageName = stageName;
+	}
+
+
+	public String getTeamName() {
+		return teamName;
+	}
+
+
+	public void setTeamName(String teamName) {
+		this.teamName = teamName;
+	}
+
 	private String teamName;
 	
 	public Date getStageHelpDate() {
@@ -114,22 +134,47 @@ public class TeamStageHelp implements EntityCommon {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see cz.plsi.webInfo.shared.dataStore.entities.EntityCommon#getList()
+	 */
 	@Override
-	public List<TeamStageHelp> getAll() {
+	public List<TeamStageHelp> getList() {
 		EntityManager em = EMF.getInstance().createEntityManager();
-		TypedQuery<TeamStageHelp> query = em.createQuery(
-			      "SELECT ts FROM "+ TeamStageHelp.class.getName() +" ts", TeamStageHelp.class);
-		return query.getResultList();
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<TeamStageHelp> cq =  criteriaBuilder.createQuery(TeamStageHelp.class);
+		Root<TeamStageHelp> teamStageHelp = cq.from(TeamStageHelp.class);
+		
+		Predicate criteria = null;
+		if (this.teamName != null) {
+			criteria = criteriaBuilder.equal(teamStageHelp.get("teamName"), this.teamName);
+			cq.where(criteria);
+		}
+		
+		if (this.stageName != null) {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStageHelp.get("stageName"), this.stageName));
+		}
+		
+		if (this.help != null) {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStageHelp.get("help"), this.help));
+		}
+		
+		if (criteria != null) {
+			cq.where(criteria);
+		}
+		cq.select(teamStageHelp);
+		
+		return em.createQuery(cq).getResultList();
 	}
+
 
 	@Override
 	public String toString() {
-		return "TeamStageHelp [id=" + id + ", teamStage=" + getTeamStage()
-				+ ", help=" + help + ", stageHelpDate=" + stageHelpDate + "]";
+		return "TeamStageHelp [id=" + id + ", teamStageId=" + teamStageId
+				+ ", help=" + help + ", stageName=" + stageName + ", teamName="
+				+ teamName + ", stageHelpDate=" + stageHelpDate + "]";
 	}
 
-	
-	
+		
 	
 }
 
