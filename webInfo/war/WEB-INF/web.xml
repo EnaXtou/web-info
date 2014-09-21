@@ -11,5 +11,15 @@
   <welcome-file-list>
     <welcome-file>WebInfo.html</welcome-file>
   </welcome-file-list>
+  
+   <servlet>
+    <servlet-name>teamStageAction</servlet-name>
+    <servlet-class>cz.plsi.webInfo.actions.TeamStageAction</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>teamStageAction</servlet-name>
+    <url-pattern>/webinfo/teamStageAction</url-pattern>
+  </servlet-mapping>
 
 </web-app>

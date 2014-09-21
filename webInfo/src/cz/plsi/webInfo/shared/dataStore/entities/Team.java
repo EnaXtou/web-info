@@ -99,8 +99,5 @@ public class Team implements EntityCommon {
 		this.code = teamCode;
 	}
 
-	
-	
-
 
 }

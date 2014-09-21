@@ -69,77 +69,80 @@ public class TeamStageActionTest {
 		
 		teamStage = new TeamStage(TEAM + 2, STAGE + 1);
 		EMF.add(teamStage);
-		
-		String actual = TeamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 1, errors);
+		TeamStageAction teamStageAction = new TeamStageAction();
+		String actual = teamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 1, errors);
 		assertEquals(HELP_1 + 1, actual);
 		
-		actual = TeamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 1, errors);
+		actual = teamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 1, errors);
 		assertNull(actual);
 		assertEquals(1, errors.size());
 		errors.clear();
 		
-		actual = TeamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 3, errors);
+		actual = teamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 3, errors);
 		assertEquals(HELP_2 + 1, actual);
 		
 		
-		// druhý tým je na druhém stanovišti
-		// první stále na prvním
+		// druhï¿½ tï¿½m je na druhï¿½m stanoviï¿½ti
+		// prvnï¿½ stï¿½le na prvnï¿½m
 		teamStage = new TeamStage(TEAM + 2, STAGE + 2);
 		EMF.add(teamStage);
-		// druhý tým použije heslo již použité týmem 1
-		actual = TeamStageAction.getHelp(Team.getCode(TEAM + 2), HELP + 1, errors);
+		// druhï¿½ tï¿½m pouï¿½ije heslo jiï¿½ pouï¿½itï¿½ tï¿½mem 1
+		actual = teamStageAction.getHelp(Team.getCode(TEAM + 2), HELP + 1, errors);
 		errors.size();
-		assertEquals(HELP_1 + 2, actual); // dostanu 1. nápovìdu z 2. stanovištì
+		assertEquals(HELP_1 + 2, actual); // dostanu 1. nï¿½povï¿½du z 2. stanoviï¿½tï¿½
 	}
 
 	@Test
 	public void testNextStage() {
 		List<String> errors = new ArrayList<>();
 		
-		// team 1 je na stanovišti 1
+		// team 1 je na stanoviï¿½ti 1
 		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1);
 		EMF.add(teamStage);
-		// team 2 je na stanovišti 1		
+		// team 2 je na stanoviï¿½ti 1		
 		teamStage = new TeamStage(TEAM + 2, STAGE + 1);
 		EMF.add(teamStage);
 		
-		// team 1 již je na první stage
-		boolean nextStageActual = TeamStageAction.nextStage(TEAM + 1, STAGE + 1, errors);
+		
+		TeamStageAction teamStageAction = new TeamStageAction();
+		// team 1 jiï¿½ je na prvnï¿½ stage
+		boolean nextStageActual = teamStageAction.nextStage(TEAM + 1, STAGE + 1, errors);
 		assertFalse(nextStageActual);
 		assertEquals(1, errors.size());
 		errors.clear();
 		
-		// team 1 mùže pokraèovat na druhou stage
-		nextStageActual = TeamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 2, errors);
+		// team 1 mï¿½e pokraï¿½ovat na druhou stage
+		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 2, errors);
 		assertTrue(nextStageActual);
 		
-		// team 1 mùže pokraèovat na ètvrtou stage (dovoluje se pøeskoèení)
-		nextStageActual = TeamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 4, errors);
+		// team 1 mï¿½e pokraï¿½ovat na ï¿½tvrtou stage (dovoluje se pï¿½eskoï¿½enï¿½)
+		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 4, errors);
 		assertTrue(nextStageActual);
 		
-		// team 1 zadal znovu druhou stage chyba, již naštívená stage
-		nextStageActual = TeamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 2, errors);
+		// team 1 zadal znovu druhou stage chyba, jiï¿½ naï¿½tï¿½venï¿½ stage
+		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 2, errors);
 		assertFalse(nextStageActual);
 		assertEquals(1, errors.size());
 		errors.clear();
 		
-		// team 4 zadal 1. stanovištì
-		nextStageActual = TeamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + 1, errors);
+		// team 4 zadal 1. stanoviï¿½tï¿½
+		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + 1, errors);
 		assertTrue(nextStageActual);
 		
-		// team 4 zadal 2. stanovištì
-		nextStageActual = TeamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + 2, errors);
+		// team 4 zadal 2. stanoviï¿½tï¿½
+		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + 2, errors);
 		assertTrue(nextStageActual);
 		
-		// team 4 zadal neexistující kód stanovištì chyba
-		nextStageActual = TeamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + "_NOT_EXISTS", errors);
+		// team 4 zadal neexistujï¿½cï¿½ kï¿½d stanoviï¿½tï¿½ chyba
+		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + "_NOT_EXISTS", errors);
 		assertFalse(nextStageActual);
 		assertEquals(1, errors.size());
 	}
 
 	@Test
 	public void testGetResults() {
-		TeamStageAction.getResults("");
+		TeamStageAction teamStageAction = new TeamStageAction();
+		teamStageAction.getResults("");
 		fail("Not yet implemented");
 	}
 

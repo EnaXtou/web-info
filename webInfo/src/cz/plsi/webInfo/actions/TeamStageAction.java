@@ -3,6 +3,9 @@ package cz.plsi.webInfo.actions;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+
+import cz.plsi.webInfo.client.TeamStageActionInterface;
 import cz.plsi.webInfo.shared.dataStore.EMF;
 import cz.plsi.webInfo.shared.dataStore.entities.Help;
 import cz.plsi.webInfo.shared.dataStore.entities.Stage;
@@ -10,15 +13,24 @@ import cz.plsi.webInfo.shared.dataStore.entities.Team;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
-public class TeamStageAction {
+public class TeamStageAction extends RemoteServiceServlet implements TeamStageActionInterface {
 
-	public static String getHelp(String teamCode, String helpName, List<String> errors) {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/* (non-Javadoc)
+	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#getHelp(java.lang.String, java.lang.String, java.util.List)
+	 */
+	@Override
+	public String getHelp(String teamCode, String helpName, List<String> errors) {
 		Team team = new Team();
 		team.setCode(teamCode);
 		List<Team> teamWithCode = team.getList();
 		
 		if (teamWithCode.size() == 0) {
-			CommonAction.addError("Nesprávný kód týmu.", errors);
+			CommonAction.addError("Nesprï¿½vnï¿½ kï¿½d tï¿½mu.", errors);
 		}
 		
 		Help help = new Help();
@@ -26,7 +38,7 @@ public class TeamStageAction {
 		List<Help> helpWithName = help.getList();
 		
 		if (helpWithName.size() == 0) {
-			CommonAction.addError("Nesprávný kód pro nápovìdu.", errors);
+			CommonAction.addError("Nesprï¿½vnï¿½ kï¿½d pro nï¿½povï¿½du.", errors);
 		}
 		
 		if (errors != null && errors.size() > 0) {
@@ -40,7 +52,7 @@ public class TeamStageAction {
 
 		List<TeamStageHelp> teamStageHelps = teamStageHelp.getList();
 		if (teamStageHelps.size() > 0) {
-			CommonAction.addError("Již použitý kód pro nápovìdu.", errors);
+			CommonAction.addError("Jiï¿½ pouï¿½itï¿½ kï¿½d pro nï¿½povï¿½du.", errors);
 		}
 		
 		if (errors != null && errors.size() > 0) {
@@ -57,7 +69,7 @@ public class TeamStageAction {
 		
 		
 		if (teamStageHelps.size() > 2) {
-			CommonAction.addError("Již máte øešení.", errors);
+			CommonAction.addError("Jiï¿½ mï¿½te ï¿½eï¿½enï¿½.", errors);
 			return null;
 		} 
 		
@@ -66,17 +78,17 @@ public class TeamStageAction {
 		currentStage = currentStage.getList().get(0);
 		
 		if (teamStageHelps.size() == 0) {
-			//první nápovìda
+			//prvnï¿½ nï¿½povï¿½da
 			result = currentStage.getHelp1();
 		} 
 		
 		if (teamStageHelps.size() == 1) {
-			//druhá nápovìda
+			//druhï¿½ nï¿½povï¿½da
 			result = currentStage.getHelp2();
 		} 
 		
 		if (teamStageHelps.size() == 2) {
-			//øešení
+			//ï¿½eï¿½enï¿½
 			result = currentStage.getResult();
 		} 
 		
@@ -86,13 +98,17 @@ public class TeamStageAction {
 		return result;
 	}
 	
-	public static boolean nextStage(String teamCode, String stageName, List<String> errors) {
+	/* (non-Javadoc)
+	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#nextStage(java.lang.String, java.lang.String, java.util.List)
+	 */
+	@Override
+	public boolean nextStage(String teamCode, String stageName, List<String> errors) {
 		Team team = new Team();
 		team.setCode(teamCode);
 		List<Team> teamWithCode = team.getList();
 		
 		if (teamWithCode.isEmpty()) {
-			CommonAction.addError("Nesprávný kód týmu.", errors);
+			CommonAction.addError("Nesprï¿½vnï¿½ kï¿½d tï¿½mu.", errors);
 			return false;
 		}
 		
@@ -100,7 +116,7 @@ public class TeamStageAction {
 		List<Stage> stageWithName = stage.getList();
 		
 		if (stageWithName.isEmpty()) {
-			CommonAction.addError("Nesprávný kód týmu.", errors);
+			CommonAction.addError("Nesprï¿½vnï¿½ kï¿½d tï¿½mu.", errors);
 			return false;
 		}
 		
@@ -109,7 +125,7 @@ public class TeamStageAction {
 		List<TeamStage> teamStages = teamStage.getList();
 		
 		if (!teamStages.isEmpty()) {
-			CommonAction.addError("Tuto stanovištì jste již navštívili.", errors);
+			CommonAction.addError("Tuto stanoviÅ¡tÄ› jste jiÅ¾ navÅ¡tÃ­vili.", errors);
 			return false;
 		}
 		
@@ -117,9 +133,29 @@ public class TeamStageAction {
 		return true;
 	}
 	
-	public static Map<Integer, String> getResults(String teamCode) {
+	/* (non-Javadoc)
+	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#getResults(java.lang.String)
+	 */
+	@Override
+	public Map<Integer, String> getResults(String teamCode) {
 		
 		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#addTeam(java.lang.String)
+	 */
+	@Override
+	public void addTeam(String name) {
+		EMF.add(new Team(name));
+	}
+	
+	/* (non-Javadoc)
+	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#addTeam(java.lang.String)
+	 */
+	@Override
+	public void addStage(int order, String name, String help1, String help2, String result) {
+		EMF.add(new Stage(name, order, help1, help2, result));
 	}
 	
 	}
