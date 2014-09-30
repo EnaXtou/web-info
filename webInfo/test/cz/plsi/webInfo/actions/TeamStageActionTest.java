@@ -25,6 +25,7 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 
 public class TeamStageActionTest {
 	
+	private static final String CODE = "_code";
 	private static final String TEAM = "team_";
 	private static final String HELP = "help_";
 	private static final String STAGE = "stage_";
@@ -39,7 +40,8 @@ public class TeamStageActionTest {
 	    helper.setUp();
 	    
 	    for (int i = 0; i < 20; i++) {
-	    	EntityCommon team = new Team(TEAM + i);
+	    	Team team = new Team(TEAM + i);
+	    	team.setCode(TEAM + i + CODE);
 	    	EMF.add(team);
 		}
 	    
@@ -70,15 +72,15 @@ public class TeamStageActionTest {
 		teamStage = new TeamStage(TEAM + 2, STAGE + 1);
 		EMF.add(teamStage);
 		TeamStageAction teamStageAction = new TeamStageAction();
-		String actual = teamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 1, errors);
+		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
 		assertEquals(HELP_1 + 1, actual);
 		
-		actual = teamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
 		assertNull(actual);
 		assertEquals(1, errors.size());
 		errors.clear();
 		
-		actual = teamStageAction.getHelp(Team.getCode(TEAM + 1), HELP + 3, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 3, errors);
 		assertEquals(HELP_2 + 1, actual);
 		
 		
@@ -87,7 +89,7 @@ public class TeamStageActionTest {
 		teamStage = new TeamStage(TEAM + 2, STAGE + 2);
 		EMF.add(teamStage);
 		// druh� t�m pou�ije heslo ji� pou�it� t�mem 1
-		actual = teamStageAction.getHelp(Team.getCode(TEAM + 2), HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 1, errors);
 		errors.size();
 		assertEquals(HELP_1 + 2, actual); // dostanu 1. n�pov�du z 2. stanovi�t�
 	}
@@ -112,29 +114,29 @@ public class TeamStageActionTest {
 		errors.clear();
 		
 		// team 1 m�e pokra�ovat na druhou stage
-		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 2, errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
 		assertTrue(nextStageActual);
 		
 		// team 1 m�e pokra�ovat na �tvrtou stage (dovoluje se p�esko�en�)
-		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 4, errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
 		assertTrue(nextStageActual);
 		
 		// team 1 zadal znovu druhou stage chyba, ji� na�t�ven� stage
-		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 1), STAGE + 2, errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
 		assertFalse(nextStageActual);
 		assertEquals(1, errors.size());
 		errors.clear();
 		
 		// team 4 zadal 1. stanovi�t�
-		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + 1, errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1, errors);
 		assertTrue(nextStageActual);
 		
 		// team 4 zadal 2. stanovi�t�
-		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + 2, errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2, errors);
 		assertTrue(nextStageActual);
 		
 		// team 4 zadal neexistuj�c� k�d stanovi�t� chyba
-		nextStageActual = teamStageAction.nextStage(Team.getCode(TEAM + 4), STAGE + "_NOT_EXISTS", errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + "_NOT_EXISTS", errors);
 		assertFalse(nextStageActual);
 		assertEquals(1, errors.size());
 	}

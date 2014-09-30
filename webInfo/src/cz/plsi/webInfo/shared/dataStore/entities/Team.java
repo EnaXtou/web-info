@@ -37,11 +37,6 @@ public class Team implements EntityCommon {
 	
 	public void setName(String name) {
 		this.name = name;
-		this.code = Team.getCode(name);
-	}
-
-	public static String getCode(String name) {
-		return name + "_code";
 	}
 
 	public String getCode() {

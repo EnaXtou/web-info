@@ -1,0 +1,26 @@
+package cz.plsi.webInfo.client;
+
+import java.util.List;
+import java.util.Map;
+
+import com.google.gwt.user.client.rpc.RemoteService;
+import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+
+@RemoteServiceRelativePath("teamStageAction")
+public interface TeamStageActionInterface extends RemoteService {
+
+	public abstract String getHelp(String teamCode, String helpName,
+			List<String> errors);
+
+	public abstract boolean nextStage(String teamCode, String stageName,
+			List<String> errors);
+	
+	public abstract Map<Integer, String> getResults(String teamCode);
+
+	public abstract void addTeam(String name, String code);
+
+	public abstract void addStage(int order, String name, String help1, String help2, String result);
+
+	public abstract int loginTeam(String code);
+
+}
