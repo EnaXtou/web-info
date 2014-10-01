@@ -53,13 +53,8 @@ public class Team implements EntityCommon {
 
 	@Override
 	public boolean exists() {
-		EntityManager em = EMF.getInstance().createEntityManager();
-		Query query = em.createQuery(
-			      "SELECT t FROM "+ this.getClass().getName() +" t "
-			      		+ "where t.name=:name ");
-		query.setParameter("name", this.getName());
-		query.setMaxResults(1);
-		return !query.getResultList().isEmpty();
+		
+		return !this.getList().isEmpty();
 	}
 
 	@Override

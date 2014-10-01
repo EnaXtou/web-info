@@ -23,4 +23,6 @@ public interface TeamStageActionInterface extends RemoteService {
 
 	public abstract int loginTeam(String code);
 
+	void addHelp(String help);
+
 }

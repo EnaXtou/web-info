@@ -82,6 +82,22 @@ public class TeamStage implements EntityCommon {
 			      "SELECT COUNT(ts) FROM "+ TeamStage.class.getName() +" ts", Long.class);
 		return query.getSingleResult();
 	}
+	//TODO refaktor z team name na team code
+	public static TeamStage getLastTeamStage(String team) {
+		EntityManager em = EMF.getInstance().createEntityManager();
+		TypedQuery<TeamStage> query = em.createQuery(
+				"SELECT ts FROM "+ TeamStage.class.getName() +" ts "
+						+ "where ts.teamName=:teamName "
+						+ "ORDER BY ts.stageDate DESC", TeamStage.class);
+		query.setParameter("teamName", team);
+		query.setMaxResults(1);
+		List<TeamStage> resultList = query.getResultList();
+		if (resultList.isEmpty()) {
+			return null;
+		}
+		
+		return resultList.get(0);
+	}
 	
 	public static TeamStage getTeamStage(String team, String stage) {
 		EntityManager em = EMF.getInstance().createEntityManager();

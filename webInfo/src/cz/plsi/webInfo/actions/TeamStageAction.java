@@ -108,7 +108,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		List<Team> teamWithCode = team.getList();
 		
 		if (teamWithCode.isEmpty()) {
-			CommonAction.addError("Nespr�vn� k�d t�mu.", errors);
+			CommonAction.addError("Nesprávný kód týmu.", errors);
 			return false;
 		}
 		
@@ -116,7 +116,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		List<Stage> stageWithName = stage.getList();
 		
 		if (stageWithName.isEmpty()) {
-			CommonAction.addError("Nespr�vn� k�d t�mu.", errors);
+			CommonAction.addError("Nesprávný kód stanoviště.", errors);
 			return false;
 		}
 		
@@ -160,6 +160,14 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		EMF.add(new Stage(name, order, help1, help2, result));
 	}
 	
+	/* (non-Javadoc)
+	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#addTeam(java.lang.String)
+	 */
+	@Override
+	public void addHelp(String help) {
+		EMF.add(new Help(help));
+	}
+	
 	@Override
 	public int loginTeam(String code) {
 		if ("Rudolfove".equals(code)) {
@@ -175,5 +183,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		return -1;
 		
 	}
+	
+	
 	
 }

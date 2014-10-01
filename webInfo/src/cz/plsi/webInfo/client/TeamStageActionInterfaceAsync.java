@@ -22,4 +22,6 @@ public interface TeamStageActionInterfaceAsync {
 
 	void loginTeam(String code, AsyncCallback<Integer> callback);
 
+	void addHelp(String help, AsyncCallback<Void> callback);
+
 }

@@ -8,6 +8,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -39,6 +40,8 @@ public class WebInfo implements EntryPoint {
 		
 		
 		line = new HorizontalPanel();
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_JUSTIFY);
+		line.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		line.ensureDebugId("lineCodeInfo");
 		line.setSize("100%", "100%");
 		line.add(codeLabel);
@@ -63,9 +66,7 @@ public class WebInfo implements EntryPoint {
 							changePage(new AdminPage());
 						}
 						if (result.equals(1)) {
-							final PopupPanel popup = new PopupPanel();
-							popup.setTitle("Test");
-							popup.show();
+							changePage(new TeamWebInfoPage(code.getValue()));
 						}
 					}
 				};

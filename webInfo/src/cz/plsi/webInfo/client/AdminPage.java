@@ -4,7 +4,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -47,6 +46,16 @@ public class AdminPage extends Composite {
 		});
 
 		line.add(stage);
+		
+		Button help = new Button("Přidej heslo pro nápovědu");
+		help.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				changePage(new AddHelpPage());
+			}
+		});
+		
+		line.add(help);
 		panel.add(line);
 
 		initWidget(panel);

@@ -33,14 +33,20 @@ public class TeamStageTest {
 	
 	@Test
 	public void AddAndCountTest() {
+		
 		EntityCommon teamStage = new TeamStage("team1", "stage1");
 		EMF.add(teamStage);
 		
+		assertNull(TeamStage.getLastTeamStage("team2"));
+		
 		teamStage = new TeamStage("team2", "stage2");
 		EMF.add(teamStage);
+		assertEquals("stage2", TeamStage.getLastTeamStage("team2").getStageName());
 		
 		teamStage = new TeamStage("team2", "stage3");
 		EMF.add(teamStage);
+		
+		assertEquals("stage3", TeamStage.getLastTeamStage("team2").getStageName());
 		
 		teamStage = new TeamStage("team2", "stage3");
 		EMF.add(teamStage);
@@ -48,6 +54,8 @@ public class TeamStageTest {
 		teamStage = new TeamStage("team1", "stage1");
 		EMF.add(teamStage);
 		assertEquals(3, teamStage.count());
+		
+		
 		
 		List<? extends EntityCommon> allTeamsAndStages = teamStage.getList();
 		for (EntityCommon teamStageForPrint : allTeamsAndStages) {

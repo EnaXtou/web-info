@@ -62,7 +62,7 @@ public class AddTeamPage extends Composite {
 		panel.setSpacing(10);
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		panel.setSize("300", "100");
-
+		
 		nameLabel.setText("Název týmu: ");
 		name.setTitle("Název týmu");
 		panel.add(line);
