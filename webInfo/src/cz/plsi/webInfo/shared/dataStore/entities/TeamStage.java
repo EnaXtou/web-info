@@ -28,6 +28,8 @@ public class TeamStage implements EntityCommon {
 	
 	private String teamName;
 	
+	private int stageOrder;
+	
 	public void setTeamName(String teamName) {
 		this.teamName = teamName;
 	}
@@ -42,10 +44,11 @@ public class TeamStage implements EntityCommon {
 	private Date stageDate;
 	
 
-	public TeamStage(String teamName, String stageName) {
+	public TeamStage(String teamName, String stageName, int stageOrder) {
 		this.teamName = teamName;
 		this.stageName = stageName;
 		this.stageDate = new Date();
+		this.stageOrder = stageOrder;
 	}
 
 
@@ -72,6 +75,16 @@ public class TeamStage implements EntityCommon {
 		return stageDate;
 	}
 	
+	public int getStageOrder() {
+		return stageOrder;
+	}
+
+
+	public void setStageOrder(int stageOrder) {
+		this.stageOrder = stageOrder;
+	}
+
+
 	/* (non-Javadoc)
 	 * @see cz.plsi.webInfo.shared.dataStore.entities.EntityCommon#count()
 	 */
@@ -169,7 +182,8 @@ public class TeamStage implements EntityCommon {
 		}
 		
 		cq.select(teamStage);
-		cq.orderBy(criteriaBuilder.desc(teamStage.get("stageDate")));
+		cq.orderBy(criteriaBuilder.desc(teamStage.get("stageOrder")),
+				criteriaBuilder.desc(teamStage.get("stageDate")));
 		
 		return em.createQuery(cq).getResultList();
 	}

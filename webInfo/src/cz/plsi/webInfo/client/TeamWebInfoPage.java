@@ -16,13 +16,13 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 public class TeamWebInfoPage extends Composite {
 
+	private static final String ANSWER_ERROR = "Chyba: Server není dostupný zkuste to znovu.";
 	private VerticalPanel panel;
 	private HorizontalPanel line;
-	private HorizontalPanel helpPanel = new HorizontalPanel();
+	private HorizontalPanel helpStagePanel = new HorizontalPanel();
 
 	private Label helpCodeLabel = new Label("Zadej kód pro nápovědu: ");
 	private TextBox helpCode = new TextBox();
@@ -34,6 +34,13 @@ public class TeamWebInfoPage extends Composite {
 
 	private TeamStageActionInterfaceAsync teamStageAction = GWT.create(TeamStageActionInterface.class);
 
+	private void addAnswerFromWebInfo(String result) {
+		if (helpStagePanel.getWidgetCount() > 0) {
+			helpStagePanel.remove(0);
+		}
+		helpStagePanel.add(new Label(result));
+	}
+
 	public TeamWebInfoPage(String teamCode) {
 		teamCodeHidden.setValue(teamCode);
 
@@ -44,6 +51,7 @@ public class TeamWebInfoPage extends Composite {
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		panel.setSize("100%", "100%");
 
+		line.setSize("100%", "100%");
 		line.add(helpCodeLabel);
 		line.add(helpCode);
 		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_JUSTIFY);
@@ -61,20 +69,19 @@ public class TeamWebInfoPage extends Composite {
 				// Set up the callback object.
 				AsyncCallback<String> callback = new AsyncCallback<String>() {
 					public void onFailure(Throwable caught) {
-						// TODO: Do something with errors.
+						addAnswerFromWebInfo(ANSWER_ERROR);
 					}
 
 					public void onSuccess(String result) {
 						helpCode.setText("");
-						if (helpPanel.getWidgetCount() > 0) {
-							helpPanel.remove(0);
-						}
-						helpPanel.add(new Label(result));
-						
+						addAnswerFromWebInfo(result);
+
 					}
+
 				};
 
-				teamStageAction.getHelp(teamCodeHidden.getValue(), helpCode.getValue(), new ArrayList<String>(), callback);
+				teamStageAction.getHelp(teamCodeHidden.getValue(), helpCode.getValue(), new ArrayList<String>(),
+						callback);
 
 			}
 
@@ -82,8 +89,9 @@ public class TeamWebInfoPage extends Composite {
 
 		line.add(helpButton);
 		panel.add(line);
-		
+
 		line = new HorizontalPanel();
+		line.setSize("100%", "100%");
 		line.add(stageCodeLabel);
 		line.add(stageCode);
 		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_JUSTIFY);
@@ -91,33 +99,35 @@ public class TeamWebInfoPage extends Composite {
 		Button stageButton;
 		stageButton = new Button("Stanoviště");
 		stageButton.addClickHandler(new ClickHandler() {
-			
+
 			@Override
 			public void onClick(ClickEvent event) {
 				if (teamStageAction == null) {
 					teamStageAction = GWT.create(TeamStageActionInterface.class);
 				}
-				
+
 				// Set up the callback object.
-				AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+				AsyncCallback<String> callback = new AsyncCallback<String>() {
 					public void onFailure(Throwable caught) {
-						// TODO: Do something with errors.
+						addAnswerFromWebInfo(ANSWER_ERROR);
 					}
-					
-					public void onSuccess(Boolean result) {
-						
+
+					public void onSuccess(String result) {
+						addAnswerFromWebInfo(result);
 					}
 				};
-				
-				teamStageAction.nextStage(teamCodeHidden.getValue(), stageCode.getValue(), new ArrayList<String>(), callback);
-				
+
+				teamStageAction.nextStage(teamCodeHidden.getValue(), stageCode.getValue(), new ArrayList<String>(),
+						callback);
+
 			}
-			
+
 		});
+
 		
 		line.add(stageButton);
 		panel.add(line);
-		panel.add(helpPanel);
+		panel.add(helpStagePanel);
 
 		initWidget(panel);
 

@@ -1,7 +1,11 @@
 package cz.plsi.webInfo.actions;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.TreeMap;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -30,7 +34,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		List<Team> teamWithCode = team.getList();
 		
 		if (teamWithCode.size() == 0) {
-			CommonAction.addError("Nespr�vn� k�d t�mu.", errors);
+			return CommonAction.addError("Nesprávný kód týmu.", errors);
 		}
 		
 		Help help = new Help();
@@ -38,12 +42,9 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		List<Help> helpWithName = help.getList();
 		
 		if (helpWithName.size() == 0) {
-			CommonAction.addError("Nespr�vn� k�d pro n�pov�du.", errors);
+			return CommonAction.addError("Nesprávný kód pro nápovědu.", errors);
 		}
 		
-		if (errors != null && errors.size() > 0) {
-			return null;
-		}
 		TeamStageHelp teamStageHelp = new TeamStageHelp();
 		
 		String teamName = teamWithCode.get(0).getName();
@@ -52,47 +53,57 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 
 		List<TeamStageHelp> teamStageHelps = teamStageHelp.getList();
 		if (teamStageHelps.size() > 0) {
-			CommonAction.addError("Ji� pou�it� k�d pro n�pov�du.", errors);
+			return CommonAction.addError("Již použitý kód pro nápovědu.", errors);
 		}
 		
-		if (errors != null && errors.size() > 0) {
-			return null;
-		}
 		
 		TeamStage teamStage = new TeamStage();
 		teamStage.setTeamName(teamName);
 		List<TeamStage> teamStageList = teamStage.getList();
 		
 		TeamStage currentTeamStage = teamStageList.get(0);
-		teamStageHelp = new TeamStageHelp(currentTeamStage, null);
+		teamStageHelp = new TeamStageHelp(currentTeamStage, null, null);
 		teamStageHelps = teamStageHelp.getList();
 		
 		
 		if (teamStageHelps.size() > 2) {
-			CommonAction.addError("Ji� m�te �e�en�.", errors);
-			return null;
+			return CommonAction.addError("Již máte řešení.", errors);
 		} 
 		
 		String result = null;
 		Stage currentStage = new Stage(currentTeamStage.getStageName());
 		currentStage = currentStage.getList().get(0);
 		
+		
+		
+		
 		if (teamStageHelps.size() == 0) {
-			//prvn� n�pov�da
+			//první nápověda
 			result = currentStage.getHelp1();
 		} 
 		
 		if (teamStageHelps.size() == 1) {
-			//druh� n�pov�da
+			//druhá nápověda
 			result = currentStage.getHelp2();
 		} 
 		
 		if (teamStageHelps.size() == 2) {
-			//�e�en�
+			//řešení
 			result = currentStage.getResult();
-		} 
+		}
 		
+		if (result == null || result.length() == 0) {
+			return CommonAction.addError("Pro aktuální stanoviště není nápověda, heslo lze použít znovu.", errors);
+		}
+		
+		if (teamStageHelps.size() == 2) {
+			result = "Řešení: " + result; 
+		} else {
+			result = "Nápověda: " + result;
+		}
+			
 		teamStageHelp.setHelp(helpName);
+		teamStageHelp.setHelpResult(result);
 		EMF.add(teamStageHelp);
 		
 		return result;
@@ -102,35 +113,32 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#nextStage(java.lang.String, java.lang.String, java.util.List)
 	 */
 	@Override
-	public boolean nextStage(String teamCode, String stageName, List<String> errors) {
+	public String nextStage(String teamCode, String stageName, List<String> errors) {
 		Team team = new Team();
 		team.setCode(teamCode);
 		List<Team> teamWithCode = team.getList();
 		
 		if (teamWithCode.isEmpty()) {
-			CommonAction.addError("Nesprávný kód týmu.", errors);
-			return false;
+			return CommonAction.addError("Nesprávný kód týmu.", errors);
 		}
 		
 		Stage stage = new Stage(stageName);
 		List<Stage> stageWithName = stage.getList();
 		
 		if (stageWithName.isEmpty()) {
-			CommonAction.addError("Nesprávný kód stanoviště.", errors);
-			return false;
+			return CommonAction.addError("Nesprávný kód stanoviště.", errors);
 		}
 		
 		String teamName = teamWithCode.get(0).getName();
-		TeamStage teamStage = new TeamStage(teamName, stageName);
+		TeamStage teamStage = new TeamStage(teamName, stageName, stageWithName.get(0).getNumber());
 		List<TeamStage> teamStages = teamStage.getList();
 		
 		if (!teamStages.isEmpty()) {
-			CommonAction.addError("Tuto stanoviště jste již navštívili.", errors);
-			return false;
+			return CommonAction.addError("Tuto stanoviště jste již navštívili.", errors);
 		}
 		
 		EMF.add(teamStage);
-		return true;
+		return "Tak vás tu vítáme! Plantážníci.";
 	}
 	
 	/* (non-Javadoc)
@@ -139,7 +147,49 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	@Override
 	public Map<Integer, String> getResults(String teamCode) {
 		
-		return null;
+		int order = 0;
+		TreeMap<Integer, String> results = new TreeMap<>(); 
+		Team team = new Team();
+		team.setCode(teamCode);
+		List<Team> teamWithCode = team.getList();
+		
+		if (teamWithCode.size() == 0) {
+			results.put(Integer.valueOf(order++), "Chyba: Nesprávný kód týmu.");
+			return results;
+		}
+		
+		TeamStageHelp teamStageHelp = new TeamStageHelp();
+		
+		String teamName = teamWithCode.get(0).getName();
+		teamStageHelp.setTeamName(teamName);
+
+		teamStageHelp = teamStageHelp.getLastHelpResult();
+		if (teamStageHelp != null) {
+			results.put(Integer.valueOf(order++), teamStageHelp.getHelpResult());
+		}
+		
+		TeamStage teamStage = new TeamStage();
+		List<TeamStage> teamStages = teamStage.getList();
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:MM:ss", new Locale("cs", "CZ"));
+		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
+		if (!teamStages.isEmpty()) {
+			TeamStage winningTeamStage = teamStages.get(0);
+			results.put(Integer.valueOf(order++), "Vede tým '" 
+									+ winningTeamStage.getTeamName() + "', který byl na "
+									+ winningTeamStage.getStageOrder() + ". stanovišti v " 
+									+ sdf.format(winningTeamStage.getStageDate()) + ".");
+		}
+		
+		for (int i = 0; i < teamStages.size(); i++) {
+			TeamStage currentTeamStage = teamStages.get(i);
+			if (currentTeamStage.getTeamName().equals(teamName)) {
+				results.put(Integer.valueOf(-1), "Váš tým je aktuálně na "
+						+ (i + 1) + ". místě.");
+				break;
+			}
+		}
+
+		return results;
 	}
 	
 	/* (non-Javadoc)

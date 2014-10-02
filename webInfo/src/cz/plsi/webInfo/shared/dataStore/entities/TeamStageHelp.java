@@ -32,6 +32,8 @@ public class TeamStageHelp implements EntityCommon {
 	
 	private String stageName;
 	
+	private String helpResult;
+	
 	public String getStageName() {
 		return stageName;
 	}
@@ -72,13 +74,14 @@ public class TeamStageHelp implements EntityCommon {
 	private Date stageHelpDate;
 	
 
-	public TeamStageHelp(TeamStage teamStage, String help) {
+	public TeamStageHelp(TeamStage teamStage, String help, String helpResult) {
 		
 		this.teamStageId = teamStage.getId();
 		this.stageName = teamStage.getStageName();
 		this.teamName = teamStage.getTeamName();
 		this.help = help;
 		this.stageHelpDate = new Date();
+		this.helpResult = helpResult;
 	}
 
 
@@ -134,6 +137,16 @@ public class TeamStageHelp implements EntityCommon {
 	}
 
 
+	public String getHelpResult() {
+		return helpResult;
+	}
+
+
+	public void setHelpResult(String helpResult) {
+		this.helpResult = helpResult;
+	}
+
+
 	/* (non-Javadoc)
 	 * @see cz.plsi.webInfo.shared.dataStore.entities.EntityCommon#getList()
 	 */
@@ -165,6 +178,46 @@ public class TeamStageHelp implements EntityCommon {
 		
 		return em.createQuery(cq).getResultList();
 	}
+	
+	
+	public TeamStageHelp getLastHelpResult() {
+		EntityManager em = EMF.getInstance().createEntityManager();
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<TeamStageHelp> cq =  criteriaBuilder.createQuery(TeamStageHelp.class);
+		Root<TeamStageHelp> teamStageHelp = cq.from(TeamStageHelp.class);
+		
+		Predicate criteria = null;
+		if (this.teamName != null) {
+			criteria = criteriaBuilder.equal(teamStageHelp.get("teamName"), this.teamName);
+			cq.where(criteria);
+		}
+		
+		if (this.stageName != null) {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStageHelp.get("stageName"), this.stageName));
+		}
+		
+		if (this.help != null) {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStageHelp.get("help"), this.help));
+		}
+		
+		if (criteria != null) {
+			cq.where(criteria);
+		}
+		cq.select(teamStageHelp);
+		
+		cq.orderBy(criteriaBuilder.desc(teamStageHelp.get("stageHelpDate")));
+		TypedQuery<TeamStageHelp> query = em.createQuery(cq);
+		query.setMaxResults(1);
+		
+		List<TeamStageHelp> resultList = query.getResultList();
+		if (resultList.isEmpty()) {
+			return null;
+		} else {
+			return resultList.get(0);
+		}
+	}
+	
+	
 
 
 	@Override

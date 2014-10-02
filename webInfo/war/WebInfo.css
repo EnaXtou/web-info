@@ -1,5 +1,18 @@
 /** Add css rules here for your application. */
 
+.gwt-DecoratorPanel .middleCenter {
+   height: 100%;
+   width: 100%;
+ }
+ 
+body, table td, select, button, .gwt-Button {
+font-family: Arial Unicode MS, Arial, sans-serif;
+font-size: medium;
+}
+
+input {
+	font-size: medium;
+}
 
 /** Example rules used by the template application (remove for your app) */
 h1 {

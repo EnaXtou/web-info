@@ -28,5 +28,4 @@
 
 	<!-- allow Super Dev Mode -->
 	<add-linker name="xsiframe" />
-	<entry-point class="cz.plsi.webInfo.client.TeamStageAction"></entry-point>
 </module>

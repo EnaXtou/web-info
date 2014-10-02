@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class WebInfo implements EntryPoint {
 	private final TextBox code = new TextBox();
-	private final Label codeLabel = new Label("Zadej kód týmu pro přihlášení: ");
+	private final Label codeLabel = new Label("Kód týmu: ");
 	
 	private VerticalPanel panel;
 	private Widget currentPage;
@@ -36,7 +36,6 @@ public class WebInfo implements EntryPoint {
 		panel.setSpacing(10);
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		panel.setSize("100%", "100%");
-
 		
 		
 		line = new HorizontalPanel();
@@ -84,6 +83,7 @@ public class WebInfo implements EntryPoint {
 		DecoratorPanel decoratorPanel = new DecoratorPanel();
 		decoratorPanel.ensureDebugId("decorateInfo");
 		decoratorPanel.add(panel);
+		RootPanel.get().setSize("90%", "90%");
 		RootPanel.get().add(decoratorPanel);
 
 	}

@@ -12,7 +12,7 @@ public interface TeamStageActionInterface extends RemoteService {
 	public abstract String getHelp(String teamCode, String helpName,
 			List<String> errors);
 
-	public abstract boolean nextStage(String teamCode, String stageName,
+	public abstract String nextStage(String teamCode, String stageName,
 			List<String> errors);
 	
 	public abstract Map<Integer, String> getResults(String teamCode);
