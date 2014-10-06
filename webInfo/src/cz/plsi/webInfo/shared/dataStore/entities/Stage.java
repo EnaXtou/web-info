@@ -2,7 +2,6 @@ package cz.plsi.webInfo.shared.dataStore.entities;
 
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
@@ -26,7 +25,6 @@ public class Stage implements EntityCommon {
 	
 	private int number;
 	
-	@Column(nullable = false)
 	private String help1;
 	
 	private String help2;
@@ -143,6 +141,11 @@ public class Stage implements EntityCommon {
 	public String toString() {
 		return "Stage [name=" + name + ", number=" + number + ", help1="
 				+ help1 + ", help2=" + help2 + ", result=" + result + "]";
+	}
+
+	@Override
+	public Object getId() {
+		return getName();
 	}
 	
 

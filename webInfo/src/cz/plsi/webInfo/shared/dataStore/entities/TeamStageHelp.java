@@ -34,6 +34,8 @@ public class TeamStageHelp implements EntityCommon {
 	
 	private String helpResult;
 	
+	private boolean isHelp = true; 
+	
 	public String getStageName() {
 		return stageName;
 	}
@@ -199,8 +201,8 @@ public class TeamStageHelp implements EntityCommon {
 		if (this.help != null) {
 			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStageHelp.get("help"), this.help));
 		}
-		
 		if (criteria != null) {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStageHelp.get("isHelp"), criteriaBuilder.literal(true)));
 			cq.where(criteria);
 		}
 		cq.select(teamStageHelp);
@@ -208,8 +210,9 @@ public class TeamStageHelp implements EntityCommon {
 		cq.orderBy(criteriaBuilder.desc(teamStageHelp.get("stageHelpDate")));
 		TypedQuery<TeamStageHelp> query = em.createQuery(cq);
 		query.setMaxResults(1);
-		
+		em.getTransaction().begin();
 		List<TeamStageHelp> resultList = query.getResultList();
+		em.getTransaction().commit();
 		if (resultList.isEmpty()) {
 			return null;
 		} else {
@@ -227,7 +230,17 @@ public class TeamStageHelp implements EntityCommon {
 				+ teamName + ", stageHelpDate=" + stageHelpDate + "]";
 	}
 
-		
+
+	public boolean isHelp() {
+		return isHelp;
+	}
+
+
+	public void setHelp(boolean isHelp) {
+		this.isHelp = isHelp;
+	}
+
+
 	
 }
 

@@ -56,6 +56,27 @@ public class AdminPage extends Composite {
 		});
 		
 		line.add(help);
+		
+		Button helpMinus = new Button("Odeber heslo pro nápovědu týmu");
+		helpMinus.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				changePage(new RemoveHelpFromTeamPage());
+			}
+		});
+		
+		line.add(helpMinus);
+		panel.add(line);
+		
+		Button listStages = new Button("Zobraz stav hry");
+		listStages.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				changePage(new ListTeamsOnStagesPage());
+			}
+		});
+		
+		line.add(listStages);
 		panel.add(line);
 
 		initWidget(panel);

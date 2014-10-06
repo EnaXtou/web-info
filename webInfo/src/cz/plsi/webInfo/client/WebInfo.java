@@ -4,6 +4,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DecoratorPanel;
@@ -11,7 +12,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -33,7 +33,7 @@ public class WebInfo implements EntryPoint {
 	public void onModuleLoad() {
 		panel = new VerticalPanel();
 		panel.ensureDebugId("mainPanelWebInfo");
-		panel.setSpacing(10);
+		panel.setSpacing(8);
 		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		panel.setSize("100%", "100%");
 		
@@ -43,6 +43,7 @@ public class WebInfo implements EntryPoint {
 		line.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		line.ensureDebugId("lineCodeInfo");
 		line.setSize("100%", "100%");
+		code.setSize("6em", "1em");
 		line.add(codeLabel);
 		line.add(code);
 		
@@ -63,15 +64,16 @@ public class WebInfo implements EntryPoint {
 					public void onSuccess(Integer result) {
 						if (result.equals(0)) {
 							changePage(new AdminPage());
-						}
-						if (result.equals(1)) {
-							changePage(new TeamWebInfoPage(code.getValue()));
+						} else if (result.equals(1)) {
+							changePage(new TeamWebInfoPage(code.getValue().toLowerCase()));
+						} else {
+							changePage(new Label("Chyba: Neznámý tým."));
 						}
 					}
 				};
 
 				// Make the call to the stock price service.
-				teamStageAction.loginTeam(code.getValue(), callback);
+				teamStageAction.loginTeam(code.getValue().toLowerCase(), callback);
 			}
 			
 		});
@@ -81,9 +83,12 @@ public class WebInfo implements EntryPoint {
 		panel.add(line);
 
 		DecoratorPanel decoratorPanel = new DecoratorPanel();
-		decoratorPanel.ensureDebugId("decorateInfo");
+		decoratorPanel.ensureDebugId("decorateInfo");	
 		decoratorPanel.add(panel);
-		RootPanel.get().setSize("90%", "90%");
+		int clientWidth = Window.getClientWidth();
+		
+//		Window.addResizeHandler(new WindowResizeHandler())
+		RootPanel.get().setSize(clientWidth + "px", "95%");
 		RootPanel.get().add(decoratorPanel);
 
 	}
@@ -95,5 +100,7 @@ public class WebInfo implements EntryPoint {
 		panel.add(page);
 		currentPage = page;
 	}
+	
+	
 
 }

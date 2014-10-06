@@ -2,6 +2,7 @@ package cz.plsi.webInfo.client;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -24,5 +25,9 @@ public interface TeamStageActionInterface extends RemoteService {
 	public abstract int loginTeam(String code);
 
 	void addHelp(String help);
+
+	String minusHelp(String teamCode);
+
+	TreeSet<TeamStageClient> getTeamsByStageAndStageDate();
 
 }

@@ -10,4 +10,6 @@ public interface EntityCommon {
 
 	public abstract List<? extends EntityCommon> getList();
 
+	public Object getId();
+
 }

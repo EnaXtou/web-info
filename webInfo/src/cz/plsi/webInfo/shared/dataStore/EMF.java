@@ -20,13 +20,38 @@ public class EMF {
 	public static boolean add(EntityCommon entity) {
 		EntityManager em = EMF.getInstance().createEntityManager();
 		if (!entity.exists()) {
+			em.getTransaction().begin();
 			em.persist(entity);
+			em.getTransaction().commit();
 			em.close();
+			
 			return true;
 		} else {
 			em.close();
 			return false;
 		}
+	}
+	
+	public static boolean update(EntityCommon entity) {
+		EntityManager em = EMF.getInstance().createEntityManager();
+		if (entity.exists()) {
+			em.getTransaction().begin();
+			em.merge(entity);
+			em.getTransaction().commit();
+			em.close();
+			
+			return true;
+		} else {
+			em.close();
+			return false;
+		}
+	}
+	
+	public static EntityCommon find(EntityCommon entity) {
+		EntityManager em = EMF.getInstance().createEntityManager();
+		EntityCommon entityToReturn = em.find(entity.getClass(), entity.getId());
+		em.close();
+		return entityToReturn;
 	}
 	
 }

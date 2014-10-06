@@ -74,4 +74,9 @@ public class Help implements EntityCommon {
 		return "Help [name=" + name + "]";
 	}
 
+	@Override
+	public Object getId() {
+		return getName();
+	}
+
 }

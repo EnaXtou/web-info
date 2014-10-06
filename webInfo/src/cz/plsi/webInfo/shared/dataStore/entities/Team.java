@@ -5,7 +5,6 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,6 +21,8 @@ public class Team implements EntityCommon {
 	private String name;
 	
 	private String code;
+	
+	private int helpsCount = 0;
 	
 	public Team(String name) {
 		this.setName(name);
@@ -89,5 +90,16 @@ public class Team implements EntityCommon {
 		this.code = teamCode;
 	}
 
+	public int getHelpsCount() {
+		return helpsCount;
+	}
 
+	public void setHelpsCount(int helpsCount) {
+		this.helpsCount = helpsCount;
+	}
+
+	@Override
+	public Object getId() {
+		return getName();
+	}
 }

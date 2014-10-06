@@ -66,6 +66,10 @@ public class TeamStageActionTest {
 			}
 			EMF.add(stage);
 		}
+		
+		EntityCommon stage2 = new Stage("KONEC", -1, null, null, null);
+		EMF.add(stage2);
+		
 	}
 
 	@After
@@ -76,7 +80,15 @@ public class TeamStageActionTest {
 	@Test
 	public void testGetHelp() {
 		List<String> errors = new ArrayList<>();
-
+		
+		Team team = new Team();
+		team.setName(TEAM + 1);
+		team = team.getList().get(0);
+		team = (Team) EMF.find(team); 
+		team.setHelpsCount(-1);
+		
+		EMF.update(team);
+		
 		// team 1 je na stanovišti 1
 		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1, 1);
 		EMF.add(teamStage);
@@ -85,9 +97,20 @@ public class TeamStageActionTest {
 		teamStage = new TeamStage(TEAM + 2, STAGE + 1, 1);
 		EMF.add(teamStage);
 		TeamStageAction teamStageAction = new TeamStageAction();
-		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
-		assertEquals(HELP_1_R + 1, actual);
+		
+		// team 1 bych chycen širokem
+		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
+		assertEquals("Chytil vás široko a vzal vám heslo.", actual);
+		
+		// team 1 použije již použité heslo
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
+		assertEquals(1, errors.size());
+		errors.clear();
 
+		// bez chyby tým dostane nápovědu.
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
+		assertEquals(HELP_1_R + 1, actual);
+		
 		// team 1 použije již použité heslo
 		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
 		assertEquals(1, errors.size());
@@ -216,6 +239,7 @@ public class TeamStageActionTest {
 
 		
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		
 		assertEquals(2, results.size());
 		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-1)));
 		assertTrue(results.get(Integer.valueOf(0)).startsWith("Vede tým 'team_1', který byl na 4. stanovišti v "));

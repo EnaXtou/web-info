@@ -2,6 +2,7 @@ package cz.plsi.webInfo.client;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -22,5 +23,9 @@ public interface TeamStageActionInterfaceAsync {
 	void loginTeam(String code, AsyncCallback<Integer> callback);
 
 	void addHelp(String help, AsyncCallback<Void> callback);
+
+	void minusHelp(String teamCode, AsyncCallback<String> callback);
+
+	void getTeamsByStageAndStageDate(AsyncCallback<TreeSet<TeamStageClient>> callback);
 
 }

@@ -1,4 +1,9 @@
-/** Add css rules here for your application. */
+
+html {
+	width: 100%;
+	max-width: 100%
+	height: 100%;
+}
 
 .gwt-DecoratorPanel .middleCenter {
    height: 100%;
@@ -10,8 +15,9 @@ font-family: Arial Unicode MS, Arial, sans-serif;
 font-size: medium;
 }
 
-input {
-	font-size: medium;
+.statusBar {
+	color: blue;
+	font-weight: bold;
 }
 
 /** Example rules used by the template application (remove for your app) */

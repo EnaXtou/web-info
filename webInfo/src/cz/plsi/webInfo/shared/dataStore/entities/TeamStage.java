@@ -22,6 +22,8 @@ import cz.plsi.webInfo.shared.dataStore.EMF;
 @Entity
 public class TeamStage implements EntityCommon {
 	
+	private static final int TEAM_ENDED_GAME = -1;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Key id;
@@ -29,6 +31,10 @@ public class TeamStage implements EntityCommon {
 	private String teamName;
 	
 	private int stageOrder;
+	
+	private String stageName;
+	
+	private Date stageDate;
 	
 	public void setTeamName(String teamName) {
 		this.teamName = teamName;
@@ -39,9 +45,6 @@ public class TeamStage implements EntityCommon {
 		this.stageName = stageName;
 	}
 
-	private String stageName;
-	
-	private Date stageDate;
 	
 
 	public TeamStage(String teamName, String stageName, int stageOrder) {
@@ -168,13 +171,35 @@ public class TeamStage implements EntityCommon {
 		Root<TeamStage> teamStage = cq.from(TeamStage.class);
 		
 		Predicate criteria = null;
+		Predicate criteriaAnd = null;
 		if (this.teamName != null) {
-			criteria = criteriaBuilder.equal(teamStage.get("teamName"), this.teamName);
-			cq.where(criteria);
+			criteriaAnd = criteriaBuilder.equal(teamStage.get("teamName"), this.teamName);
+		}
+		
+		if (criteriaAnd != null) {
+			criteria = criteriaAnd;
 		}
 		
 		if (this.stageName != null) {
-			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStage.get("stageName"), this.stageName));
+			criteriaAnd = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStage.get("stageName"), this.stageName));
+		}
+		
+		if (criteria != null) {
+			criteria = criteriaBuilder.and(criteria ,criteriaAnd);
+		} else {
+			criteria = criteriaAnd;
+		}
+		
+		if (this.stageOrder == TEAM_ENDED_GAME) {
+			criteriaAnd = criteriaBuilder.equal(teamStage.get("stageOrder"), this.stageOrder);
+		} else {
+			criteriaAnd = criteriaBuilder.notEqual(teamStage.get("stageOrder"), TEAM_ENDED_GAME);
+		}
+		
+		if (criteria != null) {
+			criteria = criteriaBuilder.and(criteria ,criteriaAnd);
+		} else {
+			criteria = criteriaAnd;
 		}
 		
 		if (criteria != null) {
@@ -183,9 +208,12 @@ public class TeamStage implements EntityCommon {
 		
 		cq.select(teamStage);
 		cq.orderBy(criteriaBuilder.desc(teamStage.get("stageOrder")),
-				criteriaBuilder.desc(teamStage.get("stageDate")));
+				criteriaBuilder.asc(teamStage.get("stageDate")));
 		
-		return em.createQuery(cq).getResultList();
+		em.getTransaction().begin();
+		List<TeamStage> resultList = em.createQuery(cq).getResultList();
+		em.getTransaction().commit();
+		return resultList;
 	}
 
 	@Override
