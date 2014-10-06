@@ -22,7 +22,7 @@ import cz.plsi.webInfo.shared.dataStore.EMF;
 @Entity
 public class TeamStage implements EntityCommon {
 	
-	private static final int TEAM_ENDED_GAME = -1;
+	public static final int TEAM_ENDED_GAME = -1;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

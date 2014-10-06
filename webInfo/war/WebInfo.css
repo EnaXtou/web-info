@@ -10,6 +10,10 @@ html {
    width: 100%;
  }
  
+tr.teamEnded {
+	color: red;
+}
+ 
 body, table td, select, button, .gwt-Button {
 font-family: Arial Unicode MS, Arial, sans-serif;
 font-size: medium;

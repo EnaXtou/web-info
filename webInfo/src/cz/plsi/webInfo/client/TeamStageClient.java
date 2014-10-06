@@ -8,9 +8,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class TeamStageClient implements Comparable<TeamStageClient>, Serializable, IsSerializable  {
 
 	/**
-	 * 
+	 * added ended flag
 	 */
-	private static final long serialVersionUID = -2902100656931860374L;
+	private static final long serialVersionUID = 8141619283175202966L;
 
 	private String teamName;
 	
@@ -19,6 +19,8 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	private String stageName;
 	
 	private Date stageDate;
+	
+	private boolean ended = false;
 
 	public String getTeamName() {
 		return teamName;
@@ -79,6 +81,14 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 			result = this.stageDate.compareTo(o.stageDate);
 		}
 		return result;
+	}
+
+	public boolean isEnded() {
+		return ended;
+	}
+
+	public void setEnded(boolean ended) {
+		this.ended = ended;
 	}
 	
 	

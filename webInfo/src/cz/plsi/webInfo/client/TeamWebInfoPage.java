@@ -52,7 +52,7 @@ public class TeamWebInfoPage extends Composite {
 		panel.setSize("100%", "100%");
 
 		line.setSize("100%", "100%");
-		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_JUSTIFY);
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		line.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		line.add(codeLabel);
 		line.add(code);
@@ -96,7 +96,7 @@ public class TeamWebInfoPage extends Composite {
 
 		line = new HorizontalPanel();
 		line.setSize("100%", "100%");
-		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_JUSTIFY);
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		line.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		line.add(helpButton);
 		

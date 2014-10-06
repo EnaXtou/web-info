@@ -3,6 +3,7 @@ package cz.plsi.webInfo.actions;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -237,6 +238,14 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		TeamStage teamStage = new TeamStage();
 		List<TeamStage> teamStages = teamStage.getList();
+		
+		teamStage.setStageOrder(TeamStage.TEAM_ENDED_GAME);
+		List<TeamStage> teamsThatEnded = teamStage.getList();
+		HashSet<String> teamEndedNames = new HashSet<String>(15);
+		for (TeamStage teamThatEnded : teamsThatEnded) {
+			teamEndedNames.add(teamThatEnded.getTeamName());
+		}
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:MM:ss", new Locale("cs", "CZ"));
 		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 		
@@ -245,10 +254,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			String actualTeamName = actualTeamStage.getTeamName();
 			if (!teamStagesByTeamName.containsKey(actualTeamName)) {
 				Date date = new Date(actualTeamStage.getStageDate().getTime());
-				teamStagesByTeamName.put(actualTeamName,new TeamStageClient(actualTeamStage.getTeamName(),
+				TeamStageClient teamStageClient = new TeamStageClient(actualTeamStage.getTeamName(),
 																	actualTeamStage.getStageName(),
 																	actualTeamStage.getStageOrder(),
-																	date));
+																	date);
+				teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
+				teamStagesByTeamName.put(actualTeamName,teamStageClient);
 			}
 		}
 

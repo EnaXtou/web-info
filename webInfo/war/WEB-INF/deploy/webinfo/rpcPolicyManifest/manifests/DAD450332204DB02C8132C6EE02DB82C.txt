@@ -1,2 +1,0 @@
-serviceClass: cz.plsi.webInfo.client.TeamStageActionInterface
-path: 337F188FAA8BBCBEA40805195814D86C.gwt.rpc

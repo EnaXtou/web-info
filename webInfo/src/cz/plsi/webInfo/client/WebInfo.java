@@ -4,6 +4,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -21,6 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class WebInfo implements EntryPoint {
+	private static final String TEAM_CODE_COOKIE_NAME = "PlSiWI_TEAM_CODE";
 	private final TextBox code = new TextBox();
 	private final Label codeLabel = new Label("Kód týmu: ");
 	
@@ -34,16 +36,18 @@ public class WebInfo implements EntryPoint {
 		panel = new VerticalPanel();
 		panel.ensureDebugId("mainPanelWebInfo");
 		panel.setSpacing(8);
-		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		panel.setSize("100%", "100%");
 		
 		
 		line = new HorizontalPanel();
-		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_JUSTIFY);
+		//
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		line.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		line.ensureDebugId("lineCodeInfo");
 		line.setSize("100%", "100%");
 		code.setSize("6em", "1em");
+		//
 		line.add(codeLabel);
 		line.add(code);
 		
@@ -62,13 +66,7 @@ public class WebInfo implements EntryPoint {
 					}
 
 					public void onSuccess(Integer result) {
-						if (result.equals(0)) {
-							changePage(new AdminPage());
-						} else if (result.equals(1)) {
-							changePage(new TeamWebInfoPage(code.getValue().toLowerCase()));
-						} else {
-							changePage(new Label("Chyba: Neznámý tým."));
-						}
+						changeTabToTeam(result);
 					}
 				};
 
@@ -90,6 +88,13 @@ public class WebInfo implements EntryPoint {
 //		Window.addResizeHandler(new WindowResizeHandler())
 		RootPanel.get().setSize(clientWidth + "px", "95%");
 		RootPanel.get().add(decoratorPanel);
+		
+		String teamCodeFromCookie = Cookies.getCookie(TEAM_CODE_COOKIE_NAME);
+		if (teamCodeFromCookie != null) {
+			//TODO better security
+			code.setText(teamCodeFromCookie);
+			changeTabToTeam("rudolfove".equals(teamCodeFromCookie)? 0 : 1);
+		}
 
 	}
 
@@ -99,6 +104,19 @@ public class WebInfo implements EntryPoint {
 		}
 		panel.add(page);
 		currentPage = page;
+	}
+
+	private void changeTabToTeam(Integer result) {
+		if (result.equals(0)) {
+			changePage(new AdminPage());
+			Cookies.setCookie(TEAM_CODE_COOKIE_NAME, code.getValue().toLowerCase());
+		} else if (result.equals(1)) {
+			changePage(new TeamWebInfoPage(code.getValue().toLowerCase()));
+			Cookies.setCookie(TEAM_CODE_COOKIE_NAME, code.getValue().toLowerCase());
+			
+		} else {
+			changePage(new Label("Chyba: Neznámý tým."));
+		}
 	}
 	
 	

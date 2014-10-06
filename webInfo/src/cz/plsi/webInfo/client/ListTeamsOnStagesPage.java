@@ -44,10 +44,12 @@ public class ListTeamsOnStagesPage extends Composite {
 				public void onSuccess(TreeSet<TeamStageClient> result) {
 					status.setText("Výpis týmů úspěšný.");
 					int row = 0;
+					teamsTable.setBorderWidth(1);
 					teamsTable.setText(row, 0, "Číslo st.");
 					teamsTable.setText(row, 1, "Název st.");
 					teamsTable.setText(row, 2, "Čas příchodu");
 					teamsTable.setText(row, 3, "Název týmu");
+					teamsTable.setText(row, 4, "Vzdali");
 					++row;
 					for (TeamStageClient teamStageClient : result) {
 						teamsTable.setText(row, 0, String.valueOf(teamStageClient.getStageOrder()));
@@ -55,6 +57,13 @@ public class ListTeamsOnStagesPage extends Composite {
 						String stageDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getStageDate());
 						teamsTable.setText(row, 2, stageDate);
 						teamsTable.setText(row, 3, teamStageClient.getTeamName());
+						if (teamStageClient.isEnded()) {
+							teamsTable.setText(row, 4,  "Ano");
+							teamsTable.getRowFormatter().addStyleName(row, "teamEnded");
+						} else {
+							teamsTable.setText(row, 4,  "Ne");
+							
+						}
 						++row;
 					}
 				}
