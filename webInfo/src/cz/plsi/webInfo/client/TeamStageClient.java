@@ -78,7 +78,7 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	public int compareTo(TeamStageClient o) {
 		int result = this.stageOrder - o.stageOrder;
 		if (result == 0) {
-			result = this.stageDate.compareTo(o.stageDate);
+			result = o.stageDate.compareTo(this.stageDate);
 		}
 		return result;
 	}

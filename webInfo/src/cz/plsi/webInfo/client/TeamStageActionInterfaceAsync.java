@@ -28,4 +28,6 @@ public interface TeamStageActionInterfaceAsync {
 
 	void getTeamsByStageAndStageDate(AsyncCallback<TreeSet<TeamStageClient>> callback);
 
+	void setMessageToTeams(String message, AsyncCallback<String> callback);
+
 }

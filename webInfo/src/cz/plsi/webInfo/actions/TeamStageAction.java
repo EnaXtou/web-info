@@ -1,5 +1,6 @@
 package cz.plsi.webInfo.actions;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,7 +25,11 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
 public class TeamStageAction extends RemoteServiceServlet implements TeamStageActionInterface {
 
-	private static final String HELP_STOLEN = "Chytil vás široko a vzal vám heslo.";
+	private static final String HELP_STOLEN = "Chytil vás Široko a vzal vám heslo. Pro nápovědu zadejte další heslo.";
+	
+	//TODO must be change to datastore table
+	private static String messageToTeams = null;
+	
 	/**
 	 * 
 	 */
@@ -160,17 +165,24 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		List<TeamStage> teamStages = teamStage.getList();
 		
 		if (!teamStages.isEmpty()) {
+			if (currentStage.getNumber() == -1) {
+				return getGoodBye(currentStage);
+			}
 			return CommonAction.addError("Tuto stanoviště jste již navštívili.", errors);
 		}
 		
 		EMF.add(teamStage);
 		String greetings;
 		if (currentStage.getNumber() == -1) {
-			greetings = "Díky za účast. Navštivte nás v cíli: " + currentStage.getResult();
+			greetings = getGoodBye(currentStage);
 		} else {
 			greetings = "Tak vás tu vítáme! Plantážníci.";
 		}
 		return greetings;
+	}
+
+	private String getGoodBye(Stage currentStage) {
+		return "Díky za účast. Navštivte nás v cíli: " + currentStage.getResult();
 	}
 	
 	/* (non-Javadoc)
@@ -222,8 +234,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		if (teamsWithOrder.containsKey(teamName)) {
 				place = teamsWithOrder.get(teamName).intValue();
-				results.put(Integer.valueOf(-1), "Váš tým je aktuálně na "
+				results.put(Integer.valueOf(-2), "Váš tým je aktuálně na "
 						+ place + ". místě.");
+		}
+		
+		if (messageToTeams != null) {
+			results.put(Integer.valueOf(-1), messageToTeams);
 		}
 
 		return results;
@@ -246,20 +262,28 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			teamEndedNames.add(teamThatEnded.getTeamName());
 		}
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:MM:ss", new Locale("cs", "CZ"));
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", new Locale("cs", "CZ"));
 		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
+		SimpleDateFormat sdfForParse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("cs", "CZ"));
+		sdfForParse.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 		
 		Map<String, TeamStageClient> teamStagesByTeamName = new HashMap<>(36);
 		for (TeamStage actualTeamStage : teamStages) {
 			String actualTeamName = actualTeamStage.getTeamName();
-			if (!teamStagesByTeamName.containsKey(actualTeamName)) {
-				Date date = new Date(actualTeamStage.getStageDate().getTime());
-				TeamStageClient teamStageClient = new TeamStageClient(actualTeamStage.getTeamName(),
-																	actualTeamStage.getStageName(),
-																	actualTeamStage.getStageOrder(),
-																	date);
-				teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
-				teamStagesByTeamName.put(actualTeamName,teamStageClient);
+			try {
+				if (!teamStagesByTeamName.containsKey(actualTeamName)
+						&& sdfForParse.parse("2014-10-12 07:00:00").compareTo(actualTeamStage.getStageDate()) >= 0) {
+					Date date = new Date(actualTeamStage.getStageDate().getTime());
+					TeamStageClient teamStageClient = new TeamStageClient(actualTeamStage.getTeamName(),
+																		actualTeamStage.getStageName(),
+																		actualTeamStage.getStageOrder(),
+																		date);
+					teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
+					teamStagesByTeamName.put(actualTeamName,teamStageClient);
+				}
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -331,7 +355,13 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		team.setHelpsCount(helpsCount);
 		EMF.update(team);
 		
-		return "Tým má aktuálně " + helpsCount + " nápovědu.";
+		return "Tým (" + teamCode + ") má aktuálně " + helpsCount + " nápovědu.";
+	}
+	
+	@Override
+	public String setMessageToTeams(String message) {
+		TeamStageAction.messageToTeams = message;
+		return message;
 	}
 	
 	

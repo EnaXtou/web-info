@@ -56,6 +56,9 @@ public class AdminPage extends Composite {
 		});
 		
 		line.add(help);
+		panel.add(line);
+		line = new HorizontalPanel();
+		line.setSize("100%", "100%");
 		
 		Button helpMinus = new Button("Odeber heslo pro nápovědu týmu");
 		helpMinus.addClickHandler(new ClickHandler() {
@@ -66,6 +69,16 @@ public class AdminPage extends Composite {
 		});
 		
 		line.add(helpMinus);
+		
+		Button messageToTeams = new Button("Nastav zprávu pro týmy");
+		messageToTeams.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				changePage(new SetMessageForTeamsPage());
+			}
+		});
+		
+		line.add(messageToTeams);
 		panel.add(line);
 		
 		Button listStages = new Button("Zobraz stav hry");
