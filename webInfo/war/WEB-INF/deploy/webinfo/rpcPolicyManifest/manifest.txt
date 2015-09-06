@@ -1,3 +1,2 @@
 # Module webinfo
 # RPC service class, partial path of RPC policy file
-cz.plsi.webInfo.client.TeamStageActionInterface, 8DF72F7E923C6151C833F083D1DF9A8C.gwt.rpc

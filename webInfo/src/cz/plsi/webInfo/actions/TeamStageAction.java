@@ -5,9 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -25,7 +28,7 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
 public class TeamStageAction extends RemoteServiceServlet implements TeamStageActionInterface {
 
-	private static final String HELP_STOLEN = "Chytil vás Široko a vzal vám heslo. Pro nápovědu zadejte další heslo.";
+	public static final String HELP_STOLEN = "Chytilo vás nějaké monstrum, strachem se vám heslo vytratilo z paměti. Pro nápovědu zadejte další heslo.";
 	
 	//TODO must be change to datastore table
 	private static String messageToTeams = null;
@@ -152,14 +155,18 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			return CommonAction.addError("Nesprávný kód týmu.", errors);
 		}
 		
+		String teamName = teamWithCode.get(0).getName();
+		TeamStage lastTeamStage = TeamStage.getLastTeamStage(teamName);
+		
 		Stage stage = new Stage(stageName);
 		List<Stage> stageWithName = stage.getList();
 		
-		if (stageWithName.isEmpty()) {
+		int stageOrder = lastTeamStage == null ? 0 : lastTeamStage.getStageOrder();
+		if (stageWithName.isEmpty() || 
+				stageWithName.get(0).getNumber() != -1 && stageOrder != stageWithName.get(0).getNumber() - 1) {
 			return CommonAction.addError("Nesprávný kód stanoviště.", errors);
 		}
 		
-		String teamName = teamWithCode.get(0).getName();
 		Stage currentStage = stageWithName.get(0);
 		TeamStage teamStage = new TeamStage(teamName, stageName, currentStage.getNumber());
 		List<TeamStage> teamStages = teamStage.getList();
@@ -241,7 +248,11 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		if (messageToTeams != null) {
 			results.put(Integer.valueOf(-1), messageToTeams);
 		}
-
+		
+		results.putAll(getStatistics(teamStages));
+		
+		results.put(200, "Čas posledního požadavku: " + sdf.format(new Date()));
+		
 		return results;
 	}
 	
@@ -270,9 +281,10 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		Map<String, TeamStageClient> teamStagesByTeamName = new HashMap<>(36);
 		for (TeamStage actualTeamStage : teamStages) {
 			String actualTeamName = actualTeamStage.getTeamName();
-			try {
+//			try {
 				if (!teamStagesByTeamName.containsKey(actualTeamName)
-						&& sdfForParse.parse("2014-10-12 07:00:00").compareTo(actualTeamStage.getStageDate()) >= 0) {
+							//&& sdfForParse.parse("2014-10-12 07:00:00").compareTo(actualTeamStage.getStageDate()) >= 0
+						) {
 					Date date = new Date(actualTeamStage.getStageDate().getTime());
 					TeamStageClient teamStageClient = new TeamStageClient(actualTeamStage.getTeamName(),
 																		actualTeamStage.getStageName(),
@@ -281,10 +293,10 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 					teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
 					teamStagesByTeamName.put(actualTeamName,teamStageClient);
 				}
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 
 		TreeSet<TeamStageClient> sortedTeamStages = new TreeSet<>();
@@ -359,9 +371,33 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	}
 	
 	@Override
-	public String setMessageToTeams(String message) {
+	public String setMessageToTeams(String message, String messageFromStage, String messageToStage) {
 		TeamStageAction.messageToTeams = message;
 		return message;
+	}
+
+	public Map<Integer, String> getStatistics(List<TeamStage> teamStages) {
+		Map<Integer, Integer> stagesWithCount = new TreeMap<>();
+		HashSet<String> teamNames = new HashSet<String>(40);
+		for (TeamStage actualTeamStage : teamStages) {
+			String actualTeamName = actualTeamStage.getTeamName();
+			if (!teamNames.contains(actualTeamName)) {
+				teamNames.add(actualTeamName);
+				int stageOrder = actualTeamStage.getStageOrder();
+				Integer count = stagesWithCount.get(stageOrder);
+				stagesWithCount.put(stageOrder, count == null ? 1 : ++count);
+			}
+		}
+		
+		TreeMap<Integer, String> resultStats = new TreeMap<Integer, String>();
+		int i = 39;
+		if (!stagesWithCount.isEmpty())	{
+			resultStats.put(i++, "Počty týmů na stanovištích:");
+		}
+		for (Entry<Integer, Integer> orderAndCount : stagesWithCount.entrySet()) {
+			resultStats.put(i++, orderAndCount.getKey() + ". stanoviště: " + orderAndCount.getValue());
+		}
+		return resultStats;
 	}
 	
 	

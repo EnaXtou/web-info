@@ -30,6 +30,7 @@ public interface TeamStageActionInterface extends RemoteService {
 
 	TreeSet<TeamStageClient> getTeamsByStageAndStageDate();
 
-	String setMessageToTeams(String message);
+	String setMessageToTeams(String message, String messageFromStage,
+			String messageToStage);
 
 }

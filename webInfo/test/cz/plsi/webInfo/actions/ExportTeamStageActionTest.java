@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -73,6 +74,7 @@ public class ExportTeamStageActionTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGetResults() {
 		TeamStageAction teamStageAction = new TeamStageAction();
 		List<String> errors = new ArrayList<>();

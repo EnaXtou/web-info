@@ -16,6 +16,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class SetMessageForTeamsPage extends Composite {
 	private final TextBox message = new TextBox();
 	private final Label messageLabel = new Label();
+	private final TextBox messageFromStage = new TextBox();
+	private final Label messageFromStageLabel = new Label();
+	private final TextBox messageToStage = new TextBox();
+	private final Label messageToStageLabel = new Label();
 	private final Label status = new Label();
 
 	private TeamStageActionInterfaceAsync teamStageAction = GWT.create(TeamStageActionInterface.class);
@@ -44,7 +48,7 @@ public class SetMessageForTeamsPage extends Composite {
 			};
 
 			// Make the call to the stock price service.
-			teamStageAction.setMessageToTeams(message.getValue(), callback);
+			teamStageAction.setMessageToTeams(message.getValue(), messageFromStage.getValue(), messageToStage.getValue(), callback);
 		}
 	}
 
@@ -66,6 +70,22 @@ public class SetMessageForTeamsPage extends Composite {
 		messageLabel.setText("Zpráva: ");
 		line.add(messageLabel);
 		line.add(message);
+		panel.add(line);
+		
+		line = new HorizontalPanel();
+		line.setSize("100%", "100%");
+		messageFromStageLabel.setText("Stage od (včetně): ");
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		line.add(messageFromStageLabel);
+		line.add(messageFromStage);
+		panel.add(line);
+		
+		line = new HorizontalPanel();
+		line.setSize("100%", "100%");
+		messageToStageLabel.setText("Stage do (včetně): ");
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		line.add(messageToStageLabel);
+		line.add(messageToStage);
 		panel.add(line);
 	
 		panel.add(button);

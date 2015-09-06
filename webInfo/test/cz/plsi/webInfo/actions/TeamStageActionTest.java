@@ -98,7 +98,7 @@ public class TeamStageActionTest {
 		
 		// team 1 bych chycen širokem
 		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
-		assertEquals("Chytil vás široko a vzal vám heslo.", actual);
+		assertEquals(TeamStageAction.HELP_STOLEN, actual);
 		
 		// team 1 použije již použité heslo
 		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
@@ -177,7 +177,7 @@ public class TeamStageActionTest {
 		String nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
 		assertEquals(WELCOME,nextStageActual);
 
-		// team 1 může pokračovat na druhou stage (dovoluje se přeskočení)
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3, errors);
 		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
 		assertEquals(WELCOME,nextStageActual);
 
@@ -204,7 +204,7 @@ public class TeamStageActionTest {
 		TeamStageAction teamStageAction = new TeamStageAction();
 		Map<Integer, String> results = teamStageAction.getResults(TEAM + 4 + CODE);
 
-		assertTrue("Žádné výsledky nejsou k dispozici", results.isEmpty());
+		assertEquals("Žádné výsledky nejsou k dispozici, pouze čas požadavku.", 1, results.size());
 
 		List<String> errors = new ArrayList<>();
 
@@ -219,9 +219,13 @@ public class TeamStageActionTest {
 		
 		// team 1 může pokračovat na druhou stage
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
-
-		// team 1 může pokračovat na druhou stage (dovoluje se přeskočení)
+		// team 1 může pokračovat na druhou stage (nedovoluje se přeskočení)
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
+		assertEquals(1, errors.size());
+		errors.clear();
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
+		
 
 		// team 1 zadal znovu druhou stage chyba, již navštívená stage
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
@@ -238,14 +242,72 @@ public class TeamStageActionTest {
 		
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
 		
-		assertEquals(2, results.size());
-		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-1)));
+		assertEquals(7, results.size());
+		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
 		assertTrue(results.get(Integer.valueOf(0)).startsWith("Vede tým 'team_1', který byl na 4. stanovišti v "));
 		
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
-		assertEquals(2, results.size());
-		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-1)));
+		assertEquals(7, results.size());
+		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
 		assertTrue(results.get(Integer.valueOf(0)).startsWith("Vede tým 'team_1', který byl na 4. stanovišti v "));
+	}
+	
+	@Test
+	public void testGetStatistics() {
+		TeamStageAction teamStageAction = new TeamStageAction();
+
+		List<String> errors = new ArrayList<>();
+
+		// team 1 je na stanovišti 1
+		TeamStage teamStage = new TeamStage(TEAM + 1, STAGE + 1, 1);
+		EMF.add(teamStage);
+		// team 2 je na stanovišti 1
+		teamStage = new TeamStage(TEAM + 2, STAGE + 1, 1);
+		EMF.add(teamStage);
+		
+		Map<Integer, String> resultStats;
+		teamStage = new TeamStage();
+		
+		teamStage.getList();
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(2, resultStats.size());
+		assertEquals("1. stanoviště: 2", resultStats.get(Integer.valueOf(40)));
+		
+		// team 1 může pokračovat na druhou stage
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+
+		// team 1 může pokračovat na čtvrtou stage (nedovoluje se přeskočení)
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
+
+		// team 1 zadal znovu druhou stage chyba, již navštívená stage
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(3, resultStats.size());
+		assertEquals("1. stanoviště: 1", resultStats.get(Integer.valueOf(40)));
+		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
+		
+		// team 4 zadal 1. stanoviště
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1, errors);
+		
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(3, resultStats.size());
+		assertEquals("1. stanoviště: 2", resultStats.get(Integer.valueOf(40)));
+		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
+
+		// team 4 zadal 2. stanoviště
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2, errors);
+
+		// team 4 zadal neexistující kód stanoviště chyba
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + "_NOT_EXISTS", errors);
+
+		
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(4, resultStats.size());
+		assertEquals("1. stanoviště: 1", resultStats.get(Integer.valueOf(40)));
+		assertEquals("2. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
+		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(42)));
 	}
 
 }
