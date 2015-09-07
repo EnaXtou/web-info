@@ -48,7 +48,7 @@ public class SetMessageForTeamsPage extends Composite {
 			};
 
 			// Make the call to the stock price service.
-			teamStageAction.setMessageToTeams(message.getValue(), messageFromStage.getValue(), messageToStage.getValue(), callback);
+			teamStageAction.setMessageToTeams(message.getValue(), Integer.parseInt(messageFromStage.getValue()), Integer.parseInt(messageToStage.getValue()), callback);
 		}
 	}
 

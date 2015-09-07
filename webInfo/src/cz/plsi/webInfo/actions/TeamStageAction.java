@@ -21,6 +21,7 @@ import cz.plsi.webInfo.client.TeamStageActionInterface;
 import cz.plsi.webInfo.client.TeamStageClient;
 import cz.plsi.webInfo.shared.dataStore.EMF;
 import cz.plsi.webInfo.shared.dataStore.entities.Help;
+import cz.plsi.webInfo.shared.dataStore.entities.MessageToTeams;
 import cz.plsi.webInfo.shared.dataStore.entities.Stage;
 import cz.plsi.webInfo.shared.dataStore.entities.Team;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
@@ -244,10 +245,22 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				results.put(Integer.valueOf(-2), "Váš tým je aktuálně na "
 						+ place + ". místě.");
 		}
+	
+		TeamStage lastTeamStage = TeamStage.getLastTeamStage(teamName);
 		
-		if (messageToTeams != null) {
-			results.put(Integer.valueOf(-1), messageToTeams);
+		MessageToTeams messagesToTeams = new MessageToTeams();
+		if (lastTeamStage != null) {
+			List<MessageToTeams> messagesForStage = messagesToTeams.getList();
+			
+			order = -3;
+			for (MessageToTeams messageToTeams : messagesForStage) {
+				if (messageToTeams.getFromStageNumber() <= lastTeamStage.getStageOrder()
+						&& messageToTeams.getToStageNumber() >= lastTeamStage.getStageOrder()) {
+					results.put(Integer.valueOf(order--), messageToTeams.getMessage());
+				}
+			}
 		}
+		
 		
 		results.putAll(getStatistics(teamStages));
 		
@@ -371,8 +384,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	}
 	
 	@Override
-	public String setMessageToTeams(String message, String messageFromStage, String messageToStage) {
-		TeamStageAction.messageToTeams = message;
+	public String setMessageToTeams(String message, int messageFromStage, int messageToStage) {
+		MessageToTeams messageToTeams = new MessageToTeams();
+		messageToTeams.setMessage(message);
+		messageToTeams.setFromStageNumber(messageFromStage);
+		messageToTeams.setToStageNumber(messageToStage);
+		EMF.add(messageToTeams);
 		return message;
 	}
 

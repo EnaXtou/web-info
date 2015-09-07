@@ -18,12 +18,14 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import cz.plsi.webInfo.shared.dataStore.EMF;
 import cz.plsi.webInfo.shared.dataStore.entities.EntityCommon;
 import cz.plsi.webInfo.shared.dataStore.entities.Help;
+import cz.plsi.webInfo.shared.dataStore.entities.MessageToTeams;
 import cz.plsi.webInfo.shared.dataStore.entities.Stage;
 import cz.plsi.webInfo.shared.dataStore.entities.Team;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 
 public class TeamStageActionTest {
 
+	private static final String TEST_MESSAGE = "Test message";
 	private static final String WELCOME = "Tak vás tu vítáme! Plantážníci.";
 	private static final String CODE = "_code";
 	private static final String TEAM = "team_";
@@ -215,6 +217,12 @@ public class TeamStageActionTest {
 		teamStage = new TeamStage(TEAM + 2, STAGE + 1, 1);
 		EMF.add(teamStage);
 		
+		MessageToTeams messageToTeams = new MessageToTeams();
+		messageToTeams.setMessage(TEST_MESSAGE);
+		messageToTeams.setFromStageNumber(1);
+		messageToTeams.setToStageNumber(2);
+		EMF.add(messageToTeams);
+		
 		
 		
 		// team 1 může pokračovat na druhou stage
@@ -245,9 +253,9 @@ public class TeamStageActionTest {
 		assertEquals(7, results.size());
 		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
 		assertTrue(results.get(Integer.valueOf(0)).startsWith("Vede tým 'team_1', který byl na 4. stanovišti v "));
-		
+		// obsahuje zprávu pro týmy
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
-		assertEquals(7, results.size());
+		assertEquals(8, results.size());
 		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
 		assertTrue(results.get(Integer.valueOf(0)).startsWith("Vede tým 'team_1', který byl na 4. stanovišti v "));
 	}

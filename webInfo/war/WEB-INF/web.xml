@@ -21,5 +21,18 @@
     <servlet-name>teamStageAction</servlet-name>
     <url-pattern>/webinfo/teamStageAction</url-pattern>
   </servlet-mapping>
+  
+  
+   <servlet>
+    <servlet-name>exportAction</servlet-name>
+    <servlet-class>cz.plsi.webInfo.actions.export.ExportTeamStages</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>exportAction</servlet-name>
+    <url-pattern>/webinfo/exportAction</url-pattern>
+  </servlet-mapping>
+  
+  
 
 </web-app>

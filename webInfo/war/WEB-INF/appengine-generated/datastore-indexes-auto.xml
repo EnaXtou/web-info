@@ -1,32 +1,11 @@
-<!-- Indices written at Sun, 6 Sep 2015 10:11:24 CEST -->
+<!-- Indices written at Mon, 7 Sep 2015 21:22:29 CEST -->
 
 <datastore-indexes>
 
-    <!-- Used 14 times in query history -->
+    <!-- Used 2 times in query history -->
     <datastore-index kind="TeamStage" ancestor="false" source="auto">
         <property name="stageOrder" direction="desc"/>
         <property name="stageDate" direction="asc"/>
-    </datastore-index>
-
-    <!-- Used 1 time in query history -->
-    <datastore-index kind="TeamStage" ancestor="false" source="auto">
-        <property name="stageOrder" direction="asc"/>
-        <property name="stageDate" direction="asc"/>
-    </datastore-index>
-
-    <!-- Used 8 times in query history -->
-    <datastore-index kind="TeamStage" ancestor="false" source="auto">
-        <property name="stageName" direction="asc"/>
-        <property name="teamName" direction="asc"/>
-        <property name="stageOrder" direction="desc"/>
-        <property name="stageDate" direction="asc"/>
-    </datastore-index>
-
-    <!-- Used 6 times in query history -->
-    <datastore-index kind="TeamStageHelp" ancestor="false" source="auto">
-        <property name="isHelp" direction="asc"/>
-        <property name="teamName" direction="asc"/>
-        <property name="stageHelpDate" direction="desc"/>
     </datastore-index>
 
 </datastore-indexes>
