@@ -25,7 +25,7 @@
   
    <servlet>
     <servlet-name>exportAction</servlet-name>
-    <servlet-class>cz.plsi.webInfo.actions.export.ExportTeamStages</servlet-class>
+    <servlet-class>cz.plsi.webInfo.actions.export.ExportData</servlet-class>
   </servlet>
 
   <servlet-mapping>

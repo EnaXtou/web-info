@@ -31,6 +31,10 @@ public class Stage implements EntityCommon {
 	
 	private String result;
 	
+	
+	public Stage() {
+		super();
+	}
 		
 	public Stage(String name) {
 		super();
