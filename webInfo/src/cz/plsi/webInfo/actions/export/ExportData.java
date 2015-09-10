@@ -2,8 +2,10 @@ package cz.plsi.webInfo.actions.export;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.servlet.ServletException;
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cz.plsi.webInfo.shared.dataStore.entities.Stage;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
+import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
 public class ExportData extends HttpServlet {
 
@@ -84,13 +87,84 @@ public class ExportData extends HttpServlet {
 			}
 
 		},
+		TEAM_STAGE_HELPS("phone_hints.txt") {
+
+			@Override
+			public StringBuilder getExportedData() {
+				List<TeamStageHelp> teamStageHelps = (new TeamStageHelp()).getList();
+
+				SimpleDateFormat sdf = getSimpleDateFormat();
+
+				StringBuilder sb = new StringBuilder();
+				sb.append("code;position;team_name;time\n");
+				Set<String> teamStageHelpsPositions = new HashSet<>();
+				for (TeamStageHelp teamStageHelp : teamStageHelps) {
+					if (!teamStageHelp.isHelp()) {
+						continue;
+					}
+					if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 1))) {
+						sb.append(teamStageHelp.getStageName()).append(";");
+						teamStageHelpsPositions.add(getHash(teamStageHelp, 1));
+						sb.append(1).append(";");
+					} else if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 2))) {
+						sb.append(teamStageHelp.getStageName()).append(";");
+						teamStageHelpsPositions.add(getHash(teamStageHelp, 2));
+						sb.append(2).append(";");
+					} else {
+						continue;
+					}
+					sb.append(teamStageHelp.getTeamName()).append(";");
+					sb.append(sdf.format(teamStageHelp.getStageHelpDate()))
+							.append("\n");
+				}
+				return sb;
+			}
+
+			private String getHash(TeamStageHelp teamStageHelp, int position) {
+				return teamStageHelp.getStageName() + teamStageHelp.getTeamName() + "_" + position;
+			}
+
+		},
+		TEAM_STAGE_RESULTS("absolute_hints.txt") {
+			
+			@Override
+			public StringBuilder getExportedData() {
+				List<TeamStageHelp> teamStageHelps = (new TeamStageHelp()).getList();
+				
+				SimpleDateFormat sdf = getSimpleDateFormat();
+				
+				StringBuilder sb = new StringBuilder();
+				sb.append("code;team_name;time\n");
+				Set<String> teamStageHelpsPositions = new HashSet<>();
+				for (TeamStageHelp teamStageHelp : teamStageHelps) {
+					if (!teamStageHelp.isHelp()) {
+						continue;
+					}
+					if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 1))) {
+						teamStageHelpsPositions.add(getHash(teamStageHelp, 1));
+					} else if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 2))) {
+						teamStageHelpsPositions.add(getHash(teamStageHelp, 2));
+					} else {
+						sb.append(teamStageHelp.getStageName()).append(";");
+						sb.append(teamStageHelp.getTeamName()).append(";");
+						sb.append(sdf.format(teamStageHelp.getStageHelpDate()))
+						.append("\n");
+					}
+				}
+				return sb;
+			}
+			
+			private String getHash(TeamStageHelp teamStageHelp, int position) {
+				return teamStageHelp.getStageName() + teamStageHelp.getTeamName() + "_" + position;
+			}
+			
+		},
+
 		STAGES("puzzles.txt") {
 
 			@Override
 			public StringBuilder getExportedData() {
 				List<Stage> stages = (new Stage()).getList();
-
-				SimpleDateFormat sdf = getSimpleDateFormat();
 
 				StringBuilder sb = new StringBuilder();
 				sb.append("position;name;code;hint\n");

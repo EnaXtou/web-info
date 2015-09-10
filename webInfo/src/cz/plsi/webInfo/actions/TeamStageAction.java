@@ -1,16 +1,13 @@
 package cz.plsi.webInfo.actions;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -30,9 +27,6 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 public class TeamStageAction extends RemoteServiceServlet implements TeamStageActionInterface {
 
 	public static final String HELP_STOLEN = "Chytilo vás nějaké monstrum, strachem se vám heslo vytratilo z paměti. Pro nápovědu zadejte další heslo.";
-	
-	//TODO must be change to datastore table
-	private static String messageToTeams = null;
 	
 	/**
 	 * 
@@ -184,7 +178,11 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		if (currentStage.getNumber() == -1) {
 			greetings = getGoodBye(currentStage);
 		} else {
-			greetings = "Tak vás tu vítáme! Plantážníci.";
+			StringBuilder sb = new StringBuilder();
+			sb.append("Tak vás tu vítáme! ");
+			sb.append(currentStage.getNumber());
+			sb.append(". stanoviště, že vám to ale trvalo.");
+			greetings = sb.toString();
 		}
 		return greetings;
 	}

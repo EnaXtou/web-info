@@ -176,6 +176,7 @@ public class TeamStageHelp implements EntityCommon {
 		if (criteria != null) {
 			cq.where(criteria);
 		}
+		cq.orderBy(criteriaBuilder.asc(teamStageHelp.get("stageHelpDate")));
 		cq.select(teamStageHelp);
 		
 		return em.createQuery(cq).getResultList();
