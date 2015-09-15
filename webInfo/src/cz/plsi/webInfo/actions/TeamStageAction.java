@@ -333,8 +333,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#addTeam(java.lang.String)
 	 */
 	@Override
-	public void addStage(int order, String name, String help1, String help2, String result) {
-		EMF.add(new Stage(name, order, help1, help2, result));
+	public void addStage(int order, String name, String description, String help1, String help2, String result) {
+		EMF.add(new Stage(name, order, description, help1, help2, result));
 	}
 	
 	/* (non-Javadoc)

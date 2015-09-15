@@ -167,11 +167,13 @@ public class ExportData extends HttpServlet {
 				List<Stage> stages = (new Stage()).getList();
 
 				StringBuilder sb = new StringBuilder();
-				sb.append("position;name;code;hint\n");
+				sb.append("position;name;code;hint1;hint2\n");
 				for (Stage stage : stages) {
 					sb.append(stage.getNumber()).append(";");
+					sb.append(stage.getDescription()).append(";");
 					sb.append(stage.getName()).append(";");
-					sb.append(stage.getHelp1())
+					sb.append(stage.getHelp1()).append(";");
+					sb.append(stage.getHelp2())
 							.append("\n");
 				}
 				return sb;

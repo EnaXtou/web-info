@@ -30,6 +30,8 @@ public class Stage implements EntityCommon {
 	private String help2;
 	
 	private String result;
+
+	private String description;
 	
 	
 	public Stage() {
@@ -42,9 +44,14 @@ public class Stage implements EntityCommon {
 	}
 
 	public Stage(String name, int number, String help1, String help2, String result) {
+		this(name, number, null, help1, help2, result);
+	}
+	
+	public Stage(String name, int number, String description, String help1, String help2, String result) {
 		super();
 		this.name = name;
 		this.setNumber(number);
+		this.setDescription(description);
 		this.help1 = help1;
 		this.help2 = help2;
 		this.result = result;
@@ -150,6 +157,14 @@ public class Stage implements EntityCommon {
 	@Override
 	public Object getId() {
 		return getName();
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 

@@ -18,6 +18,8 @@ public class AddStagePage extends Composite {
 	private final Label orderLabel = new Label();
 	private final TextBox name = new TextBox();
 	private final Label nameLabel = new Label();
+	private final TextBox description = new TextBox();
+	private final Label descriptionLabel = new Label();
 	private final TextBox help1 = new TextBox();
 	private final Label help1Label = new Label();
 	private final TextBox help2 = new TextBox();
@@ -55,7 +57,8 @@ public class AddStagePage extends Composite {
 
 				// Make the call to the stock price service.
 				teamStageAction.addStage(Integer.parseInt(order.getValue()),
-						name.getValue(), 
+						name.getValue(),
+						description.getValue(),
 						help1.getValue(),
 						help2.getValue(),
 						result.getValue(),
@@ -87,6 +90,14 @@ public class AddStagePage extends Composite {
 		line.add(name);
 		panel.add(line);
 
+		line = new HorizontalPanel();
+		line.setSize("100%", "100%");
+		descriptionLabel.setText("Popis stage: ");
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		line.add(descriptionLabel);
+		line.add(description);
+		panel.add(line);
+		
 		line = new HorizontalPanel();
 		line.setSize("100%", "100%");
 		help1Label.setText("Nápověda 1: ");

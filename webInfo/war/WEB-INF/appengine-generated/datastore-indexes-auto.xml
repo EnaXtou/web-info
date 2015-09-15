@@ -1,10 +1,4 @@
-<!-- Indices written at Wed, 9 Sep 2015 22:37:43 CEST -->
+<!-- Indices written at Tue, 15 Sep 2015 20:13:35 CEST -->
 
-<datastore-indexes>
-	<datastore-index kind="TeamStageHelp" ancestor="false" source="manual">
-        <property name="stageName" direction="asc"/>
-        <property name="teamName" direction="asc"/>
-        <property name="stageHelpDate" direction="asc"/>
-    </datastore-index>
-</datastore-indexes>
+<datastore-indexes/>
 

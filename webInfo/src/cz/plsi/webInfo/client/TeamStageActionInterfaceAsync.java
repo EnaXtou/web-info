@@ -18,7 +18,8 @@ public interface TeamStageActionInterfaceAsync {
 
 	void nextStage(String teamCode, String stageName, List<String> errors, AsyncCallback<String> callback);
 
-	void addStage(int order, String name, String help1, String help2, String result, AsyncCallback<Void> callback);
+	void addStage(int order, String name, String description, String help1,
+			String help2, String result, AsyncCallback<Void> callback);
 
 	void loginTeam(String code, AsyncCallback<Integer> callback);
 
