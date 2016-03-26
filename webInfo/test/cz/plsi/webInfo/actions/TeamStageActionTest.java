@@ -26,7 +26,8 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 public class TeamStageActionTest {
 
 	private static final String TEST_MESSAGE = "Test message";
-	private static final String WELCOME = "Tak vás tu vítáme! Plantážníci.";
+	private static final String WELCOME_START = "Tak vás tu vítáme! ";
+	private static final String WELCOME_END = ". stanoviště, že vám to ale trvalo.";
 	private static final String CODE = "_code";
 	private static final String TEAM = "team_";
 	private static final String HELP = "help_";
@@ -177,11 +178,11 @@ public class TeamStageActionTest {
 
 		// team 1 může pokračovat na druhou stage
 		String nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
-		assertEquals(WELCOME,nextStageActual);
+		assertEquals(WELCOME_START + 2 + WELCOME_END, nextStageActual);
 
 		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3, errors);
 		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
-		assertEquals(WELCOME,nextStageActual);
+		assertEquals(WELCOME_START + 4 + WELCOME_END, nextStageActual);
 
 		// team 1 zadal znovu druhou stage chyba, již navštívená stage
 		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
@@ -190,11 +191,11 @@ public class TeamStageActionTest {
 
 		// team 4 zadal 1. stanoviště
 		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1, errors);
-		assertEquals(WELCOME,nextStageActual);
+		assertEquals(WELCOME_START + 1 + WELCOME_END,nextStageActual);
 
 		// team 4 zadal 2. stanoviště
 		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2, errors);
-		assertEquals(WELCOME,nextStageActual);
+		assertEquals(WELCOME_START + 2 + WELCOME_END,nextStageActual);
 
 		// team 4 zadal neexistující kód stanoviště chyba
 		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + "_NOT_EXISTS", errors);
