@@ -158,7 +158,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		int stageOrder = lastTeamStage == null ? 0 : lastTeamStage.getStageOrder();
 		if (stageWithName.isEmpty() || 
-				stageWithName.get(0).getNumber() != -1 && stageOrder != stageWithName.get(0).getNumber() - 1) {
+				stageWithName.get(0).getNumber() != -1 && stageOrder != stageWithName.get(0).getNumber() - 1 && stageOrder != stageWithName.get(0).getNumber()) {
 			return CommonAction.addError("Nesprávný kód stanoviště.", errors);
 		}
 		
