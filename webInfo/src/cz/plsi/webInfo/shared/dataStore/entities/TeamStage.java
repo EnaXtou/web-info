@@ -15,6 +15,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.eclipse.jdt.internal.codeassist.MissingTypesGuesser.GuessedTypeRequestor;
+
 import com.google.appengine.api.datastore.Key;
 
 import cz.plsi.webInfo.shared.dataStore.EMF;
@@ -36,6 +38,8 @@ public class TeamStage implements EntityCommon {
 	
 	private Date stageDate;
 	
+	private String stageBranch;
+	
 	public void setTeamName(String teamName) {
 		this.teamName = teamName;
 	}
@@ -54,6 +58,14 @@ public class TeamStage implements EntityCommon {
 		this.stageOrder = stageOrder;
 	}
 
+	
+	public TeamStage(String teamName, String stageName, int stageOrder, String stageBranch) {
+		this.teamName = teamName;
+		this.stageName = stageName;
+		this.stageDate = new Date();
+		this.stageOrder = stageOrder;
+		this.stageBranch = stageBranch;
+	}
 
 	public TeamStage() {
 		super();
@@ -86,7 +98,15 @@ public class TeamStage implements EntityCommon {
 	public void setStageOrder(int stageOrder) {
 		this.stageOrder = stageOrder;
 	}
+	
+	public String getStageBranch() {
+		return stageBranch;
+	}
 
+
+	public void setStageBranch(String stageBranch) {
+		this.stageBranch = stageBranch;
+	}
 
 	/* (non-Javadoc)
 	 * @see cz.plsi.webInfo.shared.dataStore.entities.EntityCommon#count()
@@ -94,10 +114,23 @@ public class TeamStage implements EntityCommon {
 	@Override
 	public long count() {
 		EntityManager em = EMF.getInstance().createEntityManager();
+		StringBuilder queryBuilder = new StringBuilder();
+		queryBuilder.append("SELECT COUNT(ts) FROM ");
+		queryBuilder.append(TeamStage.class.getName());
+		queryBuilder.append(" ts");
+		if (this.teamName != null) {
+			queryBuilder.append(" where ts.teamName=:teamName");
+		}
 		TypedQuery<Long> query = em.createQuery(
-			      "SELECT COUNT(ts) FROM "+ TeamStage.class.getName() +" ts", Long.class);
+				queryBuilder.toString(), Long.class);
+		if (this.teamName != null) {
+			query.setParameter("teamName", this.teamName);
+		}
+		
+					
 		return query.getSingleResult();
 	}
+	
 	//TODO refaktor z team name na team code
 	public static TeamStage getLastTeamStage(String team) {
 		EntityManager em = EMF.getInstance().createEntityManager();
@@ -114,6 +147,25 @@ public class TeamStage implements EntityCommon {
 		
 		return resultList.get(0);
 	}
+	
+	public static TeamStage getLastTeamStage(String team, String stageBranch) {
+		EntityManager em = EMF.getInstance().createEntityManager();
+		TypedQuery<TeamStage> query = em.createQuery(
+				"SELECT ts FROM "+ TeamStage.class.getName() +" ts "
+						+ "where ts.teamName=:teamName "
+						+ "and ts.stageBranch=:stageBranch "
+						+ "ORDER BY ts.stageDate DESC", TeamStage.class);
+		query.setParameter("teamName", team);
+		query.setParameter("stageBranch", stageBranch);
+		query.setMaxResults(1);
+		List<TeamStage> resultList = query.getResultList();
+		if (resultList.isEmpty()) {
+			return null;
+		}
+		
+		return resultList.get(0);
+	}
+			
 	
 	public static TeamStage getTeamStage(String team, String stage) {
 		EntityManager em = EMF.getInstance().createEntityManager();
@@ -221,6 +273,5 @@ public class TeamStage implements EntityCommon {
 		return "TeamStage [id=" + id + ", teamName=" + teamName
 				+ ", stageName=" + stageName + ", stageDate=" + stageDate + "]";
 	}
-	
-	
+
 }

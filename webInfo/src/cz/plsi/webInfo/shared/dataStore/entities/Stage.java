@@ -33,6 +33,10 @@ public class Stage implements EntityCommon {
 
 	private String description;
 	
+	private String branch = "L";
+	
+	private int constraint;
+	
 	
 	public Stage() {
 		super();
@@ -55,6 +59,17 @@ public class Stage implements EntityCommon {
 		this.help1 = help1;
 		this.help2 = help2;
 		this.result = result;
+		this.branch = "OnlyLinear";
+	}
+	
+	public Stage(String name, int number, String description, String help1, String help2, String result, String branch) {
+		this(name, number, description, help1, help2, result);
+		this.branch = branch;
+	}
+	
+	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint) {
+		this(name, number, description, help1, help2, result, branch);
+		this.constraint = constraint;
 	}
 
 	public String getName() {
@@ -141,6 +156,9 @@ public class Stage implements EntityCommon {
 		if (this.name != null) {
 			cq.where(criteriaBuilder.equal(stage.get("name"), this.name));
 		}
+//		if (this.branch != null) {
+//			cq.where(criteriaBuilder.equal(stage.get("branch"), this.branch));
+//		}
 		
 		cq.select(stage);
 		cq.orderBy(criteriaBuilder.desc(stage.get("number")));
@@ -165,6 +183,22 @@ public class Stage implements EntityCommon {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getBranch() {
+		return branch;
+	}
+
+	public void setBranch(String branch) {
+		this.branch = branch;
+	}
+
+	public int getConstraint() {
+		return constraint;
+	}
+
+	public void setConstraint(int constraint) {
+		this.constraint = constraint;
 	}
 	
 

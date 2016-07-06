@@ -23,11 +23,10 @@ import cz.plsi.webInfo.shared.dataStore.entities.Stage;
 import cz.plsi.webInfo.shared.dataStore.entities.Team;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 
-public class TeamStageActionTest {
+public class TeamStageActionParallelTest {
 
-	private static final String ONLY_LINEAR = "OnlyLinear";
 	private static final String TEST_MESSAGE = "Test message";
-	private static final String WELCOME_START = "Tak vás tu vítáme! " + ONLY_LINEAR + "." ;
+	private static final String WELCOME_START = "Tak vás tu vítáme! ";
 	private static final String WELCOME_END = ". stanoviště, že vám to ale trvalo.";
 	private static final String CODE = "_code";
 	private static final String TEAM = "team_";
@@ -57,13 +56,23 @@ public class TeamStageActionTest {
 			EMF.add(help);
 		}
 
-		for (int i = 1; i < 12; i++) {
+		createStagesForBranch(5, "L", 4);
+		createStagesForBranch(5, "A", 0);
+		createStagesForBranch(5, "B", 0);
+		createStagesForBranch(5, "C", 0);
+		
+	}
+
+	private void createStagesForBranch(int numberOfStages, String stageBranch, int constraint) {
+		for (int i = 1; i < numberOfStages; i++) {
 			EntityCommon stage = null;
-			if (i == 2) {
-				stage = new Stage(STAGE + i, i, HELP_1 + i, null, null);
+			if (i == 1) {
+				stage = new Stage(STAGE + i + stageBranch, i, null, HELP_1 + i, HELP_2 + i, RESULT + i, stageBranch, constraint);
+			} else if (i == 2) {
+				stage = new Stage(STAGE + i + stageBranch, i, null, HELP_1 + i, null, null, stageBranch);
 				
 			} else {
-				stage = new Stage(STAGE + i, i, HELP_1 + i, HELP_2 + i, RESULT + i);
+				stage = new Stage(STAGE + i + stageBranch, i, null, HELP_1 + i, HELP_2 + i, RESULT + i, stageBranch);
 				
 			}
 			EMF.add(stage);
@@ -71,7 +80,6 @@ public class TeamStageActionTest {
 		
 		EntityCommon stage2 = new Stage("KONEC", -1, null, null, null);
 		EMF.add(stage2);
-		
 	}
 
 	@After
@@ -92,11 +100,11 @@ public class TeamStageActionTest {
 		EMF.update(team);
 		
 		// team 1 je na stanovišti 1
-		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1, 1);
+		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "B", 1);
 		EMF.add(teamStage);
 
 		// team 2 je na stanovišti 1
-		teamStage = new TeamStage(TEAM + 2, STAGE + 1, 1);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1);
 		EMF.add(teamStage);
 		TeamStageAction teamStageAction = new TeamStageAction();
 		
@@ -123,7 +131,7 @@ public class TeamStageActionTest {
 
 		// druhý tým je na druhém stanovišti
 		// první stále na prvním stanovyšti
-		teamStage = new TeamStage(TEAM + 2, STAGE + 2, 2);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 2 + "B", 2);
 		EMF.add(teamStage);
 		
 		// druhý tým použije heslo již použitý týmem jedna
@@ -138,7 +146,7 @@ public class TeamStageActionTest {
 		errors.clear();
 		
 		// druhý tým je na třetím stanovišti a může použít heslo 2 znovu
-		teamStage = new TeamStage(TEAM + 2, STAGE + 3, 3);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 3 + "B", 3);
 		EMF.add(teamStage);
 		
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, errors);
@@ -165,38 +173,52 @@ public class TeamStageActionTest {
 		List<String> errors = new ArrayList<>();
 
 		// team 1 je na stanovišti 1
-		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1, 1, ONLY_LINEAR);
+		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 		// team 2 je na stanovišti 1
-		teamStage = new TeamStage(TEAM + 2, STAGE + 1, 1, ONLY_LINEAR);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 
 		TeamStageAction teamStageAction = new TeamStageAction();
 		// team 1 již je na první stage
-		teamStageAction.nextStage(TEAM + 1, STAGE + 1, errors);
+		teamStageAction.nextStage(TEAM + 1, STAGE + 1 + "A", errors);
+		assertEquals(1, errors.size());
+		errors.clear();
+		
+		// team 1 nemůže pokračovat na první stage B větve, nebyl na první stage
+		String nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "B", errors);
 		assertEquals(1, errors.size());
 		errors.clear();
 
-		// team 1 může pokračovat na druhou stage
-		String nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
-		assertEquals(WELCOME_START + 2 + WELCOME_END, nextStageActual);
+		// team 1 nemůže pokračovat na první stage lineární větve, nemá dostatečný počet splněných stanovišť
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1 + "L", errors);
+		assertEquals(1, errors.size());
+		errors.clear();
+		
+		// team 1 může pokračovat na druhou stage větve A
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
+		assertEquals(WELCOME_START + "A." + 2 + WELCOME_END, nextStageActual);
 
-		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3, errors);
-		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
-		assertEquals(WELCOME_START + 4 + WELCOME_END, nextStageActual);
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3 + "A", errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4 + "A", errors);
+		assertEquals(WELCOME_START + "A." + 4 + WELCOME_END, nextStageActual);
+		
+		// team 1 může pokračovat na první stage lineární větve, má dostatečný počet splněných stanovišť
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1 + "L", errors);
+		assertEquals(WELCOME_START + "L." + 1 + WELCOME_END, nextStageActual);
 
 		// team 1 zadal znovu druhou stage chyba, již navštívená stage
-		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+		nextStageActual = teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
 		assertEquals(1, errors.size());
 		errors.clear();
 
 		// team 4 zadal 1. stanoviště
-		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1, errors);
-		assertEquals(WELCOME_START + 1 + WELCOME_END,nextStageActual);
+		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "A", errors);
+		assertEquals(WELCOME_START + "A." + 1 + WELCOME_END,nextStageActual);
 
 		// team 4 zadal 2. stanoviště
-		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2, errors);
-		assertEquals(WELCOME_START + 2 + WELCOME_END,nextStageActual);
+		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "A", errors);
+		assertEquals(WELCOME_START + "A." + 2 + WELCOME_END,nextStageActual);
 
 		// team 4 zadal neexistující kód stanoviště chyba
 		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + "_NOT_EXISTS", errors);
@@ -213,10 +235,10 @@ public class TeamStageActionTest {
 		List<String> errors = new ArrayList<>();
 
 		// team 1 je na stanovišti 1
-		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1, 1, ONLY_LINEAR);
+		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 		// team 2 je na stanovišti 1
-		teamStage = new TeamStage(TEAM + 2, STAGE + 1, 1, ONLY_LINEAR);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 		
 		MessageToTeams messageToTeams = new MessageToTeams();
@@ -228,23 +250,23 @@ public class TeamStageActionTest {
 		
 		
 		// team 1 může pokračovat na druhou stage
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
 		// team 1 může pokračovat na druhou stage (nedovoluje se přeskočení)
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4 + "A", errors);
 		assertEquals(1, errors.size());
 		errors.clear();
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3, errors);
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3 + "A", errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4 + "A", errors);
 		
 
 		// team 1 zadal znovu druhou stage chyba, již navštívená stage
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
 
 		// team 4 zadal 1. stanoviště
-		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1, errors);
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "A", errors);
 
 		// team 4 zadal 2. stanoviště
-		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2, errors);
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "A", errors);
 
 		// team 4 zadal neexistující kód stanoviště chyba
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + "_NOT_EXISTS", errors);
@@ -269,10 +291,10 @@ public class TeamStageActionTest {
 		List<String> errors = new ArrayList<>();
 
 		// team 1 je na stanovišti 1
-		TeamStage teamStage = new TeamStage(TEAM + 1, STAGE + 1, 1, ONLY_LINEAR);
+		TeamStage teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 		// team 2 je na stanovišti 1
-		teamStage = new TeamStage(TEAM + 2, STAGE + 1, 1, ONLY_LINEAR);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 		
 		Map<Integer, String> resultStats;
@@ -284,14 +306,14 @@ public class TeamStageActionTest {
 		assertEquals("1. stanoviště: 2", resultStats.get(Integer.valueOf(40)));
 		
 		// team 1 může pokračovat na druhou stage
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
 
 		// team 1 může pokračovat na čtvrtou stage (nedovoluje se přeskočení)
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3, errors);
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3 + "A", errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4 + "A", errors);
 
 		// team 1 zadal znovu druhou stage chyba, již navštívená stage
-		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
 
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(3, resultStats.size());
@@ -299,7 +321,7 @@ public class TeamStageActionTest {
 		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
 		
 		// team 4 zadal 1. stanoviště
-		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1, errors);
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "A", errors);
 		
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(3, resultStats.size());
@@ -307,7 +329,7 @@ public class TeamStageActionTest {
 		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
 
 		// team 4 zadal 2. stanoviště
-		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2, errors);
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "A", errors);
 
 		// team 4 zadal neexistující kód stanoviště chyba
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + "_NOT_EXISTS", errors);

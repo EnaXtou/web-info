@@ -151,19 +151,29 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		}
 		
 		String teamName = teamWithCode.get(0).getName();
-		TeamStage lastTeamStage = TeamStage.getLastTeamStage(teamName);
 		
 		Stage stage = new Stage(stageName);
 		List<Stage> stageWithName = stage.getList();
-		
-		int stageOrder = lastTeamStage == null ? 0 : lastTeamStage.getStageOrder();
-		if (stageWithName.isEmpty() || 
-				stageWithName.get(0).getNumber() != -1 && stageOrder != stageWithName.get(0).getNumber() - 1 && stageOrder != stageWithName.get(0).getNumber()) {
-			return CommonAction.addError("Nesprávný kód stanoviště.", errors);
+		if (stageWithName.isEmpty()) {
+			return addErrorWrongStageCode(errors);
 		}
 		
 		Stage currentStage = stageWithName.get(0);
-		TeamStage teamStage = new TeamStage(teamName, stageName, currentStage.getNumber());
+		TeamStage lastTeamStage = TeamStage.getLastTeamStage(teamName, currentStage.getBranch());
+		// Špatné pořadí
+		int stageOrder = lastTeamStage == null ? 0 : lastTeamStage.getStageOrder();
+		if (currentStage.getNumber() != -1 && stageOrder != currentStage.getNumber() - 1 && stageOrder != currentStage.getNumber()) {
+			return addErrorWrongStageCode(errors);
+		}
+		
+		int constraint = currentStage.getConstraint();
+		TeamStage teamStageForCount = new TeamStage(teamName, null, 0);
+		long stagesCount = teamStageForCount.count();
+		if (constraint > stagesCount) {
+			return addErrorWrongStageCode(errors);
+		}
+		
+		TeamStage teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch());
 		List<TeamStage> teamStages = teamStage.getList();
 		
 		if (!teamStages.isEmpty()) {
@@ -180,11 +190,16 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		} else {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Tak vás tu vítáme! ");
+			sb.append(currentStage.getBranch()).append(".");
 			sb.append(currentStage.getNumber());
 			sb.append(". stanoviště, že vám to ale trvalo.");
 			greetings = sb.toString();
 		}
 		return greetings;
+	}
+
+	private String addErrorWrongStageCode(List<String> errors) {
+		return CommonAction.addError("Nesprávný kód stanoviště.", errors);
 	}
 
 	private String getGoodBye(Stage currentStage) {
@@ -304,10 +319,6 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 					teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
 					teamStagesByTeamName.put(actualTeamName,teamStageClient);
 				}
-//			} catch (ParseException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 
 		TreeSet<TeamStageClient> sortedTeamStages = new TreeSet<>();

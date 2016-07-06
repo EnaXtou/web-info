@@ -53,6 +53,7 @@ public class TeamStageTest {
 		
 		teamStage = new TeamStage("team1", "stage1", 1);
 		EMF.add(teamStage);
+		teamStage = new TeamStage();
 		assertEquals(3, teamStage.count());
 		
 		
