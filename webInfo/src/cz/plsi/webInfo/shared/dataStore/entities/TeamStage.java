@@ -15,8 +15,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.eclipse.jdt.internal.codeassist.MissingTypesGuesser.GuessedTypeRequestor;
-
 import com.google.appengine.api.datastore.Key;
 
 import cz.plsi.webInfo.shared.dataStore.EMF;
@@ -223,35 +221,22 @@ public class TeamStage implements EntityCommon {
 		Root<TeamStage> teamStage = cq.from(TeamStage.class);
 		
 		Predicate criteria = null;
-		Predicate criteriaAnd = null;
 		if (this.teamName != null) {
-			criteriaAnd = criteriaBuilder.equal(teamStage.get("teamName"), this.teamName);
-		}
-		
-		if (criteriaAnd != null) {
-			criteria = criteriaAnd;
+			criteria = criteriaBuilder.equal(teamStage.get("teamName"), this.teamName);
 		}
 		
 		if (this.stageName != null) {
-			criteriaAnd = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStage.get("stageName"), this.stageName));
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStage.get("stageName"), this.stageName));
 		}
 		
-		if (criteria != null) {
-			criteria = criteriaBuilder.and(criteria ,criteriaAnd);
-		} else {
-			criteria = criteriaAnd;
+		if (this.stageBranch != null) {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(teamStage.get("stageBranch"), this.stageBranch));
 		}
 		
 		if (this.stageOrder == TEAM_ENDED_GAME) {
-			criteriaAnd = criteriaBuilder.equal(teamStage.get("stageOrder"), this.stageOrder);
+			criteria = criteriaBuilder.equal(teamStage.get("stageOrder"), this.stageOrder);
 		} else {
-			criteriaAnd = criteriaBuilder.notEqual(teamStage.get("stageOrder"), TEAM_ENDED_GAME);
-		}
-		
-		if (criteria != null) {
-			criteria = criteriaBuilder.and(criteria ,criteriaAnd);
-		} else {
-			criteria = criteriaAnd;
+			criteria = criteriaBuilder.notEqual(teamStage.get("stageOrder"), TEAM_ENDED_GAME);
 		}
 		
 		if (criteria != null) {
@@ -260,7 +245,7 @@ public class TeamStage implements EntityCommon {
 		
 		cq.select(teamStage);
 		cq.orderBy(criteriaBuilder.desc(teamStage.get("stageOrder")),
-				criteriaBuilder.asc(teamStage.get("stageDate")));
+				criteriaBuilder.desc(teamStage.get("stageDate")));
 		
 		em.getTransaction().begin();
 		List<TeamStage> resultList = em.createQuery(cq).getResultList();
