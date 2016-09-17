@@ -11,7 +11,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface TeamStageActionInterface extends RemoteService {
 
 	public abstract String getHelp(String teamCode, String helpName,
-			List<String> errors);
+			String branch, List<String> errors);
 
 	public abstract String nextStage(String teamCode, String stageName,
 			List<String> errors);
@@ -20,7 +20,7 @@ public interface TeamStageActionInterface extends RemoteService {
 
 	public abstract void addTeam(String name, String code);
 
-	public abstract void addStage(int order, String name, String description, String help1, String help2, String result);
+	public abstract void addStage(int order, String name, String description, String help1, String help2, String result, String branch, int constraint);
 
 	public abstract int loginTeam(String code);
 

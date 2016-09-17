@@ -87,6 +87,7 @@ public class TeamStageActionTest {
 		team.setName(TEAM + 1);
 		team = team.getList().get(0);
 		team = (Team) EMF.find(team); 
+		// Chycení širokem - odebrání nápovědy
 		team.setHelpsCount(-1);
 		
 		EMF.update(team);
@@ -101,24 +102,24 @@ public class TeamStageActionTest {
 		TeamStageAction teamStageAction = new TeamStageAction();
 		
 		// team 1 bych chycen širokem
-		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
+		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, "L", errors);
 		assertEquals(TeamStageAction.HELP_STOLEN, actual);
 		
 		// team 1 použije již použité heslo
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, "L", errors);
 		assertEquals(1, errors.size());
 		errors.clear();
 
 		// bez chyby tým dostane nápovědu.
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, "L", errors);
 		assertEquals(HELP_1_R + 1, actual);
 		
 		// team 1 použije již použité heslo
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, "L", errors);
 		assertEquals(1, errors.size());
 		errors.clear();
 
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 3, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 3, "L", errors);
 		assertEquals(HELP_2_R + 1, actual);
 
 		// druhý tým je na druhém stanovišti
@@ -127,12 +128,12 @@ public class TeamStageActionTest {
 		EMF.add(teamStage);
 		
 		// druhý tým použije heslo již použitý týmem jedna
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 1, "L", errors);
 		errors.size();
 		assertEquals(HELP_1_R + 2, actual); // dostanu 1. nápovědu z 2. stanoviště
 
 		// team dva si řekne o další nápovědu, ale na druhém stanovišti již žádná není k dispozici
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, "L", errors);
 		errors.size();
 		assertEquals(1, errors.size()); // již není nápověda
 		errors.clear();
@@ -141,19 +142,19 @@ public class TeamStageActionTest {
 		teamStage = new TeamStage(TEAM + 2, STAGE + 3, 3);
 		EMF.add(teamStage);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, "L", errors);
 		assertTrue(errors.isEmpty());
 		assertEquals(HELP_1_R + 3, actual);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 3, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 3, "L", errors);
 		assertTrue(errors.isEmpty());
 		assertEquals(HELP_2_R + 3, actual);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 6, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 6, "L", errors);
 		assertTrue(errors.isEmpty());
 		assertEquals(RESULT_R + 3, actual);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 7, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 7, "L", errors);
 		assertFalse(errors.isEmpty());
 		
 		

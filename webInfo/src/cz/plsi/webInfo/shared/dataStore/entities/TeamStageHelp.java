@@ -162,7 +162,6 @@ public class TeamStageHelp implements EntityCommon {
 		Predicate criteria = null;
 		if (this.teamName != null) {
 			criteria = criteriaBuilder.equal(teamStageHelp.get("teamName"), this.teamName);
-			cq.where(criteria);
 		}
 		
 		if (this.stageName != null) {

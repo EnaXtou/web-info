@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class TeamWebInfoPage extends Composite {
 
+	private static final String BRANCH_LINEAR = "L";
 	private static final String CODE_REQUIRED = "Chyba: Zadej kód.";
 	private static final String ANSWER_ERROR = "Chyba: Server není dostupný zkuste to znovu.";
 	private VerticalPanel panel;
@@ -85,7 +86,7 @@ public class TeamWebInfoPage extends Composite {
 
 				};
 
-				teamStageAction.getHelp(teamCodeHidden.getValue(), code.getValue().toLowerCase(), new ArrayList<String>(),
+				teamStageAction.getHelp(teamCodeHidden.getValue(), code.getValue().toLowerCase(), BRANCH_LINEAR, new ArrayList<String>(),
 						callback);
 
 			}

@@ -20,6 +20,8 @@ import cz.plsi.webInfo.shared.dataStore.EMF;
 @Entity
 public class Stage implements EntityCommon {
 	
+	public static final String DEFAULT_LINEAR_BRANCH = "L";
+	
 	@Id
 	private String name;
 	
@@ -33,7 +35,7 @@ public class Stage implements EntityCommon {
 
 	private String description;
 	
-	private String branch = "L";
+	private String branch = DEFAULT_LINEAR_BRANCH;
 	
 	private int constraint;
 	

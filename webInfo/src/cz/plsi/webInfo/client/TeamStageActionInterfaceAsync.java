@@ -10,8 +10,8 @@ public interface TeamStageActionInterfaceAsync {
 
 	void addTeam(String name, String code, AsyncCallback<Void> callback);
 
-	void getHelp(String teamCode, String helpName, List<String> errors,
-			AsyncCallback<String> callback);
+	void getHelp(String teamCode, String helpName, String branch,
+			List<String> errors, AsyncCallback<String> callback);
 
 	void getResults(String teamCode,
 			AsyncCallback<Map<Integer, String>> callback);
@@ -19,7 +19,8 @@ public interface TeamStageActionInterfaceAsync {
 	void nextStage(String teamCode, String stageName, List<String> errors, AsyncCallback<String> callback);
 
 	void addStage(int order, String name, String description, String help1,
-			String help2, String result, AsyncCallback<Void> callback);
+			String help2, String result, String branch, int constraint,
+			AsyncCallback<Void> callback);
 
 	void loginTeam(String code, AsyncCallback<Integer> callback);
 

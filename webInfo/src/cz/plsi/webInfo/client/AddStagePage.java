@@ -26,6 +26,10 @@ public class AddStagePage extends Composite {
 	private final Label help2Label = new Label();
 	private final TextBox result = new TextBox();
 	private final Label resultLabel = new Label();
+	private final TextBox branch = new TextBox();
+	private final Label branchLabel = new Label();
+	private final TextBox constraint = new TextBox();
+	private final Label constraintLabel = new Label();
 
 	private TeamStageActionInterfaceAsync teamStageAction = GWT
 			.create(TeamStageActionInterface.class);
@@ -62,6 +66,8 @@ public class AddStagePage extends Composite {
 						help1.getValue(),
 						help2.getValue(),
 						result.getValue(),
+						branch.getValue(),
+						Integer.parseInt(constraint.getValue()),
 						callback);
 
 			}
@@ -119,13 +125,26 @@ public class AddStagePage extends Composite {
 		line.add(resultLabel);
 		line.add(result);
 		panel.add(line);
+		
+		line = new HorizontalPanel();
+		branchLabel.setText("Větev: ");
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		line.add(branchLabel);
+		line.add(branch);
+		panel.add(line);
+		
+		line = new HorizontalPanel();
+		constraintLabel.setText("Omezení: ");
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		line.add(constraintLabel);
+		line.add(constraint);
+		panel.add(line);
 
 		panel.add(button);
 		initWidget(panel);
 	}
 
 	public void onModuleLoad() {
-		// Create an optional text box and add it to the root panel.
 		AddStagePage atp = new AddStagePage();
 		RootPanel.get().add(atp);
 	}

@@ -54,6 +54,7 @@ public class TeamStage implements EntityCommon {
 		this.stageName = stageName;
 		this.stageDate = new Date();
 		this.stageOrder = stageOrder;
+		this.stageBranch = Stage.DEFAULT_LINEAR_BRANCH;
 	}
 
 	
@@ -234,9 +235,11 @@ public class TeamStage implements EntityCommon {
 		}
 		
 		if (this.stageOrder == TEAM_ENDED_GAME) {
-			criteria = criteriaBuilder.equal(teamStage.get("stageOrder"), this.stageOrder);
+			Predicate equalEnded = criteriaBuilder.equal(teamStage.get("stageOrder"), this.stageOrder);
+			criteria = criteria != null ? criteriaBuilder.and(criteria, equalEnded) : equalEnded;
 		} else {
-			criteria = criteriaBuilder.notEqual(teamStage.get("stageOrder"), TEAM_ENDED_GAME);
+			Predicate notEqualOrder = criteriaBuilder.notEqual(teamStage.get("stageOrder"), TEAM_ENDED_GAME);
+			criteria = criteria != null ? criteriaBuilder.and(criteria, notEqualOrder) : notEqualOrder;
 		}
 		
 		if (criteria != null) {

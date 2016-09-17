@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="test-classes" path="test"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
@@ -11,5 +10,6 @@
 	<classpathentry kind="lib" path="C:/Users/Jakub/.eclipse/org.eclipse.platform_4.4.2_1414909439_win32_win32_x86_64/plugins/com.google.appengine.eclipse.sdkbundle_1.9.22/appengine-java-sdk-1.9.22/lib/impl/appengine-api-labs.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Jakub/.eclipse/org.eclipse.platform_4.4.2_1414909439_win32_win32_x86_64/plugins/com.google.appengine.eclipse.sdkbundle_1.9.22/appengine-java-sdk-1.9.22/lib/impl/appengine-api-stubs.jar"/>
 	<classpathentry kind="lib" path="test_libs/tempus-fugit-1.1.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/App Engine"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

@@ -56,23 +56,29 @@ public class TeamStageActionParallelTest {
 			EMF.add(help);
 		}
 
-		createStagesForBranch(5, "L", 4);
-		createStagesForBranch(5, "A", 0);
-		createStagesForBranch(5, "B", 0);
-		createStagesForBranch(5, "C", 0);
+		createStagesForBranch(5, "L", 4, 3);
+		createStagesForBranch(5, "A", 0, 3);
+		createStagesForBranch(5, "B", 0, 3);
+		createStagesForBranch(5, "C", 0, 0);
 		
 	}
 
-	private void createStagesForBranch(int numberOfStages, String stageBranch, int constraint) {
+	private void createStagesForBranch(int numberOfStages, String stageBranch, int constraint, int numberOfHelps) {
 		for (int i = 1; i < numberOfStages; i++) {
 			EntityCommon stage = null;
 			if (i == 1) {
-				stage = new Stage(STAGE + i + stageBranch, i, null, HELP_1 + i, HELP_2 + i, RESULT + i, stageBranch, constraint);
+				stage = new Stage(STAGE + i + stageBranch, i, null, 
+						numberOfHelps > 0 ? HELP_1 + i : null, 
+						numberOfHelps > 1 ? HELP_2 + i : null, 
+						numberOfHelps > 2 ? RESULT + i : null, stageBranch, constraint);
 			} else if (i == 2) {
 				stage = new Stage(STAGE + i + stageBranch, i, null, HELP_1 + i, null, null, stageBranch);
 				
 			} else {
-				stage = new Stage(STAGE + i + stageBranch, i, null, HELP_1 + i, HELP_2 + i, RESULT + i, stageBranch);
+				stage = new Stage(STAGE + i + stageBranch, i, null, 
+						numberOfHelps > 0 ? HELP_1 + i : null, 
+						numberOfHelps > 1 ? HELP_2 + i : null, 
+						numberOfHelps > 2 ? RESULT + i : null, stageBranch);
 				
 			}
 			EMF.add(stage);
@@ -99,69 +105,74 @@ public class TeamStageActionParallelTest {
 		
 		EMF.update(team);
 		
-		// team 1 je na stanovišti 1
-		EntityCommon teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "B", 1);
+		// team 1 je na stanovišti C.1
+		EntityCommon teamStage = null;
+		teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "C", 1, "C");
 		EMF.add(teamStage);
 
+		// team 1 je na stanovišti B.1
+		teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "B", 1, "B");
+		EMF.add(teamStage);
+		
 		// team 2 je na stanovišti 1
-		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 		TeamStageAction teamStageAction = new TeamStageAction();
 		
 		// team 1 bych chycen širokem
-		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
+		String actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, "B", errors);
 		assertEquals(TeamStageAction.HELP_STOLEN, actual);
 		
 		// team 1 použije již použité heslo
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 0, "B", errors);
 		assertEquals(1, errors.size());
 		errors.clear();
 
 		// bez chyby tým dostane nápovědu.
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, "B", errors);
 		assertEquals(HELP_1_R + 1, actual);
 		
 		// team 1 použije již použité heslo
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, "B", errors);
 		assertEquals(1, errors.size());
 		errors.clear();
 
-		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 3, errors);
+		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 3, "B", errors);
 		assertEquals(HELP_2_R + 1, actual);
 
 		// druhý tým je na druhém stanovišti
 		// první stále na prvním stanovyšti
-		teamStage = new TeamStage(TEAM + 2, STAGE + 2 + "B", 2);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 2 + "B", 2, "B");
 		EMF.add(teamStage);
 		
 		// druhý tým použije heslo již použitý týmem jedna
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 1, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 1, "B", errors);
 		errors.size();
 		assertEquals(HELP_1_R + 2, actual); // dostanu 1. nápovědu z 2. stanoviště
 
 		// team dva si řekne o další nápovědu, ale na druhém stanovišti již žádná není k dispozici
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, "B", errors);
 		errors.size();
 		assertEquals(1, errors.size()); // již není nápověda
 		errors.clear();
 		
 		// druhý tým je na třetím stanovišti a může použít heslo 2 znovu
-		teamStage = new TeamStage(TEAM + 2, STAGE + 3 + "B", 3);
+		teamStage = new TeamStage(TEAM + 2, STAGE + 3 + "B", 3, "B");
 		EMF.add(teamStage);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, "B", errors);
 		assertTrue(errors.isEmpty());
 		assertEquals(HELP_1_R + 3, actual);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 3, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 3, "B", errors);
 		assertTrue(errors.isEmpty());
 		assertEquals(HELP_2_R + 3, actual);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 6, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 6, "B", errors);
 		assertTrue(errors.isEmpty());
 		assertEquals(RESULT_R + 3, actual);
 		
-		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 7, errors);
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 7, "B", errors);
 		assertFalse(errors.isEmpty());
 		
 		

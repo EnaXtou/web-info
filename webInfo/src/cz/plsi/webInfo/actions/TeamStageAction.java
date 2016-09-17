@@ -37,7 +37,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#getHelp(java.lang.String, java.lang.String, java.util.List)
 	 */
 	@Override
-	public String getHelp(String teamCode, String helpName, List<String> errors) {
+	public String getHelp(String teamCode, String helpName, String branch, List<String> errors) {
 		Team team = new Team();
 		team.setCode(teamCode);
 		List<Team> teamWithCode = team.getList();
@@ -70,6 +70,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		TeamStage teamStage = new TeamStage();
 		teamStage.setTeamName(teamName);
+		teamStage.setStageBranch(branch);
 		List<TeamStage> teamStageList = teamStage.getList();
 		if (teamStageList.size() == 0) {
 			return CommonAction.addError("Ještě nemáte navštívené žádné stanoviště.", errors);
@@ -112,6 +113,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		int helpsCount = team.getHelpsCount();
 		if (helpsCount < 0) {
 			team = (Team) EMF.find(team); 
+			//TODO Tenhle update je asi zbytečný
 			EMF.update(team);
 			team.setHelpsCount(++helpsCount);
 			EMF.update(team);
@@ -344,8 +346,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#addTeam(java.lang.String)
 	 */
 	@Override
-	public void addStage(int order, String name, String description, String help1, String help2, String result) {
-		EMF.add(new Stage(name, order, description, help1, help2, result));
+	public void addStage(int order, String name, String description, String help1, String help2, String result, String branch, int constraint) {
+		EMF.add(new Stage(name, order, description, help1, help2, result, branch, constraint));
 	}
 	
 	/* (non-Javadoc)
