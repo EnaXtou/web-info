@@ -41,5 +41,13 @@
         <property name="stageOrder" direction="asc"/>
         <property name="stageDate" direction="asc"/>
     </datastore-index>
+    
+    <datastore-index kind="TeamStage" ancestor="false"
+		source="manual">
+		<property name="stageBranch" direction="asc" />
+		<property name="teamName" direction="asc" />
+		<property name="stageOrder" direction="desc" />
+		<property name="stageDate" direction="desc" />
+	</datastore-index>
 
 </datastore-indexes>

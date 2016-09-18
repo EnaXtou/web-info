@@ -304,7 +304,7 @@ public class TeamStageActionParallelTest {
 		// team 1 je na stanovišti 1
 		TeamStage teamStage = new TeamStage(TEAM + 1, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
-		// team 2 je na stanovišti 1
+		// team 2 je na stanovišti 1 -> přidat bod ke stage => default je nula - stage jedna a stage dva ve větvi A je jedna
 		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
 		
@@ -314,7 +314,7 @@ public class TeamStageActionParallelTest {
 		teamStage.getList();
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(2, resultStats.size());
-		assertEquals("1. stanoviště: 2", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 1 /  2", resultStats.get(Integer.valueOf(40)));
 		
 		// team 1 může pokračovat na druhou stage
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
@@ -325,19 +325,19 @@ public class TeamStageActionParallelTest {
 
 		// team 1 zadal znovu druhou stage chyba, již navštívená stage
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
-
+		
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(3, resultStats.size());
-		assertEquals("1. stanoviště: 1", resultStats.get(Integer.valueOf(40)));
-		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
+		assertEquals(" 4 /  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(41)));
 		
 		// team 4 zadal 1. stanoviště
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "A", errors);
 		
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(3, resultStats.size());
-		assertEquals("1. stanoviště: 2", resultStats.get(Integer.valueOf(40)));
-		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
+		assertEquals(" 4 /  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 1 /  2", resultStats.get(Integer.valueOf(41)));
 
 		// team 4 zadal 2. stanoviště
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "A", errors);
@@ -348,9 +348,44 @@ public class TeamStageActionParallelTest {
 		
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(4, resultStats.size());
-		assertEquals("1. stanoviště: 1", resultStats.get(Integer.valueOf(40)));
-		assertEquals("2. stanoviště: 1", resultStats.get(Integer.valueOf(41)));
-		assertEquals("4. stanoviště: 1", resultStats.get(Integer.valueOf(42)));
+		assertEquals(" 4 /  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 2 /  1", resultStats.get(Integer.valueOf(41)));
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(42)));
+		
+		// team 1 vstoupil do lineární části
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1 + "L", errors);
+		
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(5, resultStats.size());
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(20)));
+		assertEquals(" 2 /  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(41)));
+		
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 3 + "A", errors);
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "B", errors);
+		
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(5, resultStats.size());
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(20)));
+		assertEquals(" 4 /  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(41)));
+		
+		// team 4 vstoupil do lineární části
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "L", errors);
+		
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(4, resultStats.size());
+		assertEquals(" 1 /  2", resultStats.get(Integer.valueOf(20)));
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(40)));
+		
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "L", errors);
+		
+		resultStats = teamStageAction.getStatistics(teamStage.getList());
+		assertEquals(5, resultStats.size());
+		assertEquals(" 2 /  1", resultStats.get(Integer.valueOf(20)));
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(21)));
+		assertEquals(" 1 /  1", resultStats.get(Integer.valueOf(40)));
+		
 	}
 
 }

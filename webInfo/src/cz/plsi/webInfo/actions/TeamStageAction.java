@@ -1,19 +1,23 @@
 package cz.plsi.webInfo.actions;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+import cz.plsi.webInfo.actions.helper.TeamBranch;
 import cz.plsi.webInfo.client.TeamStageActionInterface;
 import cz.plsi.webInfo.client.TeamStageClient;
 import cz.plsi.webInfo.shared.dataStore.EMF;
@@ -405,27 +409,81 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	}
 
 	public Map<Integer, String> getStatistics(List<TeamStage> teamStages) {
-		Map<Integer, Integer> stagesWithCount = new TreeMap<>();
-		HashSet<String> teamNames = new HashSet<String>(40);
-		for (TeamStage actualTeamStage : teamStages) {
-			String actualTeamName = actualTeamStage.getTeamName();
-			if (!teamNames.contains(actualTeamName)) {
-				teamNames.add(actualTeamName);
-				int stageOrder = actualTeamStage.getStageOrder();
-				Integer count = stagesWithCount.get(stageOrder);
-				stagesWithCount.put(stageOrder, count == null ? 1 : ++count);
+		
+		//posčítat týmy podle větví
+		Map<TeamBranch, Integer> teamsPositions = getTeamsPositions(teamStages);
+		
+		Map<String, Integer> teamsPoints = new HashMap<>(50);
+		Map<String, Integer> teamsInLinear = new HashMap<>(25);
+		// pro větve A B C dát součet pro daný tým (klíč team + větev)
+		for (TeamBranch teamBranch : teamsPositions.keySet()) {
+			String team = teamBranch.getTeam();
+			if (!teamsPoints.containsKey(team)) {
+				teamsPoints.put(team, 0);
+			}
+			
+			if (teamBranch.getBranch() == "L") {
+				teamsInLinear.put(team, teamsPositions.get(teamBranch));
+			} else {
+				teamsPoints.put(team, teamsPoints.get(team) + teamsPositions.get(teamBranch));
+			}
+		}
+		
+		for (String team : teamsInLinear.keySet()) {
+			teamsPoints.remove(team);
+		}
+		
+		Map<Integer, Integer> pointsWithCounts = new TreeMap<>(Collections.reverseOrder());  
+		for (Integer points : teamsPoints.values()) {
+			if (pointsWithCounts.containsKey(points)) {
+				pointsWithCounts.put(points, pointsWithCounts.get(points) + 1);
+			} else {
+				pointsWithCounts.put(points, 1);
+			}
+		}
+		
+		Map<Integer, Integer> linearWithCounts = new TreeMap<>(Collections.reverseOrder());  
+		for (Integer points : teamsInLinear.values()) {
+			if (linearWithCounts.containsKey(points)) {
+				linearWithCounts.put(points, linearWithCounts.get(points) + 1);
+			} else {
+				linearWithCounts.put(points, 1);
 			}
 		}
 		
 		TreeMap<Integer, String> resultStats = new TreeMap<Integer, String>();
-		int i = 39;
-		if (!stagesWithCount.isEmpty())	{
-			resultStats.put(i++, "Počty týmů na stanovištích:");
+		int i = 19;
+		if (!linearWithCounts.isEmpty())	{
+			resultStats.put(i++, "Číslo stanoviště / Počet týmů");
 		}
-		for (Entry<Integer, Integer> orderAndCount : stagesWithCount.entrySet()) {
-			resultStats.put(i++, orderAndCount.getKey() + ". stanoviště: " + orderAndCount.getValue());
+		for (Entry<Integer, Integer> orderAndCount : linearWithCounts.entrySet()) {
+			
+			resultStats.put(i++,String.format("%2d / %2d", orderAndCount.getKey(), orderAndCount.getValue()));
+		}
+		i = 39;
+		if (!teamsPoints.isEmpty())	{
+			resultStats.put(i++, "Počet bodů / Počet týmů");
+		}
+		
+		for (Entry<Integer, Integer> orderAndCount : pointsWithCounts.entrySet()) {
+			
+			resultStats.put(i++,String.format("%2d / %2d", orderAndCount.getKey(), orderAndCount.getValue()));
 		}
 		return resultStats;
+	}
+
+	public Map<TeamBranch, Integer> getTeamsPositions(List<TeamStage> teamStages) {
+		Map<TeamBranch, Integer> teamBranchesCurrentPosition = new HashMap<>(200);
+		
+		
+		for (TeamStage actualTeamStage : teamStages) {
+			TeamBranch teamBranch = new TeamBranch(actualTeamStage.getStageBranch(), actualTeamStage.getTeamName());
+			if (!teamBranchesCurrentPosition.containsKey(teamBranch)) {
+				teamBranchesCurrentPosition.put(teamBranch, actualTeamStage.getStageOrder());
+			}	
+		}
+		
+		return teamBranchesCurrentPosition;
 	}
 	
 	
