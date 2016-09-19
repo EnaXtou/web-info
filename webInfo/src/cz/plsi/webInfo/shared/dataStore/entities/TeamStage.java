@@ -248,7 +248,7 @@ public class TeamStage implements EntityCommon {
 		
 		cq.select(teamStage);
 		cq.orderBy(criteriaBuilder.desc(teamStage.get("stageOrder")),
-				criteriaBuilder.desc(teamStage.get("stageDate")));
+				criteriaBuilder.asc(teamStage.get("stageDate")));
 		
 		em.getTransaction().begin();
 		List<TeamStage> resultList = em.createQuery(cq).getResultList();

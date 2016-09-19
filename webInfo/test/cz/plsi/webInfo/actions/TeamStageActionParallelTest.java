@@ -3,11 +3,13 @@ package cz.plsi.webInfo.actions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -278,21 +280,79 @@ public class TeamStageActionParallelTest {
 
 		// team 4 zadal 2. stanoviště
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "A", errors);
+		// team 4 zadal 3. stanoviště
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 3 + "A", errors);
+		// team 4 zadal 4. stanoviště
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 4 + "A", errors);
 
 		// team 4 zadal neexistující kód stanoviště chyba
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + "_NOT_EXISTS", errors);
 
 		
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		assertEquals(6, results.size());
+		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
 		
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 4 bodů v "));
+		// obsahuje zprávu pro týmy
+		results = teamStageAction.getResults(TEAM + 4 + CODE);
+		assertEquals(6, results.size());
+		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 4 bodů v "));
+		
+		// team 4 zadal 5. stanoviště
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "B", errors);
+		
+		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		assertEquals(7, results.size());
+		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který dosáhl 5 bodů v "));
+		// obsahuje zprávu pro týmy
+		results = teamStageAction.getResults(TEAM + 4 + CODE);
+		assertEquals(8, results.size());
+		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který dosáhl 5 bodů v "));
+		
+		// team 1 zadal 1. stanoviště s pěti body
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1 + "B", errors);
+		
+		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		assertEquals(7, results.size());
+		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který dosáhl 5 bodů v "));
+		// obsahuje zprávu pro týmy
+		results = teamStageAction.getResults(TEAM + 4 + CODE);
 		assertEquals(7, results.size());
 		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
-		assertTrue(results.get(Integer.valueOf(0)).startsWith("Vede tým 'team_1', který byl na 4. stanovišti v "));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který dosáhl 5 bodů v "));
+		
+		// team 1 zadal 1. stanoviště s pěti body
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "B", errors);
+		// team 1 zadal 1. stanoviště s pěti body
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3 + "B", errors);
+		
+		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		assertEquals(7, results.size());
+		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 7 bodů v "));
 		// obsahuje zprávu pro týmy
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
 		assertEquals(8, results.size());
 		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
-		assertTrue(results.get(Integer.valueOf(0)).startsWith("Vede tým 'team_1', který byl na 4. stanovišti v "));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 7 bodů v "));
+		
+		// team 4 zadal 1. stanoviště z lineární části, ale má pouze 5 bodů a 1. stanoviště z lineární části (tedy potenciálně 6 bodů), přesto vede
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "L", errors);
+		
+		results = teamStageAction.getResults(TEAM + 4 + CODE);
+		assertEquals(9, results.size());
+		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který byl na 1. stanovišti v "));
+		// obsahuje zprávu pro týmy
+		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		assertEquals(8, results.size());
+		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který byl na 1. stanovišti v "));
 	}
 	
 	@Test

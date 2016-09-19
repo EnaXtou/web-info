@@ -1,6 +1,7 @@
 package cz.plsi.webInfo.actions;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.TreeSet;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+import cz.plsi.webInfo.actions.helper.NumberDateTeam;
 import cz.plsi.webInfo.actions.helper.TeamBranch;
 import cz.plsi.webInfo.client.TeamStageActionInterface;
 import cz.plsi.webInfo.client.TeamStageClient;
@@ -240,20 +242,43 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		TeamStage teamStage = new TeamStage();
 		List<TeamStage> teamStages = teamStage.getList();
+		Map<TeamBranch, NumberDateTeam> teamsPositions = getTeamsPositions(teamStages);
+		Map<String, NumberDateTeam> teamsPoints = new HashMap<>(50);
+		Map<String, NumberDateTeam> teamsInLinear = new HashMap<>(30);
+		getPointsAndLinearStages(teamsPositions, teamsPoints, teamsInLinear);
+		
+		TreeSet<NumberDateTeam> linearOrder = new TreeSet<>(Collections.reverseOrder());
+		linearOrder.addAll(teamsInLinear.values());
+		TreeSet<NumberDateTeam> pointsOrder = new TreeSet<>(Collections.reverseOrder());
+		pointsOrder.addAll(teamsPoints.values());
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", new Locale("cs", "CZ"));
 		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
-		if (!teamStages.isEmpty()) {
-			TeamStage winningTeamStage = teamStages.get(0);
+		if (!linearOrder.isEmpty()) {
+			NumberDateTeam winningTeamStage = linearOrder.first();
 			results.put(Integer.valueOf(order++), "Vede tým '" 
-									+ winningTeamStage.getTeamName() + "', který byl na "
-									+ winningTeamStage.getStageOrder() + ". stanovišti v " 
-									+ sdf.format(winningTeamStage.getStageDate()) + ".");
+									+ winningTeamStage.getTeam() + "', který byl na "
+									+ winningTeamStage.getNumber() + ". stanovišti v " 
+									+ sdf.format(winningTeamStage.getDate()) + ".");
+		} else if (!pointsOrder.isEmpty()){
+			NumberDateTeam winningTeamStage = pointsOrder.first();
+			results.put(Integer.valueOf(order++), "Vede tým '" 
+					+ winningTeamStage.getTeam() + "', který dosáhl "
+					+ winningTeamStage.getNumber() + " bodů v " 
+					+ sdf.format(winningTeamStage.getDate()) + ".");
+			
 		}
 
 		Map<String, Integer> teamsWithOrder = new HashMap<>();
 		int place = 1;
-		for (TeamStage actualTeamStage : teamStages) {
-			String actualTeamName = actualTeamStage.getTeamName();
+		for (NumberDateTeam teamPositionInLinear : linearOrder) {
+			String actualTeamName = teamPositionInLinear.getTeam();
+			if (!teamsWithOrder.containsKey(actualTeamName)) {
+				teamsWithOrder.put(actualTeamName, place++);
+			}
+		}
+		for (NumberDateTeam teamPoitsPosition : pointsOrder) {
+			String actualTeamName = teamPoitsPosition.getTeam();
 			if (!teamsWithOrder.containsKey(actualTeamName)) {
 				teamsWithOrder.put(actualTeamName, place++);
 			}
@@ -411,43 +436,28 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	public Map<Integer, String> getStatistics(List<TeamStage> teamStages) {
 		
 		//posčítat týmy podle větví
-		Map<TeamBranch, Integer> teamsPositions = getTeamsPositions(teamStages);
+		Map<TeamBranch, NumberDateTeam> teamsPositions = getTeamsPositions(teamStages);
 		
-		Map<String, Integer> teamsPoints = new HashMap<>(50);
-		Map<String, Integer> teamsInLinear = new HashMap<>(25);
+		Map<String, NumberDateTeam> teamsPoints = new HashMap<>(50);
+		Map<String, NumberDateTeam> teamsInLinear = new HashMap<>(25);
 		// pro větve A B C dát součet pro daný tým (klíč team + větev)
-		for (TeamBranch teamBranch : teamsPositions.keySet()) {
-			String team = teamBranch.getTeam();
-			if (!teamsPoints.containsKey(team)) {
-				teamsPoints.put(team, 0);
-			}
-			
-			if (teamBranch.getBranch() == "L") {
-				teamsInLinear.put(team, teamsPositions.get(teamBranch));
-			} else {
-				teamsPoints.put(team, teamsPoints.get(team) + teamsPositions.get(teamBranch));
-			}
-		}
-		
-		for (String team : teamsInLinear.keySet()) {
-			teamsPoints.remove(team);
-		}
+		getPointsAndLinearStages(teamsPositions, teamsPoints, teamsInLinear);
 		
 		Map<Integer, Integer> pointsWithCounts = new TreeMap<>(Collections.reverseOrder());  
-		for (Integer points : teamsPoints.values()) {
-			if (pointsWithCounts.containsKey(points)) {
-				pointsWithCounts.put(points, pointsWithCounts.get(points) + 1);
+		for (NumberDateTeam points : teamsPoints.values()) {
+			if (pointsWithCounts.containsKey(points.getNumber())) {
+				pointsWithCounts.put(points.getNumber(), pointsWithCounts.get(points.getNumber()) + 1);
 			} else {
-				pointsWithCounts.put(points, 1);
+				pointsWithCounts.put(points.getNumber(), 1);
 			}
 		}
 		
 		Map<Integer, Integer> linearWithCounts = new TreeMap<>(Collections.reverseOrder());  
-		for (Integer points : teamsInLinear.values()) {
-			if (linearWithCounts.containsKey(points)) {
-				linearWithCounts.put(points, linearWithCounts.get(points) + 1);
+		for (NumberDateTeam points : teamsInLinear.values()) {
+			if (linearWithCounts.containsKey(points.getNumber())) {
+				linearWithCounts.put(points.getNumber(), linearWithCounts.get(points.getNumber()) + 1);
 			} else {
-				linearWithCounts.put(points, 1);
+				linearWithCounts.put(points.getNumber(), 1);
 			}
 		}
 		
@@ -472,14 +482,44 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		return resultStats;
 	}
 
-	public Map<TeamBranch, Integer> getTeamsPositions(List<TeamStage> teamStages) {
-		Map<TeamBranch, Integer> teamBranchesCurrentPosition = new HashMap<>(200);
+	private void getPointsAndLinearStages(
+			Map<TeamBranch, NumberDateTeam> teamsPositions,
+			Map<String, NumberDateTeam> teamsPoints, Map<String, NumberDateTeam> teamsInLinear) {
+		for (TeamBranch teamBranch : teamsPositions.keySet()) {
+			String team = teamBranch.getTeam();
+			
+			
+			NumberDateTeam numberDateTeamCurrent = teamsPositions.get(teamBranch);
+			if (teamBranch.getBranch() == "L") {
+				teamsInLinear.put(team, numberDateTeamCurrent);
+			} else {
+				NumberDateTeam numberDateTeamIn = teamsPoints.get(team);
+				if (numberDateTeamIn == null) {
+					teamsPoints.put(team, numberDateTeamCurrent);
+					continue;
+				}
+				
+				if (numberDateTeamIn.getDate().compareTo(numberDateTeamCurrent.getDate()) < 0) {
+					numberDateTeamIn.setDate(numberDateTeamCurrent.getDate());
+				}
+				numberDateTeamIn.setNumber(numberDateTeamIn.getNumber() + numberDateTeamCurrent.getNumber());
+				teamsPoints.put(team, numberDateTeamIn);
+			}
+		}
+		
+		for (String team : teamsInLinear.keySet()) {
+			teamsPoints.remove(team);
+		}
+	}
+
+	public Map<TeamBranch, NumberDateTeam> getTeamsPositions(List<TeamStage> teamStages) {
+		Map<TeamBranch, NumberDateTeam> teamBranchesCurrentPosition = new HashMap<>(200);
 		
 		
 		for (TeamStage actualTeamStage : teamStages) {
 			TeamBranch teamBranch = new TeamBranch(actualTeamStage.getStageBranch(), actualTeamStage.getTeamName());
 			if (!teamBranchesCurrentPosition.containsKey(teamBranch)) {
-				teamBranchesCurrentPosition.put(teamBranch, actualTeamStage.getStageOrder());
+				teamBranchesCurrentPosition.put(teamBranch, new NumberDateTeam(actualTeamStage.getStageOrder(), actualTeamStage.getStageDate(), actualTeamStage.getTeamName()));
 			}	
 		}
 		
