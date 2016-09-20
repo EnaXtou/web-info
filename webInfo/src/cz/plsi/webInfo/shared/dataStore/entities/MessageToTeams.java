@@ -21,6 +21,7 @@ public class MessageToTeams implements EntityCommon {
 	
 	private int fromStageNumber;
 	private int toStageNumber;
+	private String branch;
 
 	public MessageToTeams() {
 		super();
@@ -94,6 +95,16 @@ public class MessageToTeams implements EntityCommon {
 
 	public void setToStageNumber(int toStageNumber) {
 		this.toStageNumber = toStageNumber;
+	}
+
+
+	public String getBranch() {
+		return branch;
+	}
+
+
+	public void setBranch(String branch) {
+		this.branch = branch;
 	}
 
 }

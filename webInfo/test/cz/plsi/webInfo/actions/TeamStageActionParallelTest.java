@@ -255,15 +255,33 @@ public class TeamStageActionParallelTest {
 		EMF.add(teamStage);
 		
 		MessageToTeams messageToTeams = new MessageToTeams();
-		messageToTeams.setMessage(TEST_MESSAGE);
+		messageToTeams.setMessage("Test message 1-2.A");
 		messageToTeams.setFromStageNumber(1);
 		messageToTeams.setToStageNumber(2);
+		messageToTeams.setBranch("A");
+		EMF.add(messageToTeams);
+		
+		messageToTeams = new MessageToTeams();
+		messageToTeams.setMessage("Test message 3-8 points");
+		messageToTeams.setFromStageNumber(3);
+		messageToTeams.setToStageNumber(8);
+		EMF.add(messageToTeams);
+		
+		messageToTeams = new MessageToTeams();
+		messageToTeams.setMessage("Test message 2.L points");
+		messageToTeams.setFromStageNumber(2);
+		messageToTeams.setToStageNumber(2);
+		messageToTeams.setBranch("L");
 		EMF.add(messageToTeams);
 		
 		
 		
 		// team 1 může pokračovat na druhou stage
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "A", errors);
+		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		assertEquals(7, results.size());
+		assertEquals("Test message 1-2.A", results.get(Integer.valueOf(-3)));
+		
 		// team 1 může pokračovat na druhou stage (nedovoluje se přeskočení)
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 4 + "A", errors);
 		assertEquals(1, errors.size());
@@ -290,13 +308,14 @@ public class TeamStageActionParallelTest {
 
 		
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
-		assertEquals(6, results.size());
+		assertEquals(7, results.size());
+		assertEquals("Test message 3-8 points", results.get(Integer.valueOf(-3)));
 		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
 		
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 4 bodů v "));
 		// obsahuje zprávu pro týmy
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
-		assertEquals(6, results.size());
+		assertEquals(7, results.size());
 		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 4 bodů v "));
 		
@@ -304,12 +323,14 @@ public class TeamStageActionParallelTest {
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "B", errors);
 		
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
-		assertEquals(7, results.size());
+		assertEquals(8, results.size());
+		assertEquals("Test message 3-8 points", results.get(Integer.valueOf(-3)));
 		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který dosáhl 5 bodů v "));
-		// obsahuje zprávu pro týmy
+		
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
 		assertEquals(8, results.size());
+		assertEquals("Test message 3-8 points", results.get(Integer.valueOf(-3)));
 		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který dosáhl 5 bodů v "));
 		
@@ -317,7 +338,9 @@ public class TeamStageActionParallelTest {
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1 + "B", errors);
 		
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
+		// stejné stanoviště zredukovaná statistika -> 7
 		assertEquals(7, results.size());
+		assertEquals("Test message 3-8 points", results.get(Integer.valueOf(-3)));
 		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který dosáhl 5 bodů v "));
 		// obsahuje zprávu pro týmy
@@ -332,12 +355,14 @@ public class TeamStageActionParallelTest {
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3 + "B", errors);
 		
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
-		assertEquals(7, results.size());
+		assertEquals(8, results.size());
+		assertEquals("Test message 3-8 points", results.get(Integer.valueOf(-3)));
 		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 7 bodů v "));
 		// obsahuje zprávu pro týmy
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
 		assertEquals(8, results.size());
+		assertEquals("Test message 3-8 points", results.get(Integer.valueOf(-3)));
 		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 7 bodů v "));
 		
@@ -345,14 +370,24 @@ public class TeamStageActionParallelTest {
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "L", errors);
 		
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
-		assertEquals(9, results.size());
+		assertEquals(8, results.size());
 		assertEquals("Váš tým je aktuálně na 1. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který byl na 1. stanovišti v "));
-		// obsahuje zprávu pro týmy
 		results = teamStageAction.getResults(TEAM + 1 + CODE);
-		assertEquals(8, results.size());
+		assertEquals(9, results.size());
+		assertEquals("Test message 3-8 points", results.get(Integer.valueOf(-3)));
 		assertEquals("Váš tým je aktuálně na 2. místě.", results.get(Integer.valueOf(-2)));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který byl na 1. stanovišti v "));
+		
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "L", errors);
+		results = teamStageAction.getResults(TEAM + 4 + CODE);
+		assertEquals(9, results.size());
+		assertEquals("Test message 2.L points", results.get(Integer.valueOf(-3)));
+		
+		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 3 + "L", errors);
+		results = teamStageAction.getResults(TEAM + 4 + CODE);
+		// zpráva se zobrazuje pouze na druhém stanovišti L větve
+		assertEquals(8, results.size());
 	}
 	
 	@Test

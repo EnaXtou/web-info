@@ -291,15 +291,25 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		}
 	
 		TeamStage lastTeamStage = TeamStage.getLastTeamStage(teamName);
-		
+		NumberDateTeam numberDateTeam = teamsPoints.get(teamName);
+		int currentTeamPoints = -1;
+		if (numberDateTeam != null) {
+			currentTeamPoints = numberDateTeam.getNumber();
+		}
 		MessageToTeams messagesToTeams = new MessageToTeams();
 		if (lastTeamStage != null) {
 			List<MessageToTeams> messagesForStage = messagesToTeams.getList();
 			
 			order = -3;
 			for (MessageToTeams messageToTeams : messagesForStage) {
-				if (messageToTeams.getFromStageNumber() <= lastTeamStage.getStageOrder()
-						&& messageToTeams.getToStageNumber() >= lastTeamStage.getStageOrder()) {
+				if ((messageToTeams.getFromStageNumber() <= lastTeamStage.getStageOrder()
+						&& messageToTeams.getToStageNumber() >= lastTeamStage.getStageOrder()
+						&& messageToTeams.getBranch() == lastTeamStage.getStageBranch())
+					||
+					(messageToTeams.getFromStageNumber() <= currentTeamPoints
+					&& messageToTeams.getToStageNumber() >= currentTeamPoints
+					&& messageToTeams.getBranch() == null)
+						) {
 					results.put(Integer.valueOf(order--), messageToTeams.getMessage());
 				}
 			}
