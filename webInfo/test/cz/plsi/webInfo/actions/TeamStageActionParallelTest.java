@@ -27,19 +27,18 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 
 public class TeamStageActionParallelTest {
 
-	private static final String TEST_MESSAGE = "Test message";
-	private static final String WELCOME_START = "Tak vás tu vítáme! ";
-	private static final String WELCOME_END = ". stanoviště, že vám to ale trvalo.";
-	private static final String CODE = "_code";
-	private static final String TEAM = "team_";
-	private static final String HELP = "help_";
-	private static final String STAGE = "stage_";
-	private static final String HELP_1_R = "Nápověda: help_1_";
-	private static final String HELP_2_R = "Nápověda: help_2_";
-	private static final String RESULT_R = "Řešení: result_";
-	private static final String HELP_1 = "help_1_";
-	private static final String HELP_2 = "help_2_";
-	private static final String RESULT = "result_";
+	public static final String WELCOME_START = "Tak vás tu vítáme! ";
+	public static final String WELCOME_END = ". stanoviště, že vám to ale trvalo.";
+	public static final String CODE = "_code";
+	public static final String TEAM = "team_";
+	public static final String HELP = "help_";
+	public static final String STAGE = "stage_";
+	public static final String HELP_1_R = "Nápověda: help_1_";
+	public static final String HELP_2_R = "Nápověda: help_2_";
+	public static final String RESULT_R = "Řešení: result_";
+	public static final String HELP_1 = "help_1_";
+	public static final String HELP_2 = "help_2_";
+	public static final String RESULT = "result_";
 	
 	private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
@@ -65,7 +64,7 @@ public class TeamStageActionParallelTest {
 		
 	}
 
-	private void createStagesForBranch(int numberOfStages, String stageBranch, int constraint, int numberOfHelps) {
+	public static void createStagesForBranch(int numberOfStages, String stageBranch, int constraint, int numberOfHelps) {
 		for (int i = 1; i < numberOfStages; i++) {
 			EntityCommon stage = null;
 			if (i == 1) {

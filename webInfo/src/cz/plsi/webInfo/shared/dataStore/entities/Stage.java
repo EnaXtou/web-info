@@ -9,6 +9,8 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import cz.plsi.webInfo.shared.dataStore.EMF;
@@ -38,6 +40,8 @@ public class Stage implements EntityCommon {
 	private String branch = DEFAULT_LINEAR_BRANCH;
 	
 	private int constraint;
+	
+	private double timeToHelp = 0;
 	
 	
 	public Stage() {
@@ -155,17 +159,33 @@ public class Stage implements EntityCommon {
 		CriteriaQuery<Stage> cq =  criteriaBuilder.createQuery(Stage.class);
 		Root<Stage> stage = cq.from(Stage.class);
 		
+		Predicate criteria = null;
 		if (this.name != null) {
-			cq.where(criteriaBuilder.equal(stage.get("name"), this.name));
+			criteria = getCriteria(criteriaBuilder, stage.get("name"), criteria, this.name);
 		}
-//		if (this.branch != null) {
-//			cq.where(criteriaBuilder.equal(stage.get("branch"), this.branch));
-//		}
-		
+		if (this.branch != null) {
+			criteria = getCriteria(criteriaBuilder, stage.get("branch"), criteria, this.branch);
+		}
+		if (this.number != 0) {
+			criteria = getCriteria(criteriaBuilder, stage.get("number"), criteria, this.number);
+		}
+		if (criteria != null) {
+			cq.where(criteria);
+		}
 		cq.select(stage);
 		cq.orderBy(criteriaBuilder.desc(stage.get("number")));
 		
 		return em.createQuery(cq).getResultList();
+	}
+
+	private Predicate getCriteria(CriteriaBuilder criteriaBuilder,
+			Path<Object> path, Predicate criteria, Object parameter) {
+		if (criteria == null) {
+			criteria = criteriaBuilder.equal(path, parameter);
+		} else {
+			criteria = criteriaBuilder.and(criteria, criteriaBuilder.equal(path, parameter));
+		}
+		return criteria;
 	}
 
 	@Override
@@ -201,6 +221,14 @@ public class Stage implements EntityCommon {
 
 	public void setConstraint(int constraint) {
 		this.constraint = constraint;
+	}
+
+	public double getTimeToHelp() {
+		return timeToHelp;
+	}
+
+	public void setTimeToHelp(double timeToHelp) {
+		this.timeToHelp = timeToHelp;
 	}
 	
 
