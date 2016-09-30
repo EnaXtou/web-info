@@ -550,7 +550,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		TreeMap<Integer, String> resultStats = new TreeMap<Integer, String>();
 		int i = 19;
 		if (!linearWithCounts.isEmpty())	{
-			resultStats.put(i++, "Stanoviště / Počet týmů");
+			resultStats.put(i++, "Stanoviště : Počet týmů");
 		}
 		for (Entry<NumberWithDescription, Integer> orderAndCount : linearWithCounts.entrySet()) {
 			
@@ -560,7 +560,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		}
 		i = 39;
 		if (!teamsPoints.isEmpty())	{
-			resultStats.put(i++, "Počet ponožek/ Počet týmů");
+			resultStats.put(i++, "Počet ponožek : Počet týmů");
 		}
 		
 		for (Entry<Integer, Integer> orderAndCount : pointsWithCounts.entrySet()) {
