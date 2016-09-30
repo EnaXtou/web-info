@@ -20,6 +20,7 @@ import java.util.TreeSet;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import cz.plsi.webInfo.actions.helper.NumberDateTeam;
+import cz.plsi.webInfo.actions.helper.NumberWithDescription;
 import cz.plsi.webInfo.actions.helper.TeamBranch;
 import cz.plsi.webInfo.client.TeamStageActionInterface;
 import cz.plsi.webInfo.client.TeamStageClient;
@@ -183,7 +184,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			return addErrorWrongStageCode(errors);
 		}
 		
-		TeamStage teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch());
+		TeamStage teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch(), currentStage.getDescription());
 		List<TeamStage> teamStages = teamStage.getList();
 		
 		if (!teamStages.isEmpty()) {
@@ -209,10 +210,16 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		if (message != null && !message.isEmpty()) {
 			sb.append(message);
 		} else {
-			sb.append("Tak vás tu vítáme! ");
-			sb.append(currentStage.getBranch()).append(".");
-			sb.append(currentStage.getNumber());
-			sb.append(". stanoviště, že vám to ale trvalo.");
+			sb.append("Tak vás tu vítáme! Stanoviště ");
+			String description = currentStage.getDescription();
+			if (description != null
+					&& !description.isEmpty()) {
+				sb.append(description);
+			} else {
+				sb.append(currentStage.getBranch()).append(".");
+				sb.append(currentStage.getNumber());
+			}
+				
 		}
 		return sb.toString();
 	}
@@ -267,15 +274,20 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 		if (!linearOrder.isEmpty()) {
 			NumberDateTeam winningTeamStage = linearOrder.first();
-			results.put(Integer.valueOf(order++), "Vede tým '" 
-									+ winningTeamStage.getTeam() + "', který byl na "
-									+ winningTeamStage.getNumber() + ". stanovišti v " 
-									+ sdf.format(winningTeamStage.getDate()) + ".");
+			StringBuilder sb = new StringBuilder();
+			sb.append("Vede tým '");
+			sb.append(winningTeamStage.getTeam());
+			sb.append("', který byl na stanovišti ");
+			sb.append(winningTeamStage.getStageDescription());
+			sb.append(" v ");
+			sb.append(sdf.format(winningTeamStage.getDate()));
+			sb.append(".");
+			results.put(Integer.valueOf(order++), sb.toString());
 		} else if (!pointsOrder.isEmpty()){
 			NumberDateTeam winningTeamStage = pointsOrder.first();
 			results.put(Integer.valueOf(order++), "Vede tým '" 
 					+ winningTeamStage.getTeam() + "', který dosáhl "
-					+ winningTeamStage.getNumber() + " bodů v " 
+					+ winningTeamStage.getNumber() + " ponožek v " 
 					+ sdf.format(winningTeamStage.getDate()) + ".");
 			
 		}
@@ -295,14 +307,35 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			}
 		}
 		
+		NumberDateTeam points = teamsPoints.get(teamName);
 		if (teamsWithOrder.containsKey(teamName)) {
 				place = teamsWithOrder.get(teamName).intValue();
-				results.put(Integer.valueOf(-2), "Váš tým je aktuálně na "
-						+ place + ". místě.");
+				StringBuilder sb = new StringBuilder();
+				sb.append("Váš tým je aktuálně na ");
+				sb.append(place);
+				sb.append(". místě");
+				if (points != null) {
+					sb.append(" s ")
+					.append(points.getNumber())
+					.append(" ponožkami v ")
+					.append(sdf.format(points.getDate()))
+					.append(".");
+				} else {
+					NumberDateTeam linearStage = teamsInLinear.get(teamName);
+					if (linearStage != null) {
+						sb.append(" na stanovišti ")
+						.append(linearStage.getStageDescription())
+						.append(" v ")
+						.append(sdf.format(linearStage.getDate()))
+						.append(".");
+						
+					}
+				}
+				results.put(Integer.valueOf(-2), sb.toString());
 		}
 	
 		TeamStage lastTeamStage = TeamStage.getLastTeamStage(teamName);
-		NumberDateTeam numberDateTeam = teamsPoints.get(teamName);
+		NumberDateTeam numberDateTeam = points;
 		int currentTeamPoints = -1;
 		if (numberDateTeam != null) {
 			currentTeamPoints = numberDateTeam.getNumber();
@@ -504,32 +537,35 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			}
 		}
 		
-		Map<Integer, Integer> linearWithCounts = new TreeMap<>(Collections.reverseOrder());  
+		Map<NumberWithDescription, Integer> linearWithCounts = new TreeMap<>(Collections.reverseOrder());  
 		for (NumberDateTeam points : teamsInLinear.values()) {
-			if (linearWithCounts.containsKey(points.getNumber())) {
-				linearWithCounts.put(points.getNumber(), linearWithCounts.get(points.getNumber()) + 1);
+			NumberWithDescription numberWithDescriptionKey = new NumberWithDescription(points.getNumber(), points.getStageDescription());
+			if (linearWithCounts.containsKey(numberWithDescriptionKey)) {
+				linearWithCounts.put(numberWithDescriptionKey, linearWithCounts.get(numberWithDescriptionKey) + 1);
 			} else {
-				linearWithCounts.put(points.getNumber(), 1);
+				linearWithCounts.put(numberWithDescriptionKey, 1);
 			}
 		}
 		
 		TreeMap<Integer, String> resultStats = new TreeMap<Integer, String>();
 		int i = 19;
 		if (!linearWithCounts.isEmpty())	{
-			resultStats.put(i++, "Číslo stanoviště / Počet týmů");
+			resultStats.put(i++, "Stanoviště / Počet týmů");
 		}
-		for (Entry<Integer, Integer> orderAndCount : linearWithCounts.entrySet()) {
+		for (Entry<NumberWithDescription, Integer> orderAndCount : linearWithCounts.entrySet()) {
 			
-			resultStats.put(i++,String.format("%2d / %2d", orderAndCount.getKey(), orderAndCount.getValue()));
+			NumberWithDescription stageWithNumber = orderAndCount.getKey();
+			
+			resultStats.put(i++,String.format("%s : %2d", stageWithNumber.getDescription(), orderAndCount.getValue()));
 		}
 		i = 39;
 		if (!teamsPoints.isEmpty())	{
-			resultStats.put(i++, "Počet bodů / Počet týmů");
+			resultStats.put(i++, "Počet ponožek/ Počet týmů");
 		}
 		
 		for (Entry<Integer, Integer> orderAndCount : pointsWithCounts.entrySet()) {
 			
-			resultStats.put(i++,String.format("%2d / %2d", orderAndCount.getKey(), orderAndCount.getValue()));
+			resultStats.put(i++,String.format("%2d : %2d", orderAndCount.getKey(), orderAndCount.getValue()));
 		}
 		return resultStats;
 	}
@@ -571,7 +607,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		for (TeamStage actualTeamStage : teamStages) {
 			TeamBranch teamBranch = new TeamBranch(actualTeamStage.getStageBranch(), actualTeamStage.getTeamName());
 			if (!teamBranchesCurrentPosition.containsKey(teamBranch)) {
-				teamBranchesCurrentPosition.put(teamBranch, new NumberDateTeam(actualTeamStage.getStageOrder(), actualTeamStage.getStageDate(), actualTeamStage.getTeamName()));
+				String stageDescription = actualTeamStage.getStageDescription();
+				if (stageDescription == null
+						|| stageDescription.isEmpty()) {
+					stageDescription = "L." + actualTeamStage.getStageOrder();
+				}
+				teamBranchesCurrentPosition.put(teamBranch, new NumberDateTeam(actualTeamStage.getStageOrder(), actualTeamStage.getStageDate(), actualTeamStage.getTeamName(), stageDescription));
 			}	
 		}
 		

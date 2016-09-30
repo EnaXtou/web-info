@@ -6,6 +6,7 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 	
 	private int number;
 	private	Date date;
+	private String stageDescription;
 	private String team;
 	
 	public NumberDateTeam(int number, Date date, String team) {
@@ -14,6 +15,12 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 		this.date = date;
 		this.team = team;
 	}
+	
+	public NumberDateTeam(int number, Date date, String team, String stageDescription) {
+		this(number, date, team);
+		this.stageDescription = stageDescription;
+	}
+	
 	public int getNumber() {
 		return number;
 	}
@@ -40,7 +47,16 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 				numberCompare : 
 				o.date.compareTo(this.date); // before is better therefore is "bigger"
 	}
+	public String getStageDescription() {
+		return stageDescription;
+	}
+	public void setStageDescription(String stageDescription) {
+		this.stageDescription = stageDescription;
+	}
 	
-	
+	@Override
+	public int hashCode() {
+		return stageDescription.hashCode();
+	}
 	
 }

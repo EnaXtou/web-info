@@ -38,6 +38,8 @@ public class TeamStage implements EntityCommon {
 	
 	private String stageBranch;
 	
+	private String stageDescription;
+	
 	public void setTeamName(String teamName) {
 		this.teamName = teamName;
 	}
@@ -59,11 +61,13 @@ public class TeamStage implements EntityCommon {
 
 	
 	public TeamStage(String teamName, String stageName, int stageOrder, String stageBranch) {
-		this.teamName = teamName;
-		this.stageName = stageName;
-		this.stageDate = new Date();
-		this.stageOrder = stageOrder;
+		this(teamName, stageName, stageOrder);
 		this.stageBranch = stageBranch;
+	}
+	
+	public TeamStage(String teamName, String stageName, int stageOrder, String stageBranch, String stageDescription) {
+		this(teamName, stageName, stageOrder, stageBranch);
+		this.stageDescription = stageDescription;
 	}
 
 	public TeamStage() {
@@ -260,6 +264,16 @@ public class TeamStage implements EntityCommon {
 	public String toString() {
 		return "TeamStage [id=" + id + ", teamName=" + teamName
 				+ ", stageName=" + stageName + ", stageDate=" + stageDate + "]";
+	}
+
+
+	public String getStageDescription() {
+		return stageDescription;
+	}
+
+
+	public void setStageDescription(String stageDescription) {
+		this.stageDescription = stageDescription;
 	}
 
 }
