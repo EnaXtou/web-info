@@ -20,7 +20,7 @@ public interface TeamStageActionInterface extends RemoteService {
 
 	public abstract void addTeam(String name, String code);
 
-	public abstract void addStage(int order, String name, String description, String help1, String help2, String result, String branch, int constraint);
+	public abstract void addStage(int order, String name, String description, String help1, String help2, String result, String branch, int constraint, int timeToHelp, String message);
 
 	public abstract int loginTeam(String code);
 

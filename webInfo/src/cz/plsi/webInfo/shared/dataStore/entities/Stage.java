@@ -43,6 +43,8 @@ public class Stage implements EntityCommon {
 	
 	private double timeToHelp = 0;
 	
+	private String message;
+	
 	
 	public Stage() {
 		super();
@@ -78,6 +80,16 @@ public class Stage implements EntityCommon {
 		this.constraint = constraint;
 	}
 
+	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint, int timeToHelp) {
+		this(name, number, description, help1, help2, result, branch, constraint);
+		this.timeToHelp = timeToHelp;
+	}
+	
+	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint, int timeToHelp, String message) {
+		this(name, number, description, help1, help2, result, branch, constraint, timeToHelp);
+		this.message = message;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -229,6 +241,14 @@ public class Stage implements EntityCommon {
 
 	public void setTimeToHelp(double timeToHelp) {
 		this.timeToHelp = timeToHelp;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 	
 

@@ -30,6 +30,10 @@ public class AddStagePage extends Composite {
 	private final Label branchLabel = new Label();
 	private final TextBox constraint = new TextBox();
 	private final Label constraintLabel = new Label();
+	private final TextBox timeToHelp = new TextBox();
+	private final Label timeToHelpLabel = new Label();
+	private final TextBox message = new TextBox();
+	private final Label messageLabel = new Label();
 
 	private TeamStageActionInterfaceAsync teamStageAction = GWT
 			.create(TeamStageActionInterface.class);
@@ -68,6 +72,8 @@ public class AddStagePage extends Composite {
 						result.getValue(),
 						branch.getValue(),
 						Integer.parseInt(constraint.getValue()),
+						Integer.parseInt(timeToHelp.getValue()),
+						message.getValue(),
 						callback);
 
 			}
@@ -133,15 +139,22 @@ public class AddStagePage extends Composite {
 		line.add(branch);
 		panel.add(line);
 		
-		line = new HorizontalPanel();
-		constraintLabel.setText("Omezení: ");
-		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		line.add(constraintLabel);
-		line.add(constraint);
-		panel.add(line);
+		addLine(panel, "Omezení: ", constraintLabel, constraint);
+		addLine(panel, "Počet minut do řešení: ", timeToHelpLabel, timeToHelp);
+		addLine(panel, "Zpráva při příchodu: ", messageLabel, message);
 
 		panel.add(button);
 		initWidget(panel);
+	}
+
+	private void addLine(VerticalPanel panel, String labelText, Label label, TextBox input) {
+		HorizontalPanel line;
+		line = new HorizontalPanel();
+		label.setText(labelText);
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		line.add(label);
+		line.add(input);
+		panel.add(line);
 	}
 
 	public void onModuleLoad() {

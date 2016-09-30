@@ -190,7 +190,12 @@ public class TeamStageActionParallelTest {
 		// team 2 je na stanovišti 1
 		teamStage = new TeamStage(TEAM + 2, STAGE + 1 + "A", 1, "A");
 		EMF.add(teamStage);
-
+		Stage stageToUpdate = new Stage(STAGE + 1 + "A");
+		stageToUpdate.setBranch("A");
+		stageToUpdate = (Stage) EMF.find(stageToUpdate);
+		stageToUpdate.setMessage("Vítejte na startu!");
+		EMF.update(stageToUpdate);
+		
 		TeamStageAction teamStageAction = new TeamStageAction();
 		// team 1 již je na první stage
 		teamStageAction.nextStage(TEAM + 1, STAGE + 1 + "A", errors);
@@ -226,7 +231,7 @@ public class TeamStageActionParallelTest {
 
 		// team 4 zadal 1. stanoviště
 		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1 + "A", errors);
-		assertEquals(WELCOME_START + "A." + 1 + WELCOME_END,nextStageActual);
+		assertEquals("Vítejte na startu!", nextStageActual);
 
 		// team 4 zadal 2. stanoviště
 		nextStageActual = teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "A", errors);

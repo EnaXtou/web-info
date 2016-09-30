@@ -20,7 +20,7 @@ public interface TeamStageActionInterfaceAsync {
 
 	void addStage(int order, String name, String description, String help1,
 			String help2, String result, String branch, int constraint,
-			AsyncCallback<Void> callback);
+			int timeToHelp, String message, AsyncCallback<Void> callback);
 
 	void loginTeam(String code, AsyncCallback<Integer> callback);
 

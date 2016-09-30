@@ -198,14 +198,23 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		if (currentStage.getNumber() == -1) {
 			greetings = getGoodBye(currentStage);
 		} else {
-			StringBuilder sb = new StringBuilder();
+			greetings = getGreetings(currentStage);
+		}
+		return greetings;
+	}
+
+	private String getGreetings(Stage currentStage) {
+		StringBuilder sb = new StringBuilder();
+		String message = currentStage.getMessage();
+		if (message != null && !message.isEmpty()) {
+			sb.append(message);
+		} else {
 			sb.append("Tak vás tu vítáme! ");
 			sb.append(currentStage.getBranch()).append(".");
 			sb.append(currentStage.getNumber());
 			sb.append(". stanoviště, že vám to ale trvalo.");
-			greetings = sb.toString();
 		}
-		return greetings;
+		return sb.toString();
 	}
 
 	private String addErrorWrongStageCode(List<String> errors) {
@@ -418,8 +427,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#addTeam(java.lang.String)
 	 */
 	@Override
-	public void addStage(int order, String name, String description, String help1, String help2, String result, String branch, int constraint) {
-		EMF.add(new Stage(name, order, description, help1, help2, result, branch, constraint));
+	public void addStage(int order, String name, String description, String help1, String help2, String result, String branch, int constraint, int timeToHelp, String message) {
+		EMF.add(new Stage(name, order, description, help1, help2, result, branch, constraint, timeToHelp, message));
 	}
 	
 	/* (non-Javadoc)

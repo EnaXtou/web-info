@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -37,7 +38,7 @@ public class TeamWebInfoPage extends Composite {
 
 	private void addAnswerFromWebInfo(String result) {
 		helpStagePanel.clear();
-		Label label = new Label(result);
+		InlineHTML label = new InlineHTML(result);
 		label.setStyleName("statusBar");
 		helpStagePanel.add(label);
 	}
@@ -168,7 +169,7 @@ public class TeamWebInfoPage extends Composite {
 	private void addMessages(Map<Integer, String> results) {
 		messages.clear();
 		for (String mesage : results.values()) {
-			messages.add(new Label(mesage));
+			messages.add(new InlineHTML(mesage));
 		}
 	}
 
