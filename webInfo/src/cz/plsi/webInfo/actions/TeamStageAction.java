@@ -105,9 +105,11 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			result = currentStage.getHelp2();
 		} 
 		
+		boolean isResult = false;
 		if (teamStageHelps.size() == 2 || result == null || result.length() == 0) {
 			//řešení
 			result = currentStage.getResult();
+			isResult = true;
 		}
 		
 		if (result == null || result.length() == 0) {
@@ -132,7 +134,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			
 		}
 		
-		if (teamStageHelps.size() == 2) {
+		if (isResult) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Řešení ");
 			sb.append(getCalculatedStageDescription(currentStage));

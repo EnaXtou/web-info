@@ -92,10 +92,10 @@ public class SetMessageForTeamsPage extends Composite {
 	
 		line = new HorizontalPanel();
 		line.setSize("100%", "100%");
-		messageToStageLabel.setText("Branch: ");
+		branchLabel.setText("Branch: ");
 		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		line.add(branch);
 		line.add(branchLabel);
+		line.add(branch);
 		panel.add(line);
 		
 		panel.add(button);
