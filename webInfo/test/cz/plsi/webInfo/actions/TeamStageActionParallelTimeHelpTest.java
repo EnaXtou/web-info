@@ -80,7 +80,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		results = teamStageAction.getResults(TEAM_1_CODE);
 		assertEquals(7, results.size());
 		String resultOfStage = results.get(-15);
-		assertEquals("Time result A.2 after 10 seconds.", resultOfStage);
+		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		
 		// Řešení se nezobrazí - tým 2 není na stanovišti, které má časované řešení
 		results = teamStageAction.getResults(TEAM_2_CODE);
@@ -92,7 +92,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		results = teamStageAction.getResults(TEAM_1_CODE);
 		assertEquals(6, results.size());
 		resultOfStage = results.get(-15);
-		assertEquals("Time result A.2 after 10 seconds.", resultOfStage);
+		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		
 		Thread.sleep(5000);
 		results = teamStageAction.getResults(TEAM_2_CODE);
@@ -103,7 +103,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		results = teamStageAction.getResults(TEAM_2_CODE);
 		assertEquals(6, results.size());
 		resultOfStage = results.get(-15);
-		assertEquals(""
+		assertEquals("Řešení B.1: "
 				+ "Time result B.1 after 15 seconds.", resultOfStage);
 		
 		teamStageAction.nextStage(TEAM_2_CODE, TeamStageActionParallelTest.STAGE + 2 + "B", errors);
@@ -115,7 +115,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		results = teamStageAction.getResults(TEAM_1_CODE);
 		assertEquals(7, results.size());
 		resultOfStage = results.get(-15);
-		assertEquals("Time result A.2 after 10 seconds.", resultOfStage);
+		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		
 		teamStageAction.nextStage(TEAM_1_CODE, TeamStageActionParallelTest.STAGE + 1 + "B", errors);
 		Thread.sleep(16000);
@@ -123,9 +123,9 @@ public class TeamStageActionParallelTimeHelpTest {
 		results = teamStageAction.getResults(TEAM_1_CODE);
 		assertEquals(7, results.size());
 		resultOfStage = results.get(-15);
-		assertEquals("Time result A.2 after 10 seconds.", resultOfStage);
+		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		resultOfStage = results.get(-16);
-		assertEquals("Time result B.1 after 15 seconds.", resultOfStage);
+		assertEquals("Řešení B.1: Time result B.1 after 15 seconds.", resultOfStage);
 		
 		teamStageAction.nextStage(TEAM_1_CODE, TeamStageActionParallelTest.STAGE + 1 + "L", errors);
 		Thread.sleep(16000);

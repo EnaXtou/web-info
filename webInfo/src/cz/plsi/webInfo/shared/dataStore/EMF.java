@@ -54,4 +54,9 @@ public class EMF {
 		return entityToReturn;
 	}
 	
+	public static void clear() {
+		EntityManager em = EMF.getInstance().createEntityManager();
+		em.clear();
+	}
+	
 }

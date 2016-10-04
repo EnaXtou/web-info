@@ -27,6 +27,7 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 
 public class TeamStageActionParallelTest {
 
+	private static final String HELP_PREFIX = "Nápověda ";
 	public static final String WELCOME_START = "Tak vás tu vítáme! Stanoviště ";
 	public static final String WELCOME_END = "";
 	public static final String CODE = "_code";
@@ -42,6 +43,10 @@ public class TeamStageActionParallelTest {
 	
 	private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
+	private static String getHelpString(String prefix, String stage, String suffix) {
+		return prefix + stage + ": " + suffix;
+	}
+	
 	@Before
 	public void setUp() {
 		helper.setUp();
@@ -131,7 +136,8 @@ public class TeamStageActionParallelTest {
 
 		// bez chyby tým dostane nápovědu.
 		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, "B", errors);
-		assertEquals(HELP_1_R + 1, actual);
+//		assertEquals(HELP_1_R + 1, actual);
+		assertEquals(getHelpString(HELP_PREFIX, "B.1", HELP_1 + 1), actual);
 		
 		// team 1 použije již použité heslo
 		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 1, "B", errors);
@@ -139,7 +145,8 @@ public class TeamStageActionParallelTest {
 		errors.clear();
 
 		actual = teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 3, "B", errors);
-		assertEquals(HELP_2_R + 1, actual);
+//		assertEquals(HELP_2_R + 1, actual);
+		assertEquals(getHelpString(HELP_PREFIX, "B.1", HELP_2 + 1), actual);
 
 		// druhý tým je na druhém stanovišti
 		// první stále na prvním stanovyšti
@@ -149,7 +156,7 @@ public class TeamStageActionParallelTest {
 		// druhý tým použije heslo již použitý týmem jedna
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 1, "B", errors);
 		errors.size();
-		assertEquals(HELP_1_R + 2, actual); // dostanu 1. nápovědu z 2. stanoviště
+		assertEquals(getHelpString(HELP_PREFIX, "B.2", HELP_1 + 2), actual); // dostanu 1. nápovědu z 2. stanoviště
 
 		// team dva si řekne o další nápovědu, ale na druhém stanovišti již žádná není k dispozici
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, "B", errors);
@@ -163,15 +170,15 @@ public class TeamStageActionParallelTest {
 		
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 2, "B", errors);
 		assertTrue(errors.isEmpty());
-		assertEquals(HELP_1_R + 3, actual);
+		assertEquals(getHelpString(HELP_PREFIX, "B.3", HELP_1 + 3), actual);
 		
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 3, "B", errors);
 		assertTrue(errors.isEmpty());
-		assertEquals(HELP_2_R + 3, actual);
+		assertEquals(getHelpString(HELP_PREFIX, "B.3", HELP_2 + 3), actual);
 		
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 6, "B", errors);
 		assertTrue(errors.isEmpty());
-		assertEquals(RESULT_R + 3, actual);
+		assertEquals(getHelpString("Řešení ", "B.3", RESULT + 3), actual);
 		
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 7, "B", errors);
 		assertFalse(errors.isEmpty());

@@ -2,17 +2,14 @@ package cz.plsi.webInfo.actions;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -108,7 +105,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			result = currentStage.getHelp2();
 		} 
 		
-		if (teamStageHelps.size() == 2) {
+		if (teamStageHelps.size() == 2 || result == null || result.length() == 0) {
 			//řešení
 			result = currentStage.getResult();
 		}
@@ -136,9 +133,19 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		}
 		
 		if (teamStageHelps.size() == 2) {
-			result = "Řešení: " + result; 
+			StringBuilder sb = new StringBuilder();
+			sb.append("Řešení ");
+			sb.append(getCalculatedStageDescription(currentStage));
+			sb.append(": ");
+			sb.append(result);
+			result = sb.toString(); 
 		} else {
-			result = "Nápověda: " + result;
+			StringBuilder sb = new StringBuilder();
+			sb.append("Nápověda ");
+			sb.append(getCalculatedStageDescription(currentStage));
+			sb.append(": ");
+			sb.append(result);
+			result = sb.toString();
 		}
 			
 		teamStageHelp.setHelp(helpName);
@@ -211,15 +218,21 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			sb.append(message);
 		} else {
 			sb.append("Tak vás tu vítáme! Stanoviště ");
-			String description = currentStage.getDescription();
-			if (description != null
-					&& !description.isEmpty()) {
-				sb.append(description);
-			} else {
-				sb.append(currentStage.getBranch()).append(".");
-				sb.append(currentStage.getNumber());
-			}
+			sb.append(getCalculatedStageDescription(currentStage));
 				
+		}
+		return sb.toString();
+	}
+
+	private static String getCalculatedStageDescription(Stage currentStage) {
+		String description = currentStage.getDescription();
+		StringBuilder sb = new StringBuilder();
+		if (description != null
+				&& !description.isEmpty()) {
+			sb.append(description);
+		} else {
+			sb.append(currentStage.getBranch()).append(".");
+			sb.append(currentStage.getNumber());
 		}
 		return sb.toString();
 	}
@@ -255,7 +268,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		teamStageHelp.setTeamName(teamName);
 		teamStageHelp = teamStageHelp.getLastHelpResult();
 		if (teamStageHelp != null) {
-			results.put(Integer.valueOf(order++), teamStageHelp.getHelpResult() + " (st. " + teamStageHelp.getStageName() + ")");
+			results.put(Integer.valueOf(order++), teamStageHelp.getHelpResult());
 		}
 		
 		TeamStage teamStage = new TeamStage();
@@ -391,7 +404,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				date.setTime(numberDateOnStage.getDate());
 				date.add(Calendar.SECOND, (int) Math.round(actualStage.getTimeToHelp() * 60));
 				if (date.compareTo(currentDate) <= 0) {
-					results.put(order--, actualStage.getResult());
+					StringBuilder sb = new StringBuilder();
+					sb.append("Řešení ");
+					sb.append(getCalculatedStageDescription(actualStage));
+					sb.append(": ");
+					sb.append(actualStage.getResult());
+					results.put(order--, sb.toString());
 				}
 			}
 		}
@@ -404,7 +422,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	@Override
 	public TreeSet<TeamStageClient> getTeamsByStageAndStageDate() {
 		
-		
+		EMF.clear();
 		TeamStage teamStage = new TeamStage();
 		List<TeamStage> teamStages = teamStage.getList();
 		
@@ -509,11 +527,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	}
 	
 	@Override
-	public String setMessageToTeams(String message, int messageFromStage, int messageToStage) {
+	public String setMessageToTeams(String message, int messageFromStage, int messageToStage, String branch) {
 		MessageToTeams messageToTeams = new MessageToTeams();
 		messageToTeams.setMessage(message);
 		messageToTeams.setFromStageNumber(messageFromStage);
 		messageToTeams.setToStageNumber(messageToStage);
+		messageToTeams.setBranch(branch);
 		EMF.add(messageToTeams);
 		return message;
 	}

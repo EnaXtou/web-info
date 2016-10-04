@@ -20,6 +20,8 @@ public class SetMessageForTeamsPage extends Composite {
 	private final Label messageFromStageLabel = new Label();
 	private final TextBox messageToStage = new TextBox();
 	private final Label messageToStageLabel = new Label();
+	private final TextBox branch = new TextBox();
+	private final Label branchLabel = new Label();
 	private final Label status = new Label();
 
 	private TeamStageActionInterfaceAsync teamStageAction = GWT.create(TeamStageActionInterface.class);
@@ -48,7 +50,7 @@ public class SetMessageForTeamsPage extends Composite {
 			};
 
 			// Make the call to the stock price service.
-			teamStageAction.setMessageToTeams(message.getValue(), Integer.parseInt(messageFromStage.getValue()), Integer.parseInt(messageToStage.getValue()), callback);
+			teamStageAction.setMessageToTeams(message.getValue(), Integer.parseInt(messageFromStage.getValue()), Integer.parseInt(messageToStage.getValue()), branch.getValue(), callback);
 		}
 	}
 
@@ -88,6 +90,14 @@ public class SetMessageForTeamsPage extends Composite {
 		line.add(messageToStage);
 		panel.add(line);
 	
+		line = new HorizontalPanel();
+		line.setSize("100%", "100%");
+		messageToStageLabel.setText("Branch: ");
+		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		line.add(branch);
+		line.add(branchLabel);
+		panel.add(line);
+		
 		panel.add(button);
 		panel.add(status);
 
