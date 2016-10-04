@@ -597,7 +597,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			
 			
 			NumberDateTeam numberDateTeamCurrent = teamsPositions.get(teamBranch);
-			if (teamBranch.getBranch() == "L") {
+			if ("L".equals(teamBranch.getBranch())) {
 				teamsInLinear.put(team, numberDateTeamCurrent);
 			} else {
 				NumberDateTeam numberDateTeamIn = teamsPoints.get(team);
