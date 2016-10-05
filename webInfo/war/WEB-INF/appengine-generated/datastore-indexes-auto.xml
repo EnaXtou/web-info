@@ -1,8 +1,17 @@
-<datastore-indexes
-  autoGenerate="false">
-    <datastore-index kind="MessageToTeams" ancestor="false">
-        <property name="fromStageNumber" direction="asc" />
-        <property name="toStageNumber" direction="desc" />
-        <property name="branch" direction="desc" />
+<!-- Indices written at Wed, 5 Oct 2016 23:56:13 CEST -->
+
+<datastore-indexes>
+
+    <!-- Used 2 times in query history -->
+    <datastore-index kind="TeamStage" ancestor="false" source="auto">
+        <property name="stageOrder" direction="desc"/>
+        <property name="stageDate" direction="asc"/>
     </datastore-index>
+
+    <!-- Used 1 time in query history -->
+    <datastore-index kind="TeamStage" ancestor="false" source="auto">
+        <property name="stageOrder" direction="asc"/>
+        <property name="stageDate" direction="asc"/>
+    </datastore-index>
+
 </datastore-indexes>

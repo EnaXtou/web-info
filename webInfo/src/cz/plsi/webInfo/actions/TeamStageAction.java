@@ -100,14 +100,22 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			result = currentStage.getHelp1();
 		} 
 		
+		boolean isResult = false;
 		if (teamStageHelps.size() == 1) {
 			//druhá nápověda
 			result = currentStage.getHelp2();
+			if (result == null || result.isEmpty()) {
+				teamStageHelp.setHelpResult(result);
+				teamStageHelp.setHelp(false);
+				EMF.add(teamStageHelp);
+				result = currentStage.getResult();
+				isResult = true;
+			}
 		} 
 		
-		boolean isResult = false;
-		if (teamStageHelps.size() == 2 || result == null || result.length() == 0) {
+		if (teamStageHelps.size() == 2) {
 			//řešení
+				
 			result = currentStage.getResult();
 			isResult = true;
 		}
@@ -149,9 +157,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			sb.append(result);
 			result = sb.toString();
 		}
-			
-		teamStageHelp.setHelp(helpName);
-		teamStageHelp.setHelpResult(result);
+		
+		teamStageHelp = new TeamStageHelp(teamStageHelp.getTeamStage(), helpName, result);
 		EMF.add(teamStageHelp);
 		
 		return result;
@@ -367,8 +374,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 					||
 					(messageToTeams.getFromStageNumber() <= currentTeamPoints
 					&& messageToTeams.getToStageNumber() >= currentTeamPoints
-					&& messageToTeams.getBranch() == null)
-						) {
+					&& (messageToTeams.getBranch() == null || messageToTeams.getBranch().isEmpty()))
+					) {
 					results.put(Integer.valueOf(order--), messageToTeams.getMessage());
 				}
 			}
@@ -424,9 +431,17 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	@Override
 	public TreeSet<TeamStageClient> getTeamsByStageAndStageDate() {
 		
-		EMF.clear();
 		TeamStage teamStage = new TeamStage();
 		List<TeamStage> teamStages = teamStage.getList();
+		Map<TeamBranch, NumberDateTeam> teamsPositions = getTeamsPositions(teamStages);
+		Map<String, NumberDateTeam> teamsPoints = new HashMap<>(50);
+		Map<String, NumberDateTeam> teamsInLinear = new HashMap<>(30);
+		getPointsAndLinearStages(teamsPositions, teamsPoints, teamsInLinear);
+		
+		TreeSet<NumberDateTeam> linearOrder = new TreeSet<>(Collections.reverseOrder());
+		linearOrder.addAll(teamsInLinear.values());
+		TreeSet<NumberDateTeam> pointsOrder = new TreeSet<>(Collections.reverseOrder());
+		pointsOrder.addAll(teamsPoints.values());
 		
 		teamStage.setStageOrder(TeamStage.TEAM_ENDED_GAME);
 		List<TeamStage> teamsThatEnded = teamStage.getList();
@@ -435,33 +450,62 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			teamEndedNames.add(teamThatEnded.getTeamName());
 		}
 		
+		Map<String, Integer> teamsWithOrder = new HashMap<>();
+		int place = 1;
+		TreeSet<TeamStageClient> sortedTeamStages = new TreeSet<>();
+		for (NumberDateTeam teamPositionInLinear : linearOrder) {
+			String actualTeamName = teamPositionInLinear.getTeam();
+			if (!teamsWithOrder.containsKey(actualTeamName)) {
+				teamsWithOrder.put(actualTeamName, place);
+				Date date = new Date(teamPositionInLinear.getDate().getTime());
+				TeamStageClient teamStageClient = new TeamStageClient(teamPositionInLinear.getTeam(),
+															teamPositionInLinear.getStageDescription(),
+															place,
+															date);
+				teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
+				sortedTeamStages.add(teamStageClient);
+				place++;
+			}
+		}
+		
+		for (NumberDateTeam teamPoitsPosition : pointsOrder) {
+			String actualTeamName = teamPoitsPosition.getTeam();
+			if (!teamsWithOrder.containsKey(actualTeamName)) {
+				teamsWithOrder.put(actualTeamName, place);
+				Date date = new Date(teamPoitsPosition.getDate().getTime());
+				StringBuilder sb = new StringBuilder();
+				sb.append(teamPoitsPosition.getNumber());
+				sb.append(" P ( ");
+				NumberDateTeam numberBranch = teamsPositions.get(new TeamBranch("A", actualTeamName));
+				if (numberBranch != null) {
+					sb.append(numberBranch.getStageDescription());
+					sb.append(" ");
+				}
+				numberBranch = teamsPositions.get(new TeamBranch("B", actualTeamName));
+				if (numberBranch != null) {
+					sb.append(numberBranch.getStageDescription());
+					sb.append(" ");
+				}
+				numberBranch = teamsPositions.get(new TeamBranch("C", actualTeamName));
+				if (numberBranch != null) {
+					sb.append(numberBranch.getStageDescription());
+					sb.append(" ");
+				}
+				sb.append(" )");
+				TeamStageClient teamStageClient = new TeamStageClient(teamPoitsPosition.getTeam(),
+															sb.toString() ,
+															place,
+															date);
+				teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
+				sortedTeamStages.add(teamStageClient);
+				place++;
+			}
+		}
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", new Locale("cs", "CZ"));
 		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 		SimpleDateFormat sdfForParse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("cs", "CZ"));
 		sdfForParse.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
-		
-		Map<String, TeamStageClient> teamStagesByTeamName = new HashMap<>(36);
-		for (TeamStage actualTeamStage : teamStages) {
-			String actualTeamName = actualTeamStage.getTeamName();
-//			try {
-				if (!teamStagesByTeamName.containsKey(actualTeamName)
-							//&& sdfForParse.parse("2014-10-12 07:00:00").compareTo(actualTeamStage.getStageDate()) >= 0
-						) {
-					Date date = new Date(actualTeamStage.getStageDate().getTime());
-					TeamStageClient teamStageClient = new TeamStageClient(actualTeamStage.getTeamName(),
-																		actualTeamStage.getStageName(),
-																		actualTeamStage.getStageOrder(),
-																		date);
-					teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
-					teamStagesByTeamName.put(actualTeamName,teamStageClient);
-				}
-		}
-
-		TreeSet<TeamStageClient> sortedTeamStages = new TreeSet<>();
-		for (TeamStageClient teamStageClient : teamStagesByTeamName.values()) {
-			sortedTeamStages.add(teamStageClient);
-		}
-		
 		
 		return sortedTeamStages;
 	}
@@ -631,7 +675,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				String stageDescription = actualTeamStage.getStageDescription();
 				if (stageDescription == null
 						|| stageDescription.isEmpty()) {
-					stageDescription = "L." + actualTeamStage.getStageOrder();
+					stageDescription = actualTeamStage.getStageBranch() + "." + actualTeamStage.getStageOrder();
 				}
 				teamBranchesCurrentPosition.put(teamBranch, new NumberDateTeam(actualTeamStage.getStageOrder(), actualTeamStage.getStageDate(), actualTeamStage.getTeamName(), stageDescription));
 			}	

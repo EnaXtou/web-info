@@ -70,7 +70,7 @@ public class TeamStageActionParallelTest {
 	}
 
 	public static void createStagesForBranch(int numberOfStages, String stageBranch, int constraint, int numberOfHelps) {
-		for (int i = 1; i < numberOfStages; i++) {
+		for (int i = 1; i <= numberOfStages; i++) {
 			EntityCommon stage = null;
 			if (i == 1) {
 				stage = new Stage(STAGE + i + stageBranch, i, null, 
@@ -110,6 +110,19 @@ public class TeamStageActionParallelTest {
 		team.setHelpsCount(-1);
 		
 		EMF.update(team);
+		
+		
+		Stage stage = new Stage();
+		stage.setName(STAGE + 4 + "B");
+		stage = (Stage) EMF.find(stage);
+		stage.setHelp2(null);
+		EMF.update(stage);
+		
+		stage = new Stage();
+		stage.setName(STAGE + 5 + "B");
+		stage = (Stage) EMF.find(stage);
+		stage.setHelp2(null);
+		EMF.update(stage);
 		
 		// team 1 je na stanovišti C.1
 		EntityCommon teamStage = null;
@@ -182,8 +195,36 @@ public class TeamStageActionParallelTest {
 		
 		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 7, "B", errors);
 		assertFalse(errors.isEmpty());
+		errors.clear();
 		
+		teamStage = new TeamStage(TEAM + 2, STAGE + 4 + "B", 4, "B");
+		EMF.add(teamStage);
 		
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 5, "B", errors);
+		assertTrue(errors.isEmpty());
+		assertEquals(getHelpString("Nápověda ", "B.4", HELP_1 + 4), actual);
+		
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 7, "B", errors);
+		assertTrue(errors.isEmpty());
+		assertEquals(getHelpString("Řešení ", "B.4", RESULT +4), actual);
+		
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 8, "B", errors);
+		assertFalse(errors.isEmpty());
+		errors.clear();
+		
+		teamStage = new TeamStage(TEAM + 2, STAGE + 5 + "B", 5, "B");
+		EMF.add(teamStage);
+		
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 9, "B", errors);
+		assertTrue(errors.isEmpty());
+		assertEquals(getHelpString("Nápověda ", "B.5", HELP_1 + 5), actual);
+		
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 10, "B", errors);
+		assertTrue(errors.isEmpty());
+		assertEquals(getHelpString("Řešení ", "B.5", RESULT +5), actual);
+		
+		actual = teamStageAction.getHelp(TEAM + 2 + CODE, HELP + 11, "B", errors);
+		assertFalse(errors.isEmpty());
 		
 	}
 

@@ -7,14 +7,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class TeamStageClient implements Comparable<TeamStageClient>, Serializable, IsSerializable  {
 
+
 	/**
-	 * added ended flag
+	 * 
 	 */
 	private static final long serialVersionUID = 8141619283175202966L;
 
 	private String teamName;
 	
-	private int stageOrder;
+	private int order;
 	
 	private String stageName;
 	
@@ -30,12 +31,12 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 		this.teamName = teamName;
 	}
 
-	public int getStageOrder() {
-		return stageOrder;
+	public int getOrder() {
+		return order;
 	}
 
-	public void setStageOrder(int stageOrder) {
-		this.stageOrder = stageOrder;
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	public String getStageName() {
@@ -60,23 +61,23 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	
 	public TeamStageClient(String teamName, 
 						String stageName,
-						int stageOrder,
+						int order,
 						Date stageDate) {
 		this.teamName = teamName;
 		this.stageName = stageName;
-		this.stageOrder = stageOrder;
+		this.order = order;
 		this.stageDate = stageDate;
 	}
 
 	@Override
 	public String toString() {
-		return "TeamStageClient [teamName=" + teamName + ", stageOrder=" + stageOrder + ", stageName=" + stageName
+		return "TeamStageClient [teamName=" + teamName + ", stageOrder=" + order + ", stageName=" + stageName
 				+ ", stageDate=" + stageDate + "]";
 	}
 
 	@Override
 	public int compareTo(TeamStageClient o) {
-		int result = this.stageOrder - o.stageOrder;
+		int result = this.order - o.order;
 		if (result == 0) {
 			result = o.stageDate.compareTo(this.stageDate);
 		}

@@ -122,7 +122,7 @@ public class ExportData extends HttpServlet {
 				for (TeamStageClient teamStageClientForCsv : sortedTeamStages) {
 					sb.append(place++).append(";");
 					sb.append(teamStageClientForCsv.getTeamName()).append(";");
-					sb.append(teamStageClientForCsv.getStageOrder()).append(";");
+					sb.append(teamStageClientForCsv.getOrder()).append(";");
 					sb.append(stf.format(teamStageClientForCsv.getStageDate()))
 					.append("\n");
 				}

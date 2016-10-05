@@ -45,14 +45,14 @@ public class ListTeamsOnStagesPage extends Composite {
 					status.setText("Výpis týmů úspěšný.");
 					int row = 0;
 					teamsTable.setBorderWidth(1);
-					teamsTable.setText(row, 0, "Číslo st.");
-					teamsTable.setText(row, 1, "Název st.");
+					teamsTable.setText(row, 0, "Pořadí");
+					teamsTable.setText(row, 1, "Pozice");
 					teamsTable.setText(row, 2, "Čas příchodu");
 					teamsTable.setText(row, 3, "Název týmu");
 					teamsTable.setText(row, 4, "Vzdali");
 					++row;
 					for (TeamStageClient teamStageClient : result) {
-						teamsTable.setText(row, 0, String.valueOf(teamStageClient.getStageOrder()));
+						teamsTable.setText(row, 0, String.valueOf(teamStageClient.getOrder()));
 						teamsTable.setText(row, 1, teamStageClient.getStageName());
 						String stageDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getStageDate());
 						teamsTable.setText(row, 2, stageDate);
