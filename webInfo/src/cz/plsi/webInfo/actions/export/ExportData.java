@@ -21,8 +21,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cz.plsi.webInfo.actions.TeamStageAction;
 import cz.plsi.webInfo.client.TeamStageClient;
 import cz.plsi.webInfo.shared.dataStore.entities.Stage;
+import cz.plsi.webInfo.shared.dataStore.entities.Team;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
@@ -150,6 +152,22 @@ public class ExportData extends HttpServlet {
 			}
 
 		},
+		TEAMS("teams.txt") {
+			
+			@Override
+			public StringBuilder getExportedData() {
+				List<Team> teams = (new Team()).getList();
+				StringBuilder sb = new StringBuilder();
+				sb.append("team_name;team_code\n");
+				for (Team team : teams) {
+					sb.append(team.getName()).append(";");
+					sb.append(team.getCode())
+					.append("\n");
+				}
+				return sb;
+			}
+			
+		},
 		TEAM_STAGE_HELPS("phone_hints.txt") {
 
 			@Override
@@ -227,16 +245,22 @@ public class ExportData extends HttpServlet {
 
 			@Override
 			public StringBuilder getExportedData() {
-				List<Stage> stages = (new Stage()).getList();
+				Stage stageFilter = new Stage();
+				stageFilter.setBranch(null);
+				
+				List<Stage> stages = stageFilter.getList();
 
 				StringBuilder sb = new StringBuilder();
-				sb.append("position;name;code;hint1;hint2\n");
+				sb.append("position;branch;name;code;hint1;hint2;result;timeToResult\n");
 				for (Stage stage : stages) {
 					sb.append(stage.getNumber()).append(";");
-					sb.append(stage.getDescription()).append(";");
+					sb.append(stage.getBranch()).append(";");
+					sb.append(TeamStageAction.getCalculatedStageDescription(stage)).append(";");
 					sb.append(stage.getName()).append(";");
 					sb.append(stage.getHelp1()).append(";");
-					sb.append(stage.getHelp2())
+					sb.append(stage.getHelp2()).append(";");
+					sb.append(stage.getResult()).append(";");
+					sb.append(stage.getTimeToHelp())
 							.append("\n");
 				}
 				return sb;

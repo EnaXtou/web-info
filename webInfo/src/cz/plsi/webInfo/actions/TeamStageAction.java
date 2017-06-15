@@ -233,7 +233,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		return sb.toString();
 	}
 
-	private static String getCalculatedStageDescription(Stage currentStage) {
+	public static String getCalculatedStageDescription(Stage currentStage) {
 		String description = currentStage.getDescription();
 		StringBuilder sb = new StringBuilder();
 		if (description != null
@@ -467,6 +467,10 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				place++;
 			}
 		}
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", new Locale("cs", "CZ"));
+		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
+		SimpleDateFormat sdfForParse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("cs", "CZ"));
+		sdfForParse.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 		
 		for (NumberDateTeam teamPoitsPosition : pointsOrder) {
 			String actualTeamName = teamPoitsPosition.getTeam();
@@ -502,10 +506,6 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			}
 		}
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", new Locale("cs", "CZ"));
-		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
-		SimpleDateFormat sdfForParse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("cs", "CZ"));
-		sdfForParse.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 		
 		return sortedTeamStages;
 	}
