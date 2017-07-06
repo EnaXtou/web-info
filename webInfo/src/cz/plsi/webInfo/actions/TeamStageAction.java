@@ -22,10 +22,12 @@ import cz.plsi.webInfo.actions.helper.TeamBranch;
 import cz.plsi.webInfo.client.TeamStageActionInterface;
 import cz.plsi.webInfo.client.TeamStageClient;
 import cz.plsi.webInfo.shared.dataStore.EMF;
+import cz.plsi.webInfo.shared.dataStore.entities.EntityCommon;
 import cz.plsi.webInfo.shared.dataStore.entities.Help;
 import cz.plsi.webInfo.shared.dataStore.entities.MessageToTeams;
 import cz.plsi.webInfo.shared.dataStore.entities.Stage;
 import cz.plsi.webInfo.shared.dataStore.entities.Team;
+import cz.plsi.webInfo.shared.dataStore.entities.TeamMessageHistory;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStage;
 import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
@@ -48,7 +50,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		List<Team> teamWithCode = team.getList();
 		
 		if (teamWithCode.size() == 0) {
-			return CommonAction.addError("Nesprávný kód týmu.", errors);
+			return CommonAction.addError(null, null, null, "Nesprávný kód týmu.", errors);
 		}
 		
 		Help help = new Help();
@@ -56,7 +58,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		List<Help> helpWithName = help.getList();
 		
 		if (helpWithName.size() == 0) {
-			return CommonAction.addError("Nesprávný kód pro nápovědu.", errors);
+			return CommonAction.addError(teamCode, null, helpName, "Nesprávný kód pro nápovědu.", errors);
 		}
 		
 		
@@ -69,7 +71,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 
 		List<TeamStageHelp> teamStageHelps = teamStageHelp.getList();
 		if (teamStageHelps.size() > 0) {
-			return CommonAction.addError("Již použitý kód pro nápovědu.", errors);
+			return CommonAction.addError(teamCode, null, helpName, "Již použitý kód pro nápovědu.", errors);
 		}
 		
 		
@@ -78,7 +80,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		teamStage.setStageBranch(branch);
 		List<TeamStage> teamStageList = teamStage.getList();
 		if (teamStageList.size() == 0) {
-			return CommonAction.addError("Ještě nemáte navštívené žádné stanoviště.", errors);
+			return CommonAction.addError(teamCode, null, helpName, "Ještě nemáte navštívené žádné stanoviště.", errors);
 		}
 		
 		TeamStage currentTeamStage = teamStageList.get(0);
@@ -87,7 +89,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		
 		if (teamStageHelps.size() > 2) {
-			return CommonAction.addError("Již máte řešení.", errors);
+			return CommonAction.addError(teamCode, null, helpName, "Již máte řešení.", errors);
 		} 
 		
 		String result = null;
@@ -121,7 +123,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		}
 		
 		if (result == null || result.length() == 0) {
-			return CommonAction.addError("Pro aktuální stanoviště není nápověda, heslo lze použít znovu.", errors);
+			return CommonAction.addError(teamCode, null, helpName, "Pro aktuální stanoviště není nápověda, heslo lze použít znovu.", errors);
 		}
 		
 		team = teamWithCode.get(0);
@@ -138,7 +140,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			teamStageHelp.setHelpResult(result);
 			teamStageHelp.setHelp(false);
 			EMF.add(teamStageHelp);
-			return HELP_STOLEN;
+			return CommonAction.addMessageToHistory(teamCode, null, helpName, HELP_STOLEN) ;
 			
 		}
 		
@@ -161,7 +163,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		teamStageHelp = new TeamStageHelp(teamStageHelp.getTeamStage(), helpName, result);
 		EMF.add(teamStageHelp);
 		
-		return result;
+		return CommonAction.addMessageToHistory(teamCode, null, helpName, result);
 	}
 	
 	/* (non-Javadoc)
@@ -173,7 +175,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		team.setCode(teamCode);
 		List<Team> teamWithCode = team.getList();
 		if (teamWithCode.isEmpty()) {
-			return CommonAction.addError("Nesprávný kód týmu.", errors);
+			return CommonAction.addError(null, null, null, "Nesprávný kód týmu.", errors);
 		}
 		
 		String teamName = teamWithCode.get(0).getName();
@@ -182,7 +184,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		stage.setBranch(null);
 		List<Stage> stageWithName = stage.getList();
 		if (stageWithName.isEmpty()) {
-			return addErrorWrongStageCode(errors);
+			return addErrorWrongStageCode(teamCode, stageName, errors);
 		}
 		
 		Stage currentStage = stageWithName.get(0);
@@ -190,14 +192,14 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		// Špatné pořadí
 		int stageOrder = lastTeamStage == null ? 0 : lastTeamStage.getStageOrder();
 		if (currentStage.getNumber() != -1 && stageOrder != currentStage.getNumber() - 1 && stageOrder != currentStage.getNumber()) {
-			return addErrorWrongStageCode(errors);
+			return addErrorWrongStageCode(teamCode, stageName, errors);
 		}
 		
 		int constraint = currentStage.getConstraint();
 		TeamStage teamStageForCount = new TeamStage(teamName, null, 0);
 		long stagesCount = teamStageForCount.count();
 		if (constraint > stagesCount) {
-			return addErrorWrongStageCode(errors);
+			return addErrorWrongStageCode(teamCode, stageName, errors);
 		}
 		
 		TeamStage teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch(), currentStage.getDescription());
@@ -205,9 +207,9 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		if (!teamStages.isEmpty()) {
 			if (currentStage.getNumber() == -1) {
-				return getGoodBye(currentStage);
+				return CommonAction.addMessageToHistory(teamCode, stageName, null, getGoodBye(currentStage));
 			}
-			return CommonAction.addError("Tuto stanoviště jste již navštívili.", errors);
+			return CommonAction.addError(teamCode, stageName, null, "Tuto stanoviště jste již navštívili.", errors);
 		}
 		
 		EMF.add(teamStage);
@@ -217,7 +219,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		} else {
 			greetings = getGreetings(currentStage);
 		}
-		return greetings;
+		return CommonAction.addMessageToHistory(teamCode, stageName, null, greetings);
 	}
 
 	private String getGreetings(Stage currentStage) {
@@ -246,8 +248,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		return sb.toString();
 	}
 
-	private String addErrorWrongStageCode(List<String> errors) {
-		return CommonAction.addError("Nesprávný kód stanoviště.", errors);
+	private String addErrorWrongStageCode(String teamCode, String stageName, List<String> errors) {
+		return CommonAction.addError(teamCode, stageName, null, "Nesprávný kód stanoviště.", errors);
 	}
 
 	private String getGoodBye(Stage currentStage) {
@@ -569,8 +571,38 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		team.setHelpsCount(helpsCount);
 		EMF.update(team);
 		
-		return "Tým (" + teamCode + ") má aktuálně " + helpsCount + " nápovědu.";
+		String message = "Tým (" + teamCode + ") má aktuálně " + helpsCount + " nápovědu.";
+		return CommonAction.addMessageToHistory(teamCode, null, null, message);
 	}
+	
+	@Override
+	public Map<Integer, String> getTeamMessageHistory(String teamCode) {
+		int order = 0;
+		TreeMap<Integer, String> results = new TreeMap<>(); 
+		Team team = new Team();
+		team.setCode(teamCode);
+		List<Team> teamWithCode = team.getList();
+		
+		if (teamWithCode.size() == 0) {
+			results.put(Integer.valueOf(order++), "Chyba: Nesprávný kód týmu.");
+			return results;
+		}
+		
+		
+		TeamMessageHistory teamMessageHistory = new TeamMessageHistory();
+		teamMessageHistory.setTeamCode(teamCode);
+		List<TeamMessageHistory> teamMessageHistoryList = (List<TeamMessageHistory>) teamMessageHistory.getList();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", new Locale("cs", "CZ"));
+		sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
+		for (TeamMessageHistory teamMessageHistoryCurrent : teamMessageHistoryList) {
+			
+			results.put(order++, 
+					sdf.format(teamMessageHistoryCurrent.getMessageDate()) + " - " + teamMessageHistoryCurrent.getMessage());
+		}
+		return results;
+	}
+	
 	
 	@Override
 	public String setMessageToTeams(String message, int messageFromStage, int messageToStage, String branch) {
@@ -582,7 +614,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		EMF.add(messageToTeams);
 		return message;
 	}
-
+	
 	public Map<Integer, String> getStatistics(List<TeamStage> teamStages) {
 		
 		//posčítat týmy podle větví
@@ -683,6 +715,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		return teamBranchesCurrentPosition;
 	}
+	
+	
 	
 	
 	

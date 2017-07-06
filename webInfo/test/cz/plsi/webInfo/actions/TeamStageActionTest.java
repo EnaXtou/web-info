@@ -324,5 +324,21 @@ public class TeamStageActionTest {
 		assertEquals(" 2 :  1", resultStats.get(Integer.valueOf(41)));
 		assertEquals(" 4 :  1", resultStats.get(Integer.valueOf(40)));
 	}
-
+	
+	@Test
+	public void testGetTeamMessageHistory() {
+		
+		List<String> errors = new ArrayList<>();
+		TeamStageAction teamStageAction = new TeamStageAction();
+		
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1, errors);
+		teamStageAction.nextStage(TEAM + 2 + CODE, STAGE + 1, errors);
+		teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 2, ONLY_LINEAR, errors);
+		Map<Integer, String> teamMessageHistory = teamStageAction.getTeamMessageHistory(TEAM + 1 + CODE);
+		assertThat(teamMessageHistory.size(), CoreMatchers.equalTo(3));
+		assertThat(teamMessageHistory.get(new Integer(0)), CoreMatchers.containsString("Chyba"));
+		assertThat(teamMessageHistory.get(new Integer(1)), CoreMatchers.containsString(STAGE + 1));
+		assertThat(teamMessageHistory.get(new Integer(2)), CoreMatchers.containsString(HELP + 2));
+	}
 }

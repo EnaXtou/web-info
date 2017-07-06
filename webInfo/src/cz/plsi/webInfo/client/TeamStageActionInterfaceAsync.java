@@ -33,4 +33,7 @@ public interface TeamStageActionInterfaceAsync {
 	void setMessageToTeams(String message, int messageFromStage,
 			int messageToStage, String branch, AsyncCallback<String> callback);
 
+	void getTeamMessageHistory(String teamCode,
+			AsyncCallback<Map<Integer, String>> callback);
+
 }

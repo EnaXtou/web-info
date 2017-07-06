@@ -33,4 +33,6 @@ public interface TeamStageActionInterface extends RemoteService {
 	String setMessageToTeams(String message, int messageFromStage,
 			int messageToStage, String branch);
 
+	Map<Integer, String> getTeamMessageHistory(String teamCode);
+
 }
