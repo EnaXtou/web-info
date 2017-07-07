@@ -38,7 +38,6 @@ public class ExportData extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		super.doGet(req, resp);
 	}
 
@@ -260,7 +259,7 @@ public class ExportData extends HttpServlet {
 					sb.append(stage.getHelp1()).append(";");
 					sb.append(stage.getHelp2()).append(";");
 					sb.append(stage.getResult()).append(";");
-					sb.append(stage.getTimeToHelp())
+					sb.append(stage.getTimeToHelp1())
 							.append("\n");
 				}
 				return sb;

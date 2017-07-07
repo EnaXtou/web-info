@@ -40,13 +40,19 @@ public class TeamStageActionParallelTimeHelpTest {
 		Stage stage = new Stage(TeamStageActionParallelTest.STAGE + 2 + "A");
 		stage = (Stage) EMF.find(stage);
 		stage.setResult("Time result A.2 after 10 seconds.");
-		stage.setTimeToHelp(1.0 / 6);
+		stage.setTimeToResult(1.0 / 6);
 		EMF.update(stage);
 		
 		stage = new Stage(TeamStageActionParallelTest.STAGE + 1 + "B");
 		stage = (Stage) EMF.find(stage);
 		stage.setResult("Time result B.1 after 15 seconds.");
-		stage.setTimeToHelp(1.0 / 4);
+		stage.setTimeToResult(1.0 / 4);
+		EMF.update(stage);
+		
+		stage = new Stage(TeamStageActionParallelTest.STAGE + 1 + "L");
+		stage = (Stage) EMF.find(stage);
+		stage.setResult("Time result L.1 after 10 seconds.");
+		stage.setTimeToResult(1.0 / 6);
 		EMF.update(stage);
 		
 		Team team = new Team(TeamStageActionParallelTest.TEAM + 1);
@@ -131,7 +137,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		Thread.sleep(16000);
 		// Tým postoupil do lineární části, nápovědy k paralelním větvím se již nezobrazují
 		results = teamStageAction.getResults(TEAM_1_CODE);
-		assertEquals(7, results.size());
+		assertEquals("Řešení pro lineární část se objevuje až na základě požadavku!", 7, results.size());
 		
 		
 	}

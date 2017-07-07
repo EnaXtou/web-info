@@ -21,7 +21,6 @@ public class CommonAction {
 	
 	public static String addMessageToHistory(String teamCode, String stageName, String helpName, String message) {
 		if (teamCode != null) {
-			//TODO add message to history
 			TeamMessageHistory teamMessageHistory = new TeamMessageHistory();
 			teamMessageHistory.setTeamCode(teamCode);
 			String messageWithRequest = "";

@@ -116,7 +116,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		} 
 		
 		if (teamStageHelps.size() == 2) {
-			//řešení
+			//TODO řešení se nedává za nápovědní hesla, ale za požadavek o řešení, tým se tím propadne v pořadí
 				
 			result = currentStage.getResult();
 			isResult = true;
@@ -261,7 +261,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	 */
 	@Override
 	public Map<Integer, String> getResults(String teamCode) {
-		
+		// TODO dávat pořadí na základě řešení	
 		int order = 0;
 		TreeMap<Integer, String> results = new TreeMap<>(); 
 		Team team = new Team();
@@ -389,6 +389,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			order = addResultAfterTime(order, results, teamName, teamsPositions, "B");
 			order = addResultAfterTime(order, results, teamName, teamsPositions, "C");
 		}
+		// TODO for linear branch the result can't be send after time without request order = addResultAfterTime(order, results, teamName, teamsPositions, "L");
 		
 		results.putAll(getStatistics(teamStages));
 		
@@ -407,19 +408,21 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			stage.setNumber(numberDateOnStage.getNumber());
 			stage.setBranch(branch);
 			Stage actualStage = stage.getList().get(0);
-			if (actualStage.getResult() != null
-					&& actualStage.getTimeToHelp() > 0) {
+			String help = actualStage.getResult();
+			double timeToHelp = actualStage.getTimeToResult();
+			if (help != null
+					&& timeToHelp > 0) {
 				Calendar currentDate = Calendar.getInstance();
 				Calendar date = Calendar.getInstance();
 				date.clear();
 				date.setTime(numberDateOnStage.getDate());
-				date.add(Calendar.SECOND, (int) Math.round(actualStage.getTimeToHelp() * 60));
+				date.add(Calendar.SECOND, (int) Math.round(timeToHelp * 60));
 				if (date.compareTo(currentDate) <= 0) {
 					StringBuilder sb = new StringBuilder();
 					sb.append("Řešení ");
 					sb.append(getCalculatedStageDescription(actualStage));
 					sb.append(": ");
-					sb.append(actualStage.getResult());
+					sb.append(help);
 					results.put(order--, sb.toString());
 				}
 			}

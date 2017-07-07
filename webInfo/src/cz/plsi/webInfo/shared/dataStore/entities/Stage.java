@@ -41,7 +41,11 @@ public class Stage implements EntityCommon {
 	
 	private int constraint;
 	
-	private double timeToHelp = 0;
+	private double timeToHelp1 = 0;
+	
+	private double timeToHelp2 = 0;
+	
+	private double timeToResult = 0;
 	
 	private String message;
 	
@@ -80,9 +84,9 @@ public class Stage implements EntityCommon {
 		this.constraint = constraint;
 	}
 
-	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint, int timeToHelp) {
+	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint, int timeToResult) {
 		this(name, number, description, help1, help2, result, branch, constraint);
-		this.timeToHelp = timeToHelp;
+		this.timeToResult = timeToResult;
 	}
 	
 	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint, int timeToHelp, String message) {
@@ -219,6 +223,22 @@ public class Stage implements EntityCommon {
 		this.description = description;
 	}
 
+	public double getTimeToHelp2() {
+		return timeToHelp2;
+	}
+
+	public void setTimeToHelp2(double timeToHelp2) {
+		this.timeToHelp2 = timeToHelp2;
+	}
+
+	public double getTimeToResult() {
+		return timeToResult;
+	}
+
+	public void setTimeToResult(double timeToResult) {
+		this.timeToResult = timeToResult;
+	}
+
 	public String getBranch() {
 		return branch;
 	}
@@ -235,12 +255,12 @@ public class Stage implements EntityCommon {
 		this.constraint = constraint;
 	}
 
-	public double getTimeToHelp() {
-		return timeToHelp;
+	public double getTimeToHelp1() {
+		return timeToHelp1;
 	}
 
-	public void setTimeToHelp(double timeToHelp) {
-		this.timeToHelp = timeToHelp;
+	public void setTimeToHelp1(double timeToHelp1) {
+		this.timeToHelp1 = timeToHelp1;
 	}
 
 	public String getMessage() {
