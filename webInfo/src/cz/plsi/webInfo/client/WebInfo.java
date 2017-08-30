@@ -1,5 +1,7 @@
 package cz.plsi.webInfo.client;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -17,6 +19,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -70,7 +73,6 @@ public class WebInfo implements EntryPoint {
 					}
 				};
 
-				// Make the call to the stock price service.
 				teamStageAction.loginTeam(code.getValue().toLowerCase(), callback);
 			}
 			
@@ -107,12 +109,14 @@ public class WebInfo implements EntryPoint {
 	}
 
 	private void changeTabToTeam(Integer result) {
+		Date tomorrow = new Date();
+		CalendarUtil.addDaysToDate(tomorrow, 1);
 		if (result.equals(0)) {
 			changePage(new AdminPage());
-			Cookies.setCookie(TEAM_CODE_COOKIE_NAME, code.getValue().toLowerCase());
+			Cookies.setCookie(TEAM_CODE_COOKIE_NAME, code.getValue().toLowerCase(), tomorrow);
 		} else if (result.equals(1)) {
 			changePage(new TeamWebInfoPage(code.getValue().toLowerCase()));
-			Cookies.setCookie(TEAM_CODE_COOKIE_NAME, code.getValue().toLowerCase());
+			Cookies.setCookie(TEAM_CODE_COOKIE_NAME, code.getValue().toLowerCase(), tomorrow);
 			
 		} else {
 			changePage(new Label("Chyba: Neznámý tým."));

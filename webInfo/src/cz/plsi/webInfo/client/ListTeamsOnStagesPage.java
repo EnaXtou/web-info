@@ -47,21 +47,23 @@ public class ListTeamsOnStagesPage extends Composite {
 					teamsTable.setBorderWidth(1);
 					teamsTable.setText(row, 0, "Pořadí");
 					teamsTable.setText(row, 1, "Pozice");
-					teamsTable.setText(row, 2, "Čas příchodu");
-					teamsTable.setText(row, 3, "Název týmu");
-					teamsTable.setText(row, 4, "Vzdali");
+					teamsTable.setText(row, 2, "Počet řešení");
+					teamsTable.setText(row, 3, "Čas příchodu");
+					teamsTable.setText(row, 4, "Název týmu");
+					teamsTable.setText(row, 5, "Vzdali");
 					++row;
 					for (TeamStageClient teamStageClient : result) {
 						teamsTable.setText(row, 0, String.valueOf(teamStageClient.getOrder()));
 						teamsTable.setText(row, 1, teamStageClient.getStageName());
+						teamsTable.setText(row, 2, String.valueOf(teamStageClient.getNumberOfResults()));
 						String stageDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getStageDate());
-						teamsTable.setText(row, 2, stageDate);
-						teamsTable.setText(row, 3, teamStageClient.getTeamName());
+						teamsTable.setText(row, 3, stageDate);
+						teamsTable.setText(row, 4, teamStageClient.getTeamName());
 						if (teamStageClient.isEnded()) {
-							teamsTable.setText(row, 4,  "Ano");
 							teamsTable.getRowFormatter().addStyleName(row, "teamEnded");
+							teamsTable.setText(row, 5,  "Ano");
 						} else {
-							teamsTable.setText(row, 4,  "Ne");
+							teamsTable.setText(row, 5,  "Ne");
 							
 						}
 						++row;

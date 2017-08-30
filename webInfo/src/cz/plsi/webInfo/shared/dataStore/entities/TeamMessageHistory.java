@@ -96,6 +96,7 @@ public class TeamMessageHistory implements EntityCommon {
 		if (this.getMessageDate() != null) {
 			cq.where(criteriaBuilder.equal(message.get("messageDate"), this.getMessageDate()));
 		}
+		cq.orderBy(criteriaBuilder.desc(message.get("messageDate")));
 		cq.select(message);
 		
 		return em.createQuery(cq).getResultList();

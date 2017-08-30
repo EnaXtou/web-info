@@ -33,6 +33,8 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
 public class TeamStageAction extends RemoteServiceServlet implements TeamStageActionInterface {
 
+	private static final String RESULT_CODE = "reseni";
+
 	public static final String HELP_STOLEN = "Chytilo vás nějaké monstrum, strachem se vám heslo vytratilo z paměti. Pro nápovědu zadejte další heslo.";
 	
 	/**
@@ -57,7 +59,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		help.setName(helpName);
 		List<Help> helpWithName = help.getList();
 		
-		if (helpWithName.size() == 0) {
+		boolean isResultRequested = RESULT_CODE.equalsIgnoreCase(helpName);
+		if (helpWithName.size() == 0 && !isResultRequested) {
 			return CommonAction.addError(teamCode, null, helpName, "Nesprávný kód pro nápovědu.", errors);
 		}
 		
@@ -70,7 +73,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		teamStageHelp.setHelp(helpName);
 
 		List<TeamStageHelp> teamStageHelps = teamStageHelp.getList();
-		if (teamStageHelps.size() > 0) {
+		if (teamStageHelps.size() > 0 && !isResultRequested) {
 			return CommonAction.addError(teamCode, null, helpName, "Již použitý kód pro nápovědu.", errors);
 		}
 		
@@ -79,7 +82,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		teamStage.setTeamName(teamName);
 		teamStage.setStageBranch(branch);
 		List<TeamStage> teamStageList = teamStage.getList();
-		if (teamStageList.size() == 0) {
+		if (teamStageList.size() == 0 && !isResultRequested) {
 			return CommonAction.addError(teamCode, null, helpName, "Ještě nemáte navštívené žádné stanoviště.", errors);
 		}
 		
@@ -88,7 +91,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		teamStageHelps = teamStageHelp.getList();
 		
 		
-		if (teamStageHelps.size() > 2) {
+		if (teamStageHelps.size() > 2 && !isResultRequested) {
 			return CommonAction.addError(teamCode, null, helpName, "Již máte řešení.", errors);
 		} 
 		
@@ -97,16 +100,16 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		currentStage.setBranch(null);
 		currentStage = currentStage.getList().get(0);
 		
-		if (teamStageHelps.size() == 0) {
+		if (teamStageHelps.size() == 0 && !isResultRequested) {
 			//první nápověda
 			result = currentStage.getHelp1();
 		} 
 		
 		boolean isResult = false;
-		if (teamStageHelps.size() == 1) {
+		if (teamStageHelps.size() == 1 && !isResultRequested) {
 			//druhá nápověda
 			result = currentStage.getHelp2();
-			if (result == null || result.isEmpty()) {
+			if ((result == null || result.isEmpty()) && currentStage.getTimeToResult() == 0.0) {
 				teamStageHelp.setHelpResult(result);
 				teamStageHelp.setHelp(false);
 				EMF.add(teamStageHelp);
@@ -115,8 +118,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			}
 		} 
 		
-		if (teamStageHelps.size() == 2) {
-			//TODO řešení se nedává za nápovědní hesla, ale za požadavek o řešení, tým se tím propadne v pořadí
+		if (teamStageHelps.size() == 2 || (isResultRequested && isTimeAfterInterval(currentTeamStage.getStageDate(), currentStage.getTimeToResult()))) {
 				
 			result = currentStage.getResult();
 			isResult = true;
@@ -132,7 +134,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		if (helpsCount < 0) {
 			team = (Team) EMF.find(team); 
 			//TODO Tenhle update je asi zbytečný
-			EMF.update(team);
+//			EMF.update(team);
 			team.setHelpsCount(++helpsCount);
 			EMF.update(team);
 			teamStageHelp.setStageName(null);
@@ -372,7 +374,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			for (MessageToTeams messageToTeams : messagesForStage) {
 				if ((messageToTeams.getFromStageNumber() <= lastTeamStage.getStageOrder()
 						&& messageToTeams.getToStageNumber() >= lastTeamStage.getStageOrder()
-						&& messageToTeams.getBranch() == lastTeamStage.getStageBranch())
+						&& messageToTeams.getBranch().equals(lastTeamStage.getStageBranch()))
 					||
 					(messageToTeams.getFromStageNumber() <= currentTeamPoints
 					&& messageToTeams.getToStageNumber() >= currentTeamPoints
@@ -381,7 +383,28 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 					results.put(Integer.valueOf(order--), messageToTeams.getMessage());
 				}
 			}
+		
+			Stage currentStage = new Stage();
+			currentStage.setName(lastTeamStage.getStageName());
+			currentStage.setBranch(lastTeamStage.getStageBranch());
+			currentStage = currentStage.getList().get(0);
+			
+			double timeToResult = currentStage.getTimeToResult();
+			String result = currentStage.getResult();
+			if (result != null
+					&& timeToResult > 0
+					&& (teamStageHelp == null || !result.equals(teamStageHelp.getHelpResult()))
+			) {
+				if (isTimeAfterInterval(lastTeamStage.getStageDate(), timeToResult)) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Můžete si vzít řešení pro stanoviště ");
+					sb.append(getCalculatedStageDescription(currentStage));
+					results.put(order--, sb.toString());
+				}
+			}
 		}
+		
+		
 		
 		order = -15;
 		if (!teamsInLinear.containsKey(teamName)) {
@@ -396,6 +419,22 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		results.put(200, "Čas posledního požadavku: " + sdf.format(new Date()));
 		
 		return results;
+	}
+
+	/**
+	 * @param lastTeamStage
+	 * @param timeInterval
+	 * @return
+	 */
+	private boolean isTimeAfterInterval(Date stageDate,
+			double timeInterval) {
+		Calendar currentDate = Calendar.getInstance();
+		Calendar date = Calendar.getInstance();
+		date.clear();
+		date.setTime(stageDate);
+		date.add(Calendar.SECOND, (int) Math.round(timeInterval * 60));
+		boolean isTimeAfterInterval = date.compareTo(currentDate) <= 0;
+		return isTimeAfterInterval;
 	}
 
 	private int addResultAfterTime(int order, TreeMap<Integer, String> results,
@@ -468,6 +507,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 															place,
 															date);
 				teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
+				teamStageClient.setNumberOfResults(teamPositionInLinear.getNumberOfResults());
 				sortedTeamStages.add(teamStageClient);
 				place++;
 			}
@@ -679,6 +719,10 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			
 			NumberDateTeam numberDateTeamCurrent = teamsPositions.get(teamBranch);
 			if ("L".equals(teamBranch.getBranch())) {
+				TeamStageHelp teamStageHelp = new TeamStageHelp();
+				teamStageHelp.setHelp("reseni");
+				teamStageHelp.setTeamName(teamBranch.getTeam());
+				numberDateTeamCurrent.setNumberOfResults(teamStageHelp.getList().size());
 				teamsInLinear.put(team, numberDateTeamCurrent);
 			} else {
 				NumberDateTeam numberDateTeamIn = teamsPoints.get(team);

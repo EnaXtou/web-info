@@ -291,7 +291,7 @@ public class TeamStageActionParallelTest {
 	}
 
 	@Test
-	public void testGetResults() {
+	public void testGetResults() throws InterruptedException {
 		TeamStageAction teamStageAction = new TeamStageAction();
 		Map<Integer, String> results = teamStageAction.getResults(TEAM + 4 + CODE);
 
@@ -434,15 +434,26 @@ public class TeamStageActionParallelTest {
 		assertThat(results.get(Integer.valueOf(-2)), CoreMatchers.startsWith("Váš tým je aktuálně na 2. místě s 8 ponožkami v"));
 		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_4', který byl na stanovišti L.1 v "));
 		
+		Thread.sleep(12000);
+		teamStageAction.getHelp(TEAM + 4 + CODE, "reseni", "L", errors);
+		
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2 + "L", errors);
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
-		assertEquals(9, results.size());
+		assertEquals(10, results.size());
 		assertEquals("Test message 2.L points", results.get(Integer.valueOf(-3)));
 		
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 3 + "L", errors);
+		
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1 + "L", errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "L", errors);
+		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3 + "L", errors);
+		
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
 		// zpráva se zobrazuje pouze na druhém stanovišti L větve
 		assertEquals(8, results.size());
+		
+		assertThat(results.get(Integer.valueOf(-2)), CoreMatchers.startsWith("Váš tým je aktuálně na 2. místě"));
+		assertThat(results.get(Integer.valueOf(1)), CoreMatchers.startsWith("Vede tým 'team_1', který byl na stanovišti L.3 v "));
 	}
 	
 	@Test

@@ -81,7 +81,8 @@ public class TeamStageActionTest {
 	public void tearDown() {
 		helper.tearDown();
 	}
-
+	
+	
 	@Ignore("Již testováno v testu cz.plsi.webInfo.actions.TeamStageActionParallelTest")
 	@Test
 	public void testGetHelp() {

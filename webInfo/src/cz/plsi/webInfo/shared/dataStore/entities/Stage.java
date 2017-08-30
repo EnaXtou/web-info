@@ -89,8 +89,8 @@ public class Stage implements EntityCommon {
 		this.timeToResult = timeToResult;
 	}
 	
-	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint, int timeToHelp, String message) {
-		this(name, number, description, help1, help2, result, branch, constraint, timeToHelp);
+	public Stage(String name, int number, String description, String help1, String help2, String result, String branch, int constraint, int timeToResultPossible, String message) {
+		this(name, number, description, help1, help2, result, branch, constraint, timeToResultPossible);
 		this.message = message;
 	}
 	

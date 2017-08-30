@@ -11,7 +11,7 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8141619283175202966L;
+	private static final long serialVersionUID = 8141619283175202968L;
 
 	private String teamName;
 	
@@ -22,6 +22,8 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	private Date stageDate;
 	
 	private boolean ended = false;
+	
+	private int numberOfResults;
 
 	public String getTeamName() {
 		return teamName;
@@ -78,6 +80,10 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	@Override
 	public int compareTo(TeamStageClient o) {
 		int result = this.order - o.order;
+		
+		if (result == 0) {
+			result = o.numberOfResults - this.numberOfResults;
+		}
 		if (result == 0) {
 			result = o.stageDate.compareTo(this.stageDate);
 		}
@@ -90,6 +96,14 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 
 	public void setEnded(boolean ended) {
 		this.ended = ended;
+	}
+
+	public int getNumberOfResults() {
+		return numberOfResults;
+	}
+
+	public void setNumberOfResults(int numberOfResults) {
+		this.numberOfResults = numberOfResults;
 	}
 	
 	

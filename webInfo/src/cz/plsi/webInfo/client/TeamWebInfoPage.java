@@ -152,6 +152,20 @@ public class TeamWebInfoPage extends Composite {
 		});
 		line.add(refreshInfoButton);
 		
+		Button historyButton = new Button("Zobraz historii");
+		historyButton.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				if (teamStageAction == null) {
+					teamStageAction = GWT.create(TeamStageActionInterface.class);
+				}
+				fillMessageHistory();
+			}
+			
+		});
+		line.add(historyButton);
+		
 		panel.add(line);
 		panel.add(helpStagePanel);
 		messages.setSpacing(10);
@@ -175,6 +189,17 @@ public class TeamWebInfoPage extends Composite {
 
 	private void fillMessages() {
 		// Set up the callback object.
+		AsyncCallback<Map<Integer, String>> callbackResults = prepareCallbackFromResults();
+		teamStageAction.getResults(teamCodeHidden.getValue(), callbackResults);
+	}
+
+	private void fillMessageHistory() {
+		// Set up the callback object.
+		AsyncCallback<Map<Integer, String>> callbackResults = prepareCallbackFromResults();
+		teamStageAction.getTeamMessageHistory(teamCodeHidden.getValue(), callbackResults);
+	}
+	
+	private AsyncCallback<Map<Integer, String>> prepareCallbackFromResults() {
 		AsyncCallback<Map<Integer, String>> callbackResults = new AsyncCallback<Map<Integer, String>>() {
 			public void onFailure(Throwable caught) {
 				addAnswerFromWebInfo(ANSWER_ERROR);
@@ -185,6 +210,6 @@ public class TeamWebInfoPage extends Composite {
 				
 			}
 		};
-		teamStageAction.getResults(teamCodeHidden.getValue(), callbackResults);
+		return callbackResults;
 	}
 }

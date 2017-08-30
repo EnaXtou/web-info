@@ -8,8 +8,11 @@ import static org.junit.Assert.assertThat;
 import org.hamcrest.CoreMatchers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+
 
 
 
@@ -63,6 +66,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		EMF.add(team);
 		
 	}
+	
 	
 	@Test
 	public void testHelpAfterTimePassed() throws InterruptedException {
@@ -134,12 +138,14 @@ public class TeamStageActionParallelTimeHelpTest {
 		assertEquals("Řešení B.1: Time result B.1 after 15 seconds.", resultOfStage);
 		
 		teamStageAction.nextStage(TEAM_1_CODE, TeamStageActionParallelTest.STAGE + 1 + "L", errors);
+		String help = teamStageAction.getHelp(TEAM_1_CODE, "reseni", "L", errors);
+		assertFalse(errors.isEmpty());
 		Thread.sleep(16000);
-		// Tým postoupil do lineární části, nápovědy k paralelním větvím se již nezobrazují
+		// Tým postoupil do lineární části, nápovědy k paralelním větvím se již nezobrazují - až po vyžádání řešení
 		results = teamStageAction.getResults(TEAM_1_CODE);
 		assertEquals("Řešení pro lineární část se objevuje až na základě požadavku!", 7, results.size());
-		
-		
+		help = teamStageAction.getHelp(TEAM_1_CODE, "reseni", "L", errors);
+		assertThat(help, CoreMatchers.equalTo("Řešení L.1: Time result L.1 after 10 seconds."));
 	}
 
 }

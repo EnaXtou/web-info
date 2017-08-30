@@ -106,7 +106,6 @@ public class ExportData extends HttpServlet {
 							teamStagesByTeamName.put(actualTeamName,teamStageClient);
 						}
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
