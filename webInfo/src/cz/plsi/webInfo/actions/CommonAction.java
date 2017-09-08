@@ -25,10 +25,10 @@ public class CommonAction {
 			teamMessageHistory.setTeamCode(teamCode);
 			String messageWithRequest = "";
 			if (helpName != null) {
-				messageWithRequest = "Nápověda(" + helpName + ") - ";
+				messageWithRequest = "Nápověda (" + helpName + ") - ";
 			}
 			if (stageName != null) {
-				messageWithRequest = "Stanoviště(" + stageName + ") - ";
+				messageWithRequest = "Stanoviště (" + stageName + ") - ";
 			}
 			
 			messageWithRequest += message;

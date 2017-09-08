@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,7 +23,6 @@ import cz.plsi.webInfo.actions.helper.TeamBranch;
 import cz.plsi.webInfo.client.TeamStageActionInterface;
 import cz.plsi.webInfo.client.TeamStageClient;
 import cz.plsi.webInfo.shared.dataStore.EMF;
-import cz.plsi.webInfo.shared.dataStore.entities.EntityCommon;
 import cz.plsi.webInfo.shared.dataStore.entities.Help;
 import cz.plsi.webInfo.shared.dataStore.entities.MessageToTeams;
 import cz.plsi.webInfo.shared.dataStore.entities.Stage;
@@ -91,7 +91,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		teamStageHelps = teamStageHelp.getList();
 		
 		
-		if (teamStageHelps.size() > 2 && !isResultRequested) {
+		if (hasTeamResult(teamStageHelps)) {
 			return CommonAction.addError(teamCode, null, helpName, "Již máte řešení.", errors);
 		} 
 		
@@ -118,14 +118,16 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			}
 		} 
 		
-		if (teamStageHelps.size() == 2 || (isResultRequested && isTimeAfterInterval(currentTeamStage.getStageDate(), currentStage.getTimeToResult()))) {
-				
+		if (teamStageHelps.size() == 2 || isResultRequested) {
+			if (isResultRequested && !isTimeAfterInterval(currentTeamStage.getStageDate(), currentStage.getTimeToResult())) {
+				return CommonAction.addError(teamCode, null, helpName, String.format("Nemáte nárok na řešení - neuplynulo %1.0f minut od vyzvednutí šifry.", currentStage.getTimeToResult()), errors);
+			}
 			result = currentStage.getResult();
 			isResult = true;
 		}
 		
 		if (result == null || result.length() == 0) {
-			return CommonAction.addError(teamCode, null, helpName, "Pro aktuální stanoviště není nápověda, heslo lze použít znovu.", errors);
+			return CommonAction.addError(teamCode, null, helpName, "Pro aktuální stanoviště již není nápověda, heslo lze použít znovu.", errors);
 		}
 		
 		team = teamWithCode.get(0);
@@ -167,6 +169,19 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		return CommonAction.addMessageToHistory(teamCode, null, helpName, result);
 	}
+
+	private boolean hasTeamResult(List<TeamStageHelp> teamStageHelps) {
+		boolean hasResult = teamStageHelps.size() > 2;
+		if (!hasResult) {
+			for (TeamStageHelp tSH : teamStageHelps) {
+				if ("reseni".equals(tSH.getHelp())) {
+					hasResult = true;
+					break;
+				}
+			}
+		}
+		return hasResult;
+	}
 	
 	/* (non-Javadoc)
 	 * @see cz.plsi.webInfo.actions.TeamStageActionInterface#nextStage(java.lang.String, java.lang.String, java.util.List)
@@ -181,6 +196,14 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		}
 		
 		String teamName = teamWithCode.get(0).getName();
+		
+		TeamStage surrenderTeamStage = new TeamStage();
+		surrenderTeamStage.setTeamName(teamName);
+		surrenderTeamStage.setStageOrder(-1);
+		if (surrenderTeamStage.getList().size() > 0) {
+			return CommonAction.addError(teamCode, stageName, null, "Již jste vzdali hru a proto nemůžete pokračovat.", errors);
+		}
+		
 		
 		Stage stage = new Stage(stageName);
 		stage.setBranch(null);
@@ -307,7 +330,9 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			sb.append(winningTeamStage.getStageDescription());
 			sb.append(" v ");
 			sb.append(sdf.format(winningTeamStage.getDate()));
-			sb.append(".");
+			sb.append(" (");
+			sb.append(winningTeamStage.getNumberOfResults());
+			sb.append(" řešení).");
 			results.put(Integer.valueOf(order++), sb.toString());
 		} else if (!pointsOrder.isEmpty()){
 			NumberDateTeam winningTeamStage = pointsOrder.first();
@@ -353,7 +378,9 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 						.append(linearStage.getStageDescription())
 						.append(" v ")
 						.append(sdf.format(linearStage.getDate()))
-						.append(".");
+						.append(" (")
+						.append(linearStage.getNumberOfResults())
+						.append(" řešení).");
 						
 					}
 				}
@@ -374,6 +401,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			for (MessageToTeams messageToTeams : messagesForStage) {
 				if ((messageToTeams.getFromStageNumber() <= lastTeamStage.getStageOrder()
 						&& messageToTeams.getToStageNumber() >= lastTeamStage.getStageOrder()
+						&& messageToTeams.getBranch() != null
 						&& messageToTeams.getBranch().equals(lastTeamStage.getStageBranch()))
 					||
 					(messageToTeams.getFromStageNumber() <= currentTeamPoints

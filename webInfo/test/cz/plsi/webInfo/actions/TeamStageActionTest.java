@@ -338,8 +338,8 @@ public class TeamStageActionTest {
 		teamStageAction.getHelp(TEAM + 1 + CODE, HELP + 2, ONLY_LINEAR, errors);
 		Map<Integer, String> teamMessageHistory = teamStageAction.getTeamMessageHistory(TEAM + 1 + CODE);
 		assertThat(teamMessageHistory.size(), CoreMatchers.equalTo(3));
-		assertThat(teamMessageHistory.get(new Integer(0)), CoreMatchers.containsString("Chyba"));
+		assertThat(teamMessageHistory.get(new Integer(0)), CoreMatchers.containsString(HELP + 2));
 		assertThat(teamMessageHistory.get(new Integer(1)), CoreMatchers.containsString(STAGE + 1));
-		assertThat(teamMessageHistory.get(new Integer(2)), CoreMatchers.containsString(HELP + 2));
+		assertThat(teamMessageHistory.get(new Integer(2)), CoreMatchers.containsString("Chyba"));
 	}
 }

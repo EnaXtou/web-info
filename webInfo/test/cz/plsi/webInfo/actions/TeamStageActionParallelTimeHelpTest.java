@@ -88,7 +88,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		Thread.sleep(12000);
 		// Řešení se zobrazí - tým A je na stanovišti již 12 vteřin
 		results = teamStageAction.getResults(TEAM_1_CODE);
-		assertEquals(7, results.size());
+		assertEquals(8, results.size());
 		String resultOfStage = results.get(-15);
 		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		
@@ -100,7 +100,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		teamStageAction.nextStage(TEAM_2_CODE, TeamStageActionParallelTest.STAGE + 1 + "B", errors);
 		// Řešení se zobrazí - tým A je na stanovišti již 12 vteřin
 		results = teamStageAction.getResults(TEAM_1_CODE);
-		assertEquals(6, results.size());
+		assertEquals(7, results.size());
 		resultOfStage = results.get(-15);
 		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		
@@ -111,7 +111,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		Thread.sleep(11000);
 		// Řešení se zobrazí 
 		results = teamStageAction.getResults(TEAM_2_CODE);
-		assertEquals(6, results.size());
+		assertEquals(7, results.size());
 		resultOfStage = results.get(-15);
 		assertEquals("Řešení B.1: "
 				+ "Time result B.1 after 15 seconds.", resultOfStage);
@@ -123,7 +123,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		
 		// Týmu 1 se stále zobrazuje
 		results = teamStageAction.getResults(TEAM_1_CODE);
-		assertEquals(7, results.size());
+		assertEquals(8, results.size());
 		resultOfStage = results.get(-15);
 		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		
@@ -131,7 +131,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		Thread.sleep(16000);
 		// Tým jedna vidí obě nápovědy
 		results = teamStageAction.getResults(TEAM_1_CODE);
-		assertEquals(7, results.size());
+		assertEquals(8, results.size());
 		resultOfStage = results.get(-15);
 		assertEquals("Řešení A.2: Time result A.2 after 10 seconds.", resultOfStage);
 		resultOfStage = results.get(-16);
@@ -143,7 +143,7 @@ public class TeamStageActionParallelTimeHelpTest {
 		Thread.sleep(16000);
 		// Tým postoupil do lineární části, nápovědy k paralelním větvím se již nezobrazují - až po vyžádání řešení
 		results = teamStageAction.getResults(TEAM_1_CODE);
-		assertEquals("Řešení pro lineární část se objevuje až na základě požadavku!", 7, results.size());
+		assertEquals("Řešení pro lineární část se objevuje až na základě požadavku!", 8, results.size());
 		help = teamStageAction.getHelp(TEAM_1_CODE, "reseni", "L", errors);
 		assertThat(help, CoreMatchers.equalTo("Řešení L.1: Time result L.1 after 10 seconds."));
 	}
