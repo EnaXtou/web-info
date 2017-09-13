@@ -9,6 +9,7 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 	private String stageDescription;
 	private String team;
 	private int numberOfResults;
+	private String stageName ;
 	
 	public NumberDateTeam(int number, Date date, String team) {
 		super();
@@ -17,9 +18,10 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 		this.team = team;
 	}
 	
-	public NumberDateTeam(int number, Date date, String team, String stageDescription) {
+	public NumberDateTeam(int number, Date date, String team, String stageDescription, String stageName) {
 		this(number, date, team);
 		this.stageDescription = stageDescription;
+		this.setStageName(stageName);
 	}
 	
 	public int getNumber() {
@@ -43,13 +45,13 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 	@Override
 	public int compareTo(NumberDateTeam o) {
 		
-		int numberCompare = Integer.compare(this.number , o.number);
+		int numberOfSolvedStagesCompare = Integer.compare(this.number - this.numberOfResults , o.number - o.numberOfResults);
 		
-		int numberResultsCompare = Integer.compare(o.numberOfResults, this.numberOfResults); // less results asked is better
-		if (numberCompare != 0) {
-			return numberCompare;
-		} else if (numberResultsCompare != 0) {
-			return numberResultsCompare;
+		int stageNumberCompare = Integer.compare(this.number, o.number); 
+		if (numberOfSolvedStagesCompare != 0) {
+			return numberOfSolvedStagesCompare;
+		} else if (stageNumberCompare != 0) {
+			return stageNumberCompare;
 		} else {
 			return o.date.compareTo(this.date); // before is better therefore is "bigger"
 		}				 
@@ -72,6 +74,14 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 
 	public void setNumberOfResults(int numberOfResults) {
 		this.numberOfResults = numberOfResults;
+	}
+
+	public String getStageName() {
+		return stageName;
+	}
+
+	public void setStageName(String stageName) {
+		this.stageName = stageName;
 	}
 	
 }

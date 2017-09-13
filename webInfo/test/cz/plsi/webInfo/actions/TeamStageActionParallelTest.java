@@ -444,9 +444,16 @@ public class TeamStageActionParallelTest {
 		
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 3 + "L", errors);
 		
+		errors.clear();
+		
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 1 + "L", errors);
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2 + "L", errors);
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 3 + "L", errors);
+		
+		Thread.sleep(12000);
+		teamStageAction.getHelp(TEAM + 1 + CODE, "reseni", "L", errors);
+		
+		assertTrue(errors.isEmpty());
 		
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
 		// zpráva se zobrazuje pouze na druhém stanovišti L větve

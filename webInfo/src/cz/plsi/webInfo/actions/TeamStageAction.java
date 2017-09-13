@@ -55,6 +55,14 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			return CommonAction.addError(null, null, null, "Nesprávný kód týmu.", errors);
 		}
 		
+		TeamStage surrenderTeamStage = new TeamStage();
+		surrenderTeamStage.setTeamName(teamWithCode.get(0).getName());
+		surrenderTeamStage.setStageOrder(-1);
+		if (surrenderTeamStage.getList().size() > 0) {
+			return CommonAction.addError(teamCode, null, null, "Již jste vzdali hru a proto nemůžete pokračovat.", errors);
+		}
+		
+		
 		Help help = new Help();
 		help.setName(helpName);
 		List<Help> helpWithName = help.getList();
@@ -134,7 +142,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		
 		int helpsCount = team.getHelpsCount();
 		if (helpsCount < 0) {
-			team = (Team) EMF.find(team); 
+			team = (Team) EMF.find(team); 	
 			//TODO Tenhle update je asi zbytečný
 //			EMF.update(team);
 			team.setHelpsCount(++helpsCount);
@@ -164,8 +172,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			result = sb.toString();
 		}
 		
+		
+		
 		teamStageHelp = new TeamStageHelp(teamStageHelp.getTeamStage(), helpName, result);
-		EMF.add(teamStageHelp);
+		if (teamStageHelp.getList().size() == 0) {
+			EMF.add(teamStageHelp);
+		}
 		
 		return CommonAction.addMessageToHistory(teamCode, null, helpName, result);
 	}
@@ -227,7 +239,9 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			return addErrorWrongStageCode(teamCode, stageName, errors);
 		}
 		
-		TeamStage teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch(), currentStage.getDescription());
+		TeamStage teamStage = new TeamStage();
+		teamStage.setTeamName(teamName);
+		teamStage.setStageName(stageName);
 		List<TeamStage> teamStages = teamStage.getList();
 		
 		if (!teamStages.isEmpty()) {
@@ -235,6 +249,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				return CommonAction.addMessageToHistory(teamCode, stageName, null, getGoodBye(currentStage));
 			}
 			return CommonAction.addError(teamCode, stageName, null, "Tuto stanoviště jste již navštívili.", errors);
+		} else {
+			teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch(), currentStage.getDescription());
 		}
 		
 		EMF.add(teamStage);
@@ -286,7 +302,6 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	 */
 	@Override
 	public Map<Integer, String> getResults(String teamCode) {
-		// TODO dávat pořadí na základě řešení	
 		int order = 0;
 		TreeMap<Integer, String> results = new TreeMap<>(); 
 		Team team = new Team();
@@ -331,8 +346,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			sb.append(" v ");
 			sb.append(sdf.format(winningTeamStage.getDate()));
 			sb.append(" (");
-			sb.append(winningTeamStage.getNumberOfResults());
-			sb.append(" řešení).");
+			sb.append(winningTeamStage.getNumber() - winningTeamStage.getNumberOfResults());
+			sb.append(" vyluštěných šifer).");
 			results.put(Integer.valueOf(order++), sb.toString());
 		} else if (!pointsOrder.isEmpty()){
 			NumberDateTeam winningTeamStage = pointsOrder.first();
@@ -379,9 +394,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 						.append(" v ")
 						.append(sdf.format(linearStage.getDate()))
 						.append(" (")
-						.append(linearStage.getNumberOfResults())
-						.append(" řešení).");
-						
+						.append(linearStage.getNumber() - linearStage.getNumberOfResults())
+						.append(" vyluštěných šifer).");
 					}
 				}
 				results.put(Integer.valueOf(-2), sb.toString());
@@ -421,9 +435,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			String result = currentStage.getResult();
 			if (result != null
 					&& timeToResult > 0
-					&& (teamStageHelp == null || !result.equals(teamStageHelp.getHelpResult()))
-			) {
+					&& (teamStageHelp == null || 
+								!(RESULT_CODE.equals(teamStageHelp.getHelp())
+										&& teamStageHelp.getStageName().equals(lastTeamStage.getStageName())))) {
 				if (isTimeAfterInterval(lastTeamStage.getStageDate(), timeToResult)) {
+					
+					
 					StringBuilder sb = new StringBuilder();
 					sb.append("Můžete si vzít řešení pro stanoviště ");
 					sb.append(getCalculatedStageDescription(currentStage));
@@ -748,9 +765,18 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			NumberDateTeam numberDateTeamCurrent = teamsPositions.get(teamBranch);
 			if ("L".equals(teamBranch.getBranch())) {
 				TeamStageHelp teamStageHelp = new TeamStageHelp();
+				
+				
 				teamStageHelp.setHelp("reseni");
 				teamStageHelp.setTeamName(teamBranch.getTeam());
-				numberDateTeamCurrent.setNumberOfResults(teamStageHelp.getList().size());
+				int numberOfResults = teamStageHelp.getList().size();
+				teamStageHelp.setStageName(numberDateTeamCurrent.getStageName());
+				
+				if (teamStageHelp.getList().size() > 0) {
+					numberOfResults--;
+				}
+				
+				numberDateTeamCurrent.setNumberOfResults(numberOfResults);
 				teamsInLinear.put(team, numberDateTeamCurrent);
 			} else {
 				NumberDateTeam numberDateTeamIn = teamsPoints.get(team);
@@ -780,11 +806,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			TeamBranch teamBranch = new TeamBranch(actualTeamStage.getStageBranch(), actualTeamStage.getTeamName());
 			if (!teamBranchesCurrentPosition.containsKey(teamBranch)) {
 				String stageDescription = actualTeamStage.getStageDescription();
+				String stageName = actualTeamStage.getStageName();
 				if (stageDescription == null
 						|| stageDescription.isEmpty()) {
 					stageDescription = actualTeamStage.getStageBranch() + "." + actualTeamStage.getStageOrder();
 				}
-				teamBranchesCurrentPosition.put(teamBranch, new NumberDateTeam(actualTeamStage.getStageOrder(), actualTeamStage.getStageDate(), actualTeamStage.getTeamName(), stageDescription));
+				teamBranchesCurrentPosition.put(teamBranch, new NumberDateTeam(actualTeamStage.getStageOrder(), actualTeamStage.getStageDate(), actualTeamStage.getTeamName(), stageDescription, stageName));
 			}	
 		}
 		

@@ -73,9 +73,11 @@ public class TeamMessageHistory implements EntityCommon {
 		Query query = em.createQuery(
 			      "SELECT h FROM "+ this.getClass().getName() +" h "
 			      		+ "where h.message=:message "
-			      		+ "and h.teamCode=:teamCode");
+			      		+ "and h.teamCode=:teamCode "
+			      		+ "and h.messageDate=:messageDate");
 		query.setParameter("message", this.getMessage());
 		query.setParameter("teamCode", this.getTeamCode());
+		query.setParameter("messageDate", this.getMessageDate());
 		query.setMaxResults(1);
 		return !query.getResultList().isEmpty();
 	}

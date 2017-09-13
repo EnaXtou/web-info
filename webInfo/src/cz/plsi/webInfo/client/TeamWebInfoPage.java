@@ -100,7 +100,6 @@ public class TeamWebInfoPage extends Composite {
 		line.setSize("100%", "100%");
 		line.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		line.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		line.add(helpButton);
 		
 		Button stageButton = new Button("Stanoviště");
 		stageButton.addClickHandler(new ClickHandler() {
@@ -137,6 +136,7 @@ public class TeamWebInfoPage extends Composite {
 
 		});
 		line.add(stageButton);
+		line.add(helpButton);
 		
 		Button refreshInfoButton = new Button("Zjisti info");
 		refreshInfoButton.addClickHandler(new ClickHandler() {
@@ -146,6 +146,7 @@ public class TeamWebInfoPage extends Composite {
 				if (teamStageAction == null) {
 					teamStageAction = GWT.create(TeamStageActionInterface.class);
 				}
+				addAnswerFromWebInfo("");
 				fillMessages();
 			}
 			
@@ -160,6 +161,7 @@ public class TeamWebInfoPage extends Composite {
 				if (teamStageAction == null) {
 					teamStageAction = GWT.create(TeamStageActionInterface.class);
 				}
+				addAnswerFromWebInfo("");
 				fillMessageHistory();
 			}
 			
