@@ -224,8 +224,21 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			return addErrorWrongStageCode(teamCode, stageName, errors);
 		}
 		
+		TeamStage teamStage = new TeamStage();
+		teamStage.setTeamName(teamName);
+		teamStage.setStageName(stageName);
+		List<TeamStage> teamStages = teamStage.getList();
+		
 		Stage currentStage = stageWithName.get(0);
 		TeamStage lastTeamStage = TeamStage.getLastTeamStage(teamName, currentStage.getBranch());
+		
+		if (!teamStages.isEmpty()) {
+			if (currentStage.getNumber() == -1) {
+				return CommonAction.addMessageToHistory(teamCode, stageName, null, getGoodBye(currentStage));
+			}
+			return CommonAction.addError(teamCode, stageName, null, "Tuto stanoviště jste již navštívili.", errors);
+		}
+		
 		// Špatné pořadí
 		int stageOrder = lastTeamStage == null ? 0 : lastTeamStage.getStageOrder();
 		if (currentStage.getNumber() != -1 && stageOrder != currentStage.getNumber() - 1 && stageOrder != currentStage.getNumber()) {
@@ -239,19 +252,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			return addErrorWrongStageCode(teamCode, stageName, errors);
 		}
 		
-		TeamStage teamStage = new TeamStage();
-		teamStage.setTeamName(teamName);
-		teamStage.setStageName(stageName);
-		List<TeamStage> teamStages = teamStage.getList();
+		teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch(), currentStage.getDescription());
 		
-		if (!teamStages.isEmpty()) {
-			if (currentStage.getNumber() == -1) {
-				return CommonAction.addMessageToHistory(teamCode, stageName, null, getGoodBye(currentStage));
-			}
-			return CommonAction.addError(teamCode, stageName, null, "Tuto stanoviště jste již navštívili.", errors);
-		} else {
-			teamStage = new TeamStage(teamName, stageName, currentStage.getNumber(), currentStage.getBranch(), currentStage.getDescription());
-		}
 		
 		EMF.add(teamStage);
 		String greetings;
