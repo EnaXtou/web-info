@@ -38,7 +38,8 @@ public class ListTeamsOnStagesPage extends Composite {
 			// Set up the callback object.
 			AsyncCallback<TreeSet<TeamStageClient>> callback = new AsyncCallback<TreeSet<TeamStageClient>>() {
 				public void onFailure(Throwable caught) {
-					status.setText("Chyba serveru. Zkontroluj db.");
+//					status.setText("TEST");
+					status.setText("Chyba serveru. Zkontroluj db. " + caught.getMessage());
 				}
 
 				public void onSuccess(TreeSet<TeamStageClient> result) {
@@ -47,23 +48,28 @@ public class ListTeamsOnStagesPage extends Composite {
 					teamsTable.setBorderWidth(1);
 					teamsTable.setText(row, 0, "Pořadí");
 					teamsTable.setText(row, 1, "Pozice");
-					teamsTable.setText(row, 2, "Počet řešení");
-					teamsTable.setText(row, 3, "Čas příchodu");
-					teamsTable.setText(row, 4, "Název týmu");
-					teamsTable.setText(row, 5, "Vzdali");
+					teamsTable.setText(row, 2, "Počet vyluštěných šifer");
+					teamsTable.setText(row, 3, "Počet řešení");
+					teamsTable.setText(row, 4, "Čas příchodu na vyluštěnou stage");
+					teamsTable.setText(row, 5, "Čas příchodu na poslední stage");
+					teamsTable.setText(row, 6, "Název týmu");
+					teamsTable.setText(row, 7, "Vzdali");
 					++row;
 					for (TeamStageClient teamStageClient : result) {
 						teamsTable.setText(row, 0, String.valueOf(teamStageClient.getOrder()));
 						teamsTable.setText(row, 1, teamStageClient.getStageName());
-						teamsTable.setText(row, 2, String.valueOf(teamStageClient.getNumberOfResults()));
+						teamsTable.setText(row, 2, String.valueOf(teamStageClient.getNumberOfResolvedPuzzles()));
+						teamsTable.setText(row, 3, String.valueOf(teamStageClient.getNumberOfResults()));
+						String lastSolvedPuzzleDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getLastPuzzleSolvedDate());
+						teamsTable.setText(row, 4, lastSolvedPuzzleDate);
 						String stageDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getStageDate());
-						teamsTable.setText(row, 3, stageDate);
-						teamsTable.setText(row, 4, teamStageClient.getTeamName());
+						teamsTable.setText(row, 5, stageDate);
+						teamsTable.setText(row, 6, teamStageClient.getTeamName());
 						if (teamStageClient.isEnded()) {
 							teamsTable.getRowFormatter().addStyleName(row, "teamEnded");
-							teamsTable.setText(row, 5,  "Ano");
+							teamsTable.setText(row, 7,  "Ano");
 						} else {
-							teamsTable.setText(row, 5,  "Ne");
+							teamsTable.setText(row, 7,  "Ne");
 							
 						}
 						++row;

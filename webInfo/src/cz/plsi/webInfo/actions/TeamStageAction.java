@@ -33,7 +33,7 @@ import cz.plsi.webInfo.shared.dataStore.entities.TeamStageHelp;
 
 public class TeamStageAction extends RemoteServiceServlet implements TeamStageActionInterface {
 
-	private static final String RESULT_CODE = "reseni";
+	public static final String RESULT_CODE = "reseni";
 
 	public static final String HELP_STOLEN = "Chytilo vás nějaké monstrum, strachem se vám heslo vytratilo z paměti. Pro nápovědu zadejte další heslo.";
 	
@@ -347,9 +347,9 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 			sb.append(winningTeamStage.getStageDescription());
 			sb.append(" v ");
 			sb.append(sdf.format(winningTeamStage.getDate()));
-			sb.append(" (");
+			sb.append(" (vyluštěných šifer: ");
 			sb.append(winningTeamStage.getNumber() - winningTeamStage.getNumberOfResults());
-			sb.append(" vyluštěných šifer).");
+			sb.append(").");
 			results.put(Integer.valueOf(order++), sb.toString());
 		} else if (!pointsOrder.isEmpty()){
 			NumberDateTeam winningTeamStage = pointsOrder.first();
@@ -395,9 +395,9 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 						.append(linearStage.getStageDescription())
 						.append(" v ")
 						.append(sdf.format(linearStage.getDate()))
-						.append(" (")
+						.append(" (vyluštěných šifer: ")
 						.append(linearStage.getNumber() - linearStage.getNumberOfResults())
-						.append(" vyluštěných šifer).");
+						.append(").");
 					}
 				}
 				results.put(Integer.valueOf(-2), sb.toString());
@@ -555,6 +555,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 															date);
 				teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
 				teamStageClient.setNumberOfResults(teamPositionInLinear.getNumberOfResults());
+				teamStageClient.setLastPuzzleSolvedDate(new Date(teamPositionInLinear.getDateOfLastSolvedPuzzle().getTime()));
+				teamStageClient.setNumberOfResolvedPuzzles(teamPositionInLinear.getNumber() - teamPositionInLinear.getNumberOfResults());
 				sortedTeamStages.add(teamStageClient);
 				place++;
 			}
@@ -564,13 +566,13 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		SimpleDateFormat sdfForParse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("cs", "CZ"));
 		sdfForParse.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 		
-		for (NumberDateTeam teamPoitsPosition : pointsOrder) {
-			String actualTeamName = teamPoitsPosition.getTeam();
+		for (NumberDateTeam teamPointsPosition : pointsOrder) {
+			String actualTeamName = teamPointsPosition.getTeam();
 			if (!teamsWithOrder.containsKey(actualTeamName)) {
 				teamsWithOrder.put(actualTeamName, place);
-				Date date = new Date(teamPoitsPosition.getDate().getTime());
+				Date date = new Date(teamPointsPosition.getDate().getTime());
 				StringBuilder sb = new StringBuilder();
-				sb.append(teamPoitsPosition.getNumber());
+				sb.append(teamPointsPosition.getNumber());
 				sb.append(" P ( ");
 				NumberDateTeam numberBranch = teamsPositions.get(new TeamBranch("A", actualTeamName));
 				if (numberBranch != null) {
@@ -588,7 +590,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 					sb.append(" ");
 				}
 				sb.append(" )");
-				TeamStageClient teamStageClient = new TeamStageClient(teamPoitsPosition.getTeam(),
+				TeamStageClient teamStageClient = new TeamStageClient(teamPointsPosition.getTeam(),
 															sb.toString() ,
 															place,
 															date);
@@ -771,27 +773,58 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				
 				teamStageHelp.setHelp("reseni");
 				teamStageHelp.setTeamName(teamBranch.getTeam());
-				int numberOfResults = teamStageHelp.getList().size();
+				List<TeamStageHelp> resultsList = teamStageHelp.getList();
+				int numberOfResults = resultsList.size();
 				teamStageHelp.setStageName(numberDateTeamCurrent.getStageName());
 				
 				if (teamStageHelp.getList().size() > 0) {
 					numberOfResults--;
 				}
 				
+				HashSet<Integer> unresolvedPuzzles = new HashSet<>();
+				for (TeamStageHelp result : resultsList) {
+					unresolvedPuzzles.add(result.getTeamStage().getStageOrder());
+				}
+				
+				TeamStage teamStage = new TeamStage();
+				teamStage.setTeamName(team);
+				List<TeamStage> teamStages = teamStage.getList();
+				
+				Date solvedPuzzleDate = new Date();
+				int biggestStageNumber = 0;
+				for (TeamStage ts : teamStages) {
+					if (solvedPuzzleDate.compareTo(ts.getStageDate()) > 0
+							&& !unresolvedPuzzles.contains(ts.getStageOrder() - 1)
+							&& biggestStageNumber < ts.getStageOrder()) {
+						solvedPuzzleDate = ts.getStageDate();
+						biggestStageNumber = ts.getStageOrder();
+					}
+				}
+				
+				numberDateTeamCurrent.setDateOfLastSolvedPuzzle(solvedPuzzleDate);
 				numberDateTeamCurrent.setNumberOfResults(numberOfResults);
 				teamsInLinear.put(team, numberDateTeamCurrent);
+				
 			} else {
 				NumberDateTeam numberDateTeamIn = teamsPoints.get(team);
 				if (numberDateTeamIn == null) {
-					teamsPoints.put(team, new NumberDateTeam(numberDateTeamCurrent.getNumber(), numberDateTeamCurrent.getDate(), numberDateTeamCurrent.getTeam()));
+					NumberDateTeam ndt = new NumberDateTeam(numberDateTeamCurrent.getNumber(), numberDateTeamCurrent.getDate(), numberDateTeamCurrent.getTeam());
+					ndt.setDateOfLastSolvedPuzzle(numberDateTeamCurrent.getDate());
+					teamsPoints.put(team, ndt);
 					continue;
 				}
 				
 				if (numberDateTeamIn.getDate().compareTo(numberDateTeamCurrent.getDate()) < 0) {
 					numberDateTeamIn.setDate(numberDateTeamCurrent.getDate());
+					numberDateTeamIn.setDateOfLastSolvedPuzzle(numberDateTeamCurrent.getDate());
 				}
 				numberDateTeamIn.setNumber(numberDateTeamIn.getNumber() + numberDateTeamCurrent.getNumber());
+
+				
+				
 				teamsPoints.put(team, numberDateTeamIn);
+				
+				
 			}
 		}
 		

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +46,8 @@ public class ExportData extends HttpServlet {
 		Cookie[] cookies = req.getCookies();
 		boolean authorized = false;
 		for (Cookie cookie : cookies) {
-			if ("PlSiWI_TEAM_CODE".equals(cookie.getName()) && "rudolfove".equals(cookie.getValue())) {
+			if ("PlSiWI_TEAM_CODE".equals(cookie.getName())
+					&& "rudolfove".equals(cookie.getValue())) {
 				authorized = true;
 			}
 		}
@@ -68,7 +68,8 @@ public class ExportData extends HttpServlet {
 		// content length is needed for MSIE
 		resp.setContentLength(bytes.length);
 		resp.setContentType("text/csv");
-		resp.addHeader("Content-Disposition", "attachment;filename=" + exportType.getFileName());
+		resp.addHeader("Content-Disposition", "attachment;filename="
+				+ exportType.getFileName());
 		ServletOutputStream out = resp.getOutputStream();
 		out.write(bytes);
 		out.flush();
@@ -76,7 +77,7 @@ public class ExportData extends HttpServlet {
 
 	private enum ExportTypes {
 		TEAM_RESULTS("results.txt") {
-			
+
 			@Override
 			public StringBuilder getExportedData() {
 				TeamStage teamStage = new TeamStage();
@@ -87,34 +88,42 @@ public class ExportData extends HttpServlet {
 				for (TeamStage teamThatEnded : teamsThatEnded) {
 					teamEndedNames.add(teamThatEnded.getTeamName());
 				}
-				
+
 				SimpleDateFormat sdf = getSimpleDateFormat();
-				Map<String, TeamStageClient> teamStagesByTeamName = new HashMap<>(36);
+				Map<String, TeamStageClient> teamStagesByTeamName = new HashMap<>(
+						36);
 				for (TeamStage actualTeamStage : teamStages) {
 					String actualTeamName = actualTeamStage.getTeamName();
 					try {
 						if (!teamStagesByTeamName.containsKey(actualTeamName)
-								&& ((sdf.parse("2015-09-20 08:00:00").compareTo(actualTeamStage.getStageDate()) >= 0 
-										&& actualTeamStage.getStageOrder() < 14)
-									|| actualTeamStage.getStageOrder() == 14)) {
-							Date date = new Date(actualTeamStage.getStageDate().getTime());
-							TeamStageClient teamStageClient = new TeamStageClient(actualTeamStage.getTeamName(),
-																				actualTeamStage.getStageName(),
-																				actualTeamStage.getStageOrder(),
-																				date);
-							teamStageClient.setEnded(teamEndedNames.contains(teamStageClient.getTeamName()));
-							teamStagesByTeamName.put(actualTeamName,teamStageClient);
+								&& ((sdf.parse("2015-09-20 08:00:00")
+										.compareTo(
+												actualTeamStage.getStageDate()) >= 0 && actualTeamStage
+										.getStageOrder() < 14) || actualTeamStage
+										.getStageOrder() == 14)) {
+							java.sql.Date date = new java.sql.Date(
+									actualTeamStage.getStageDate().getTime());
+							TeamStageClient teamStageClient = new TeamStageClient(
+									actualTeamStage.getTeamName(),
+									actualTeamStage.getStageName(),
+									actualTeamStage.getStageOrder(), date);
+							teamStageClient.setEnded(teamEndedNames
+									.contains(teamStageClient.getTeamName()));
+							teamStagesByTeamName.put(actualTeamName,
+									teamStageClient);
 						}
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 				}
-				
-				TreeSet<TeamStageClient> sortedTeamStages = new TreeSet<>(Collections.reverseOrder());
-				for (TeamStageClient teamStageClient : teamStagesByTeamName.values()) {
+
+				TreeSet<TeamStageClient> sortedTeamStages = new TreeSet<>(
+						Collections.reverseOrder());
+				for (TeamStageClient teamStageClient : teamStagesByTeamName
+						.values()) {
 					sortedTeamStages.add(teamStageClient);
 				}
-				
+
 				SimpleDateFormat stf = getSimpleTimeFormat();
 				StringBuilder sb = new StringBuilder();
 				sb.append("place;team_name;stageOrder;time\n");
@@ -124,11 +133,11 @@ public class ExportData extends HttpServlet {
 					sb.append(teamStageClientForCsv.getTeamName()).append(";");
 					sb.append(teamStageClientForCsv.getOrder()).append(";");
 					sb.append(stf.format(teamStageClientForCsv.getStageDate()))
-					.append("\n");
+							.append("\n");
 				}
 				return sb;
 			}
-			
+
 		},
 		TEAM_STAGES("arrivals.txt") {
 
@@ -151,7 +160,7 @@ public class ExportData extends HttpServlet {
 
 		},
 		TEAMS("teams.txt") {
-			
+
 			@Override
 			public StringBuilder getExportedData() {
 				List<Team> teams = (new Team()).getList();
@@ -159,84 +168,73 @@ public class ExportData extends HttpServlet {
 				sb.append("team_name;team_code\n");
 				for (Team team : teams) {
 					sb.append(team.getName()).append(";");
-					sb.append(team.getCode())
-					.append("\n");
+					sb.append(team.getCode()).append("\n");
 				}
 				return sb;
 			}
-			
+
 		},
 		TEAM_STAGE_HELPS("phone_hints.txt") {
 
 			@Override
 			public StringBuilder getExportedData() {
-				List<TeamStageHelp> teamStageHelps = (new TeamStageHelp()).getList();
+				List<TeamStageHelp> teamStageHelps = (new TeamStageHelp())
+						.getList();
 
 				SimpleDateFormat sdf = getSimpleDateFormat();
 
 				StringBuilder sb = new StringBuilder();
-				sb.append("code;position;team_name;time\n");
+				sb.append("code;position;team_name;time;help_code\n");
 				Set<String> teamStageHelpsPositions = new HashSet<>();
 				for (TeamStageHelp teamStageHelp : teamStageHelps) {
-					if (!teamStageHelp.isHelp()) {
-						continue;
-					}
-					if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 1))) {
+					if (!TeamStageAction.RESULT_CODE.equals(teamStageHelp
+							.getHelp())) {
 						sb.append(teamStageHelp.getStageName()).append(";");
 						teamStageHelpsPositions.add(getHash(teamStageHelp, 1));
 						sb.append(1).append(";");
-					} else if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 2))) {
-						sb.append(teamStageHelp.getStageName()).append(";");
-						teamStageHelpsPositions.add(getHash(teamStageHelp, 2));
-						sb.append(2).append(";");
-					} else {
-						continue;
+						sb.append(teamStageHelp.getTeamName()).append(";");
+						sb.append(sdf.format(teamStageHelp.getStageHelpDate())).append(";");
+						sb.append(teamStageHelp.getHelp())
+								.append("\n");
 					}
-					sb.append(teamStageHelp.getTeamName()).append(";");
-					sb.append(sdf.format(teamStageHelp.getStageHelpDate()))
-							.append("\n");
 				}
 				return sb;
 			}
 
 			private String getHash(TeamStageHelp teamStageHelp, int position) {
-				return teamStageHelp.getStageName() + teamStageHelp.getTeamName() + "_" + position;
+				return teamStageHelp.getStageName()
+						+ teamStageHelp.getTeamName() + "_" + position;
 			}
 
 		},
 		TEAM_STAGE_RESULTS("absolute_hints.txt") {
-			
+
 			@Override
 			public StringBuilder getExportedData() {
-				List<TeamStageHelp> teamStageHelps = (new TeamStageHelp()).getList();
-				
+				List<TeamStageHelp> teamStageHelps = (new TeamStageHelp())
+						.getList();
+
 				SimpleDateFormat sdf = getSimpleDateFormat();
-				
+
 				StringBuilder sb = new StringBuilder();
 				sb.append("code;team_name;time\n");
-				Set<String> teamStageHelpsPositions = new HashSet<>();
 				for (TeamStageHelp teamStageHelp : teamStageHelps) {
-					if (!teamStageHelp.isHelp()) {
-						continue;
-					}
-					if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 1))) {
-						teamStageHelpsPositions.add(getHash(teamStageHelp, 1));
-					} else if (!teamStageHelpsPositions.contains(getHash(teamStageHelp, 2))) {
-						teamStageHelpsPositions.add(getHash(teamStageHelp, 2));
-					} else {
+					if (TeamStageAction.RESULT_CODE.equals(teamStageHelp
+							.getHelp())) {
 						sb.append(teamStageHelp.getStageName()).append(";");
 						sb.append(teamStageHelp.getTeamName()).append(";");
 						sb.append(sdf.format(teamStageHelp.getStageHelpDate()))
-						.append("\n");
+								.append("\n");
 					}
 				}
 				return sb;
 			}
-			
+
 			private String getHash(TeamStageHelp teamStageHelp, int position) {
-				return teamStageHelp.getStageName() + teamStageHelp.getTeamName() + "_" + position;
+				return teamStageHelp.getStageName()
+						+ teamStageHelp.getTeamName() + "_" + position;
 			}
-			
+
 		},
 
 		STAGES("puzzles.txt") {
@@ -245,7 +243,7 @@ public class ExportData extends HttpServlet {
 			public StringBuilder getExportedData() {
 				Stage stageFilter = new Stage();
 				stageFilter.setBranch(null);
-				
+
 				List<Stage> stages = stageFilter.getList();
 
 				StringBuilder sb = new StringBuilder();
@@ -253,13 +251,15 @@ public class ExportData extends HttpServlet {
 				for (Stage stage : stages) {
 					sb.append(stage.getNumber()).append(";");
 					sb.append(stage.getBranch()).append(";");
-					sb.append(TeamStageAction.getCalculatedStageDescription(stage)).append(";");
+					sb.append(
+							TeamStageAction
+									.getCalculatedStageDescription(stage))
+							.append(";");
 					sb.append(stage.getName()).append(";");
 					sb.append(stage.getHelp1()).append(";");
 					sb.append(stage.getHelp2()).append(";");
 					sb.append(stage.getResult()).append(";");
-					sb.append(stage.getTimeToHelp1())
-							.append("\n");
+					sb.append(stage.getTimeToHelp1()).append("\n");
 				}
 				return sb;
 			}
@@ -267,15 +267,15 @@ public class ExportData extends HttpServlet {
 		};
 
 		private static SimpleDateFormat getSimpleDateFormat() {
-			SimpleDateFormat sdf = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss", new Locale("cs", "CZ"));
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+					new Locale("cs", "CZ"));
 			sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 			return sdf;
 		}
-		
+
 		private static SimpleDateFormat getSimpleTimeFormat() {
-			SimpleDateFormat sdf = new SimpleDateFormat(
-					"HH:mm:ss", new Locale("cs", "CZ"));
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", new Locale(
+					"cs", "CZ"));
 			sdf.setTimeZone(TimeZone.getTimeZone("Europe/Prague"));
 			return sdf;
 		}

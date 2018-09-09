@@ -11,7 +11,7 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8141619283175202968L;
+	private static final long serialVersionUID = 8141619283175202979L;
 
 	private String teamName;
 	
@@ -21,9 +21,13 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 	
 	private Date stageDate;
 	
+	private Date lastPuzzleSolvedDate;
+	
 	private boolean ended = false;
 	
 	private int numberOfResults;
+	
+	private int numberOfResolvedPuzzles;
 
 	public String getTeamName() {
 		return teamName;
@@ -104,6 +108,22 @@ public class TeamStageClient implements Comparable<TeamStageClient>, Serializabl
 
 	public void setNumberOfResults(int numberOfResults) {
 		this.numberOfResults = numberOfResults;
+	}
+
+	public int getNumberOfResolvedPuzzles() {
+		return numberOfResolvedPuzzles;
+	}
+
+	public void setNumberOfResolvedPuzzles(int numberOfResolvedPuzzles) {
+		this.numberOfResolvedPuzzles = numberOfResolvedPuzzles;
+	}
+
+	public Date getLastPuzzleSolvedDate() {
+		return lastPuzzleSolvedDate;
+	}
+
+	public void setLastPuzzleSolvedDate(Date lastPuzzleSolvedDate) {
+		this.lastPuzzleSolvedDate = lastPuzzleSolvedDate;
 	}
 	
 	

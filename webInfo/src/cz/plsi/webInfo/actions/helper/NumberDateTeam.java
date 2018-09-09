@@ -6,6 +6,7 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 	
 	private int number;
 	private	Date date;
+	private Date dateOfLastSolvedPuzzle;
 	private String stageDescription;
 	private String team;
 	private int numberOfResults;
@@ -47,9 +48,12 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 		
 		int numberOfSolvedStagesCompare = Integer.compare(this.number - this.numberOfResults , o.number - o.numberOfResults);
 		
+		int solvedPuzzleDateCompare = o.getDateOfLastSolvedPuzzle().compareTo(this.dateOfLastSolvedPuzzle);
 		int stageNumberCompare = Integer.compare(this.number, o.number); 
 		if (numberOfSolvedStagesCompare != 0) {
 			return numberOfSolvedStagesCompare;
+		} else if (solvedPuzzleDateCompare != 0) {
+			return solvedPuzzleDateCompare;
 		} else if (stageNumberCompare != 0) {
 			return stageNumberCompare;
 		} else {
@@ -82,6 +86,14 @@ public class NumberDateTeam implements Comparable<NumberDateTeam> {
 
 	public void setStageName(String stageName) {
 		this.stageName = stageName;
+	}
+
+	public Date getDateOfLastSolvedPuzzle() {
+		return dateOfLastSolvedPuzzle;
+	}
+
+	public void setDateOfLastSolvedPuzzle(Date dateOfLastSolvedPuzzle) {
+		this.dateOfLastSolvedPuzzle = dateOfLastSolvedPuzzle;
 	}
 	
 }
