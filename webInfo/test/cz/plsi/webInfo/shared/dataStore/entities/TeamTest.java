@@ -76,15 +76,16 @@ public class TeamTest {
 		team = new Team("tym1");
 		EMF.add(team);
 		
-		//pouze poslední tým
-		assertEquals(1, (new Team("tym1")).getList().size());
-		assertTrue((new Team("tym1")).getList().get(0).equals(new Team("tym1")));
+		//pouze poslednï¿½ tï¿½m
+		List<Team> listOfTeams = (new Team("tym1")).getList();
+		assertEquals(1, listOfTeams.size());
+		assertTrue(listOfTeams.get(0).equals(new Team("tym1")));
 		
 		//pouze team4
 		assertEquals(1, (new Team("team4")).getList().size());
 		assertTrue((new Team("team4")).getList().get(0).equals(new Team("team4")));
 		
-		//neexistující team
+		//neexistujï¿½cï¿½ team
 		assertEquals(0, (new Team("tejmNejni")).getList().size());
 	}
 	

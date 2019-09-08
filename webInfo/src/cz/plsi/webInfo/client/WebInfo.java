@@ -24,7 +24,7 @@ import com.google.gwt.user.datepicker.client.CalendarUtil;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class WebInfo implements EntryPoint {
+public class WebInfo  implements EntryPoint {
 	private static final String TEAM_CODE_COOKIE_NAME = "PlSiWI_TEAM_CODE";
 	private final TextBox code = new TextBox();
 	private final Label codeLabel = new Label("Kód týmu: ");

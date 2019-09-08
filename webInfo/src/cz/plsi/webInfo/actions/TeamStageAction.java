@@ -354,8 +354,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		} else if (!pointsOrder.isEmpty()){
 			NumberDateTeam winningTeamStage = pointsOrder.first();
 			results.put(Integer.valueOf(order++), "Vede tým '" 
-					+ winningTeamStage.getTeam() + "', který dosáhl "
-					+ winningTeamStage.getNumber() + " ponožek v " 
+					+ winningTeamStage.getTeam() + "', který vyluštil "
+					+ (winningTeamStage.getNumber() - 1) + " startovní šifry v " 
 					+ sdf.format(winningTeamStage.getDate()) + ".");
 			
 		}
@@ -384,8 +384,8 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				sb.append(". místě");
 				if (points != null) {
 					sb.append(" s ")
-					.append(points.getNumber())
-					.append(" ponožkami v ")
+					.append(points.getNumber() - 1)
+					.append(" startovními šiframi v ")
 					.append(sdf.format(points.getDate()))
 					.append(".");
 				} else {
@@ -749,12 +749,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 		}
 		i = 39;
 		if (!teamsPoints.isEmpty())	{
-			resultStats.put(i++, "Počet ponožek : Počet týmů");
+			resultStats.put(i++, "Počet startovních šifer : Počet týmů");
 		}
 		
 		for (Entry<Integer, Integer> orderAndCount : pointsWithCounts.entrySet()) {
 			
-			resultStats.put(i++,String.format("%2d : %2d", orderAndCount.getKey(), orderAndCount.getValue()));
+			resultStats.put(i++,String.format("%2d : %2d", orderAndCount.getKey().intValue() - 1, orderAndCount.getValue()));
 		}
 		return resultStats;
 	}

@@ -60,10 +60,14 @@ public class ListTeamsOnStagesPage extends Composite {
 						teamsTable.setText(row, 1, teamStageClient.getStageName());
 						teamsTable.setText(row, 2, String.valueOf(teamStageClient.getNumberOfResolvedPuzzles()));
 						teamsTable.setText(row, 3, String.valueOf(teamStageClient.getNumberOfResults()));
-						String lastSolvedPuzzleDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getLastPuzzleSolvedDate());
-						teamsTable.setText(row, 4, lastSolvedPuzzleDate);
-						String stageDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getStageDate());
-						teamsTable.setText(row, 5, stageDate);
+						if (teamStageClient.getLastPuzzleSolvedDate() != null) {
+							String lastSolvedPuzzleDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getLastPuzzleSolvedDate());
+							teamsTable.setText(row, 4, lastSolvedPuzzleDate);
+						}
+						if (teamStageClient.getStageDate() != null) {
+							String stageDate = DateTimeFormat.getFormat(PredefinedFormat.HOUR24_MINUTE_SECOND).format(teamStageClient.getStageDate());
+							teamsTable.setText(row, 5, stageDate);
+						}
 						teamsTable.setText(row, 6, teamStageClient.getTeamName());
 						if (teamStageClient.isEnded()) {
 							teamsTable.getRowFormatter().addStyleName(row, "teamEnded");

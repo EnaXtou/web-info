@@ -260,12 +260,12 @@ public class TeamStageActionTest {
 		
 		assertEquals(7, results.size());
 		assertThat(results.get(Integer.valueOf(-2)), CoreMatchers.startsWith("Váš tým je aktuálně na 1. místě"));
-		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 4 ponožek v "));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který vyluštil 3 startovní šifry v "));
 		// obsahuje zprávu pro týmy
 		results = teamStageAction.getResults(TEAM + 4 + CODE);
 		assertEquals(8, results.size());
 		assertThat(results.get(Integer.valueOf(-2)), CoreMatchers.startsWith("Váš tým je aktuálně na 2. místě"));
-		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který dosáhl 4 ponožek v "));
+		assertThat(results.get(Integer.valueOf(0)), CoreMatchers.startsWith("Vede tým 'team_1', který vyluštil 3 startovní šifry v "));
 	}
 	
 	@Test
@@ -287,7 +287,7 @@ public class TeamStageActionTest {
 		teamStage.getList();
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(2, resultStats.size());
-		assertEquals(" 1 :  2", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 0 :  2", resultStats.get(Integer.valueOf(40)));
 		
 		// team 1 může pokračovat na druhou stage
 		teamStageAction.nextStage(TEAM + 1 + CODE, STAGE + 2, errors);
@@ -301,16 +301,16 @@ public class TeamStageActionTest {
 
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(3, resultStats.size());
-		assertEquals(" 1 :  1", resultStats.get(Integer.valueOf(41)));
-		assertEquals(" 4 :  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 0 :  1", resultStats.get(Integer.valueOf(41)));
+		assertEquals(" 3 :  1", resultStats.get(Integer.valueOf(40)));
 		
 		// team 4 zadal 1. stanoviště
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 1, errors);
 		
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(3, resultStats.size());
-		assertEquals(" 1 :  2", resultStats.get(Integer.valueOf(41)));
-		assertEquals(" 4 :  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 0 :  2", resultStats.get(Integer.valueOf(41)));
+		assertEquals(" 3 :  1", resultStats.get(Integer.valueOf(40)));
 
 		// team 4 zadal 2. stanoviště
 		teamStageAction.nextStage(TEAM + 4 + CODE, STAGE + 2, errors);
@@ -321,9 +321,9 @@ public class TeamStageActionTest {
 		
 		resultStats = teamStageAction.getStatistics(teamStage.getList());
 		assertEquals(4, resultStats.size());
-		assertEquals(" 1 :  1", resultStats.get(Integer.valueOf(42)));
-		assertEquals(" 2 :  1", resultStats.get(Integer.valueOf(41)));
-		assertEquals(" 4 :  1", resultStats.get(Integer.valueOf(40)));
+		assertEquals(" 0 :  1", resultStats.get(Integer.valueOf(42)));
+		assertEquals(" 1 :  1", resultStats.get(Integer.valueOf(41)));
+		assertEquals(" 3 :  1", resultStats.get(Integer.valueOf(40)));
 	}
 	
 	@Test

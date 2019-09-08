@@ -1,6 +1,6 @@
 <!-- Indices written at Sun, 24 Sep 2017 00:59:54 CEST -->
 
-<datastore-indexes>
+<datastore-indexes autoGenerate="true">
 
     <!-- Used 2 times in query history -->
     <datastore-index kind="TeamStage" ancestor="false" source="auto">
