@@ -1,6 +1,6 @@
 account.email=jakub.kotasek@gmail.com
 eclipse.preferences.version=1
-include.optional.configuration.files=true
+include.optional.configuration.files=false
 project.allowObsoleteRuntime=false
 project.bucket=
 project.id=plzenska-sifrovacka

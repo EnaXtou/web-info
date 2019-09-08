@@ -83,7 +83,27 @@ public class Team implements EntityCommon {
 
 	@Override
 	public boolean equals(Object anObject) {
-		return EqualsBuilder.reflectionEquals(this, anObject);
+		if (anObject == null || !(anObject instanceof Team)) {
+			return false;
+		}
+		Team aTeam = (Team) anObject;
+		if (this.getCode() == null && aTeam.getCode() != null) {
+			return false;
+		}
+		if (this.getName() == null && aTeam.getName() != null) {
+			return false;
+		}
+		
+		if (this.getCode() != null && !this.getCode().equals(aTeam.getCode())) {
+			return false;
+		}
+		if (this.getName() != null && !this.getName().equals(aTeam.getName())) {
+			return false;
+		}
+			
+		
+		
+		return true;
 	}
 
 	public void setCode(String teamCode) {
