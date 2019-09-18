@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.mortbay.log.Log;
+
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -762,9 +765,12 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 	private void getPointsAndLinearStages(
 			Map<TeamBranch, NumberDateTeam> teamsPositions,
 			Map<String, NumberDateTeam> teamsPoints, Map<String, NumberDateTeam> teamsInLinear) {
+		
+		int cycleCount = 0;
+		int innerCycleCount = 0;
 		for (TeamBranch teamBranch : teamsPositions.keySet()) {
+			cycleCount++;
 			String team = teamBranch.getTeam();
-			
 			
 			NumberDateTeam numberDateTeamCurrent = teamsPositions.get(teamBranch);
 			if ("L".equals(teamBranch.getBranch())) {
@@ -783,6 +789,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 				
 				HashSet<Integer> unresolvedPuzzles = new HashSet<>();
 				for (TeamStageHelp result : resultsList) {
+					innerCycleCount++;
 					unresolvedPuzzles.add(result.getTeamStage().getStageOrder());
 				}
 				
@@ -796,6 +803,7 @@ public class TeamStageAction extends RemoteServiceServlet implements TeamStageAc
 					if (solvedPuzzleDate.compareTo(ts.getStageDate()) > 0
 							&& !unresolvedPuzzles.contains(ts.getStageOrder() - 1)
 							&& biggestStageNumber < ts.getStageOrder()) {
+						innerCycleCount++;
 						solvedPuzzleDate = ts.getStageDate();
 						biggestStageNumber = ts.getStageOrder();
 					}
